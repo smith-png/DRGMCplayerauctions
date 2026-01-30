@@ -38,7 +38,7 @@ export default function AuctionLive() {
                     // We need team name, but current auction API might not return it directly if it's just ID in bids table
                     // We might need to fetch team name or update controller to return it.
                     // For now, let's assume we can get it from the bid update or standard load
-                    current_team_name: data.highestBid ? 'Team ' + data.highestBid.team_id : 'None'
+                    current_team_name: data.highestBid ? data.highestBid.team_name : 'None'
                 });
 
                 // If we have a team ID but no name, we can try to find it in the teams list if loaded

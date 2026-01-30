@@ -123,7 +123,11 @@ export const getCurrentAuction = async (req, res) => {
 
         // Get current highest bid for this player
         const bidResult = await pool.query(
-            'SELECT * FROM bids WHERE player_id = $1 ORDER BY amount DESC LIMIT 1',
+            `SELECT b.*, t.name as team_name 
+             FROM bids b
+             JOIN teams t ON b.team_id = t.id
+             WHERE b.player_id = $1 
+             ORDER BY b.amount DESC LIMIT 1`,
             [player.id]
         );
 
