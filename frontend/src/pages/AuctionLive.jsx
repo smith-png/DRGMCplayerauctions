@@ -254,6 +254,7 @@ export default function AuctionLive() {
 
         // Connect to Socket.IO
         socketService.connect();
+        socketService.joinAuction();
 
         // Listen for real-time updates
         socketService.onBidUpdate((data) => {
