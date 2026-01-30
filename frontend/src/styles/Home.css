@@ -445,3 +445,30 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+        word-wrap: break-word;
+        /* Ensure valid wrap */
+        hyphens: auto;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .hero-section {
+        padding: 3rem 0;
+        /* Reduce vertical padding */
+    }
+
+    .hero-buttons {
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
