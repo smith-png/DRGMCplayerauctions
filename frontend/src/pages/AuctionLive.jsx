@@ -644,7 +644,7 @@ export default function AuctionLive() {
                     )}
                 </div>
                 <div className="version-footer" style={{ textAlign: 'center', marginTop: '2rem', opacity: 0.7, fontSize: '0.8rem', color: isConnected ? '#4caf50' : '#f44336' }}>
-                    System v1.2 - {isConnected ? 'Connected 🟢' : 'Disconnected 🔴'} | Target: {socketService.getSocketUrl()}
+                    System v1.2 - {isConnected ? 'Connected 🟢' : 'Disconnected 🔴'}
                 </div>
             </div>
         </div>
