@@ -117,6 +117,10 @@ class SocketService {
             this.socket.off(event);
         }
     }
+
+    getSocketUrl() {
+        return SOCKET_URL;
+    }
 }
 
 // Create singleton instance

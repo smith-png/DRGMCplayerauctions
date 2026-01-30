@@ -13,6 +13,7 @@ export default function AuctionLive() {
     const [error, setError] = useState('');
     const [isAuctionActive, setIsAuctionActive] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isConnected, setIsConnected] = useState(false);
 
     const [eligiblePlayers, setEligiblePlayers] = useState([]); // Moved eligiblePlayers state here
     const [soldPlayers, setSoldPlayers] = useState([]); // Sold players grouped by team
@@ -255,6 +256,12 @@ export default function AuctionLive() {
         // Connect to Socket.IO
         socketService.connect();
         socketService.joinAuction();
+
+        // Check initial connection
+        if (socketService.connected) setIsConnected(true);
+
+        socketService.socket.on('connect', () => setIsConnected(true));
+        socketService.socket.on('disconnect', () => setIsConnected(false));
 
         // Listen for real-time updates
         socketService.onBidUpdate((data) => {
@@ -630,8 +637,8 @@ export default function AuctionLive() {
                         </div>
                     )}
                 </div>
-                <div className="version-footer" style={{ textAlign: 'center', marginTop: '2rem', opacity: 0.5, fontSize: '0.8rem' }}>
-                    System v1.1 - Live
+                <div className="version-footer" style={{ textAlign: 'center', marginTop: '2rem', opacity: 0.7, fontSize: '0.8rem', color: isConnected ? '#4caf50' : '#f44336' }}>
+                    System v1.2 - {isConnected ? 'Connected 🟢' : 'Disconnected 🔴'} | Target: {socketService.getSocketUrl()}
                 </div>
             </div>
         </div>
