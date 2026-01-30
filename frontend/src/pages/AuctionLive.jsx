@@ -630,6 +630,9 @@ export default function AuctionLive() {
                         </div>
                     )}
                 </div>
+                <div className="version-footer" style={{ textAlign: 'center', marginTop: '2rem', opacity: 0.5, fontSize: '0.8rem' }}>
+                    System v1.1 - Live
+                </div>
             </div>
         </div>
     );
