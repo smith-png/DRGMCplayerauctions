@@ -258,9 +258,15 @@ export default function AuctionLive() {
         socketService.joinAuction();
 
         // Check initial connection
-        if (socketService.connected) setIsConnected(true);
+        if (socketService.connected) {
+            setIsConnected(true);
+            socketService.joinAuction();
+        }
 
-        socketService.socket.on('connect', () => setIsConnected(true));
+        socketService.socket.on('connect', () => {
+            setIsConnected(true);
+            socketService.joinAuction(); // Re-join room on reconnect
+        });
         socketService.socket.on('disconnect', () => setIsConnected(false));
 
         // Listen for real-time updates
