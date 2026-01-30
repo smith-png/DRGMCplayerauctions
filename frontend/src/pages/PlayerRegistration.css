@@ -1,0 +1,170 @@
+.player-registration-page {
+    min-height: 100vh;
+    padding: var(--spacing-lg) 0;
+}
+
+.registration-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.registration-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.registration-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    /* Extra bold for impact */
+    margin-bottom: var(--spacing-xs);
+
+    /* Gradient Text Effect */
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.registration-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+
+
+.form-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h3 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-green);
+    font-size: 1.25rem;
+    border-left: 4px solid var(--accent-primary);
+    padding-left: var(--spacing-sm);
+}
+
+.input-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.dropdowns-row {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.dropdowns-row .input-group {
+    flex: 1;
+    min-width: 0;
+    /* Prevents flex item from overflowing */
+    margin-bottom: 0;
+    /* Remove bottom margin inside row */
+}
+
+/* Photo Upload Styles */
+.photo-upload {
+    width: 100%;
+}
+
+.photo-input {
+    display: none;
+}
+
+.photo-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 180px;
+    border: 2px dashed var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-base);
+    background: var(--bg-tertiary);
+}
+
+.photo-label:hover {
+    border-color: var(--cricket-green);
+    background: rgba(41, 95, 61, 0.05);
+}
+
+.photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+.upload-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.7;
+}
+
+.photo-preview {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+}
+
+/* Alert Styles */
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.alert-error {
+    background-color: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+}
+
+.alert-success {
+    background-color: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dropdowns-row {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .dropdowns-row .input-group {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .registration-header h1 {
+        font-size: 2rem;
+    }
+}

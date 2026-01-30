@@ -1,0 +1,214 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { playerAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import './PlayerRegistration.css';
+
+export default function PlayerRegistration() {
+    const [formData, setFormData] = useState({
+        name: '',
+        sport: 'cricket',
+        year: '1st',
+        stats: {}
+    });
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
+    const { user } = useAuth();
+
+    const sportStats = {
+        cricket: ['Batting Average', 'Bowling Average', 'Matches Played', 'Highest Score'],
+        futsal: ['Goals Scored', 'Assists', 'Matches Played', 'Position'],
+        volleyball: ['Spikes', 'Blocks', 'Matches Played', 'Position']
+    };
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleStatChange = (statName, value) => {
+        setFormData({
+            ...formData,
+            stats: {
+                ...formData.stats,
+                [statName]: value
+            }
+        });
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setPhoto(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+
+        try {
+            const data = new FormData();
+            data.append('name', formData.name);
+            data.append('sport', formData.sport);
+            data.append('year', formData.year);
+            data.append('stats', JSON.stringify(formData.stats));
+            if (photo) {
+                data.append('photo', photo);
+            }
+
+            await playerAPI.createPlayer(data);
+            setSuccess('Player registered successfully! Awaiting admin approval.');
+
+            // Reset form
+            setFormData({
+                name: '',
+                sport: 'cricket',
+                year: '1st',
+                stats: {}
+            });
+            setPhoto(null);
+            setPhotoPreview(null);
+
+            setTimeout(() => {
+                navigate('/');
+            }, 2000);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to register player');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="player-registration-page">
+            <div className="container">
+                <div className="registration-container">
+                    <div className="registration-header">
+                        <h1>Register as Player</h1>
+                        <p>Fill in your details to participate in the auction</p>
+                    </div>
+
+                    {error && <div className="alert alert-error">{error}</div>}
+                    {success && <div className="alert alert-success">{success}</div>}
+
+                    <form onSubmit={handleSubmit} className="registration-form card">
+                        <div className="form-section">
+                            <h3>Basic Information</h3>
+
+                            <div className="basic-info-container">
+                                <div className="input-group name-field">
+                                    <label className="input-label">Player Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="input"
+                                        placeholder="Enter player name"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="dropdowns-row">
+                                    <div className="input-group sport-field">
+                                        <label className="input-label">Sport *</label>
+                                        <select
+                                            name="sport"
+                                            value={formData.sport}
+                                            onChange={handleChange}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="cricket">Cricket</option>
+                                            <option value="futsal">Futsal</option>
+                                            <option value="volleyball">Volleyball</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="input-group year-field">
+                                        <label className="input-label">Year *</label>
+                                        <select
+                                            name="year"
+                                            value={formData.year}
+                                            onChange={handleChange}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="1st">1st MBBS</option>
+                                            <option value="2nd">2nd MBBS</option>
+                                            <option value="3rd">3rd MBBS</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="input-group role-field">
+                                        <label className="input-label">Role *</label>
+                                        <select
+                                            value={formData.stats.role || ''}
+                                            onChange={(e) => handleStatChange('role', e.target.value)}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="">Select Role</option>
+                                            <option value="Batsman (Rt H)">Batsman (Rt H)</option>
+                                            <option value="Batsman (Lt H)">Batsman (Lt H)</option>
+                                            <option value="Batsman (WK)">Batsman (WK)</option>
+                                            <option value="Bowler (Rt H/ Pace)">Bowler (Rt H/ Pace)</option>
+                                            <option value="Bowler (Lt H/ Pace)">Bowler (Lt H/ Pace)</option>
+                                            <option value="Bowler (Rt H/ Spin)">Bowler (Rt H/ Spin)</option>
+                                            <option value="Bowler (Lt H/ Spin)">Bowler (Lt H/ Spin)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-section">
+                            <h3>Player Photo</h3>
+
+                            <div className="photo-upload">
+                                <input
+                                    type="file"
+                                    id="photo"
+                                    accept="image/*"
+                                    onChange={handlePhotoChange}
+                                    className="photo-input"
+                                />
+                                <label htmlFor="photo" className="photo-label">
+                                    {photoPreview ? (
+                                        <img src={photoPreview} alt="Preview" className="photo-preview" />
+                                    ) : (
+                                        <div className="photo-placeholder">
+                                            <span className="upload-icon">📷</span>
+                                            <span>Click to upload photo</span>
+                                        </div>
+                                    )}
+                                </label>
+                            </div>
+                        </div>
+
+
+
+                        <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+                            {loading ? 'Registering...' : 'Register Player'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}

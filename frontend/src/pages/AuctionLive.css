@@ -1,0 +1,590 @@
+/* ========================================
+   AUCTION LIVE LAYOUT - REFACTORED
+   ======================================== */
+
+.active-auction-hero {
+    margin-bottom: 3rem;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auction-split-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    /* 60% / 40% split */
+    gap: 2rem;
+    align-items: stretch;
+}
+
+/* ========================================
+   LEFT COLUMN: PLAYER MAIN CARD
+   ======================================== */
+.player-main-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Lighter Green Background as base */
+    background: linear-gradient(145deg, #2d6a4f, #1b4332);
+    /* Lighter green accent */
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
+.player-card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    /* FIXED TALL HEIGHT for "Way Bigger" feel */
+    overflow: hidden;
+}
+
+.player-full-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 0.5s ease;
+}
+
+.player-main-card:hover .player-full-photo {
+    transform: scale(1.03);
+}
+
+/* Overlay gradient for text readability */
+.player-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
+    padding: 3rem 2rem 2rem 2rem;
+    color: white;
+}
+
+.player-main-name {
+    font-family: var(--font-heading);
+    font-size: 4.5rem;
+    /* Massive Font */
+    line-height: 1.1;
+    margin: 0.5rem 0 0.25rem 0;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    /* Explicit white for contrast against overlay */
+}
+
+.player-role-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.player-badges-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    /* Prevent badges from stretching vertically */
+    margin-bottom: 1.5rem;
+}
+
+.hero-badge {
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    color: white;
+    border-radius: 999px;
+    /* Full pill shape */
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hero-badge.badge-primary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+}
+
+.hero-badge.badge-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+}
+
+/* Stats Row at bottom of card (outside image, inside card container) */
+.player-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    /* Sage Green background as requested */
+    background: #6b8c70;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    flex: 1;
+    /* Fill remaining height of card */
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-box .stat-label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    /* Light text for dark background */
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.stat-box .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    /* White text for value */
+}
+
+/* ========================================
+   RIGHT COLUMN: BIDDING SIDEBAR
+   ======================================== */
+.bidding-sidebar {
+    /* Reverting to Light/Glass Style */
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    color: var(--text-primary);
+    /* Dark text */
+    height: 100%;
+    /* Match height */
+}
+
+.bid-status-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.bid-status-header .bid-label {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    /* Darker gray */
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.current-bid-huge {
+    font-size: 6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--primary-color);
+    /* Theme Green */
+    /* Removed text-shadow for cleaner look */
+    margin-bottom: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bid-leader-pill {
+    display: inline-block;
+    background: rgba(41, 95, 61, 0.1);
+    /* Light green tint */
+    color: var(--primary-color);
+    padding: 0.5rem 1.5rem;
+    border-radius: 99px;
+    font-size: 1.1rem;
+    border: 1px solid rgba(41, 95, 61, 0.2);
+}
+
+.team-highlight {
+    font-weight: 700;
+}
+
+/* Form Styles */
+.bid-form-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    /* Dark label */
+    font-weight: 600;
+}
+
+.input-dark {
+    /* Reverting to Light Input Style */
+    background: white;
+    border: 2px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+}
+
+.input-dark:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(41, 95, 61, 0.1);
+}
+
+.live-flair-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    /* Red Gradient */
+    color: white;
+    font-size: 0.8rem;
+    /* Smaller size */
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: pulseRed 2s infinite;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+@keyframes pulseRed {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        transform: scale(1) translateY(-2px);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+        transform: scale(1.05) translateY(-2px);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        transform: scale(1) translateY(-2px);
+    }
+}
+
+.input-dark option {
+    background: white;
+    color: var(--text-primary);
+}
+
+.btn-xl {
+    font-size: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.btn-block {
+    width: 100%;
+    display: block;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.4);
+}
+
+/* Button Group */
+.auction-actions-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.auction-actions-row .btn {
+    flex: 1;
+    white-space: nowrap;
+    font-size: 1rem;
+    padding: 1rem;
+    justify-content: center;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+    border: none;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    border: none;
+}
+
+/* Mobile Response */
+@media (max-width: 1024px) {
+    .auction-split-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .player-card-image-wrapper {
+        height: 500px;
+    }
+}
+
+/* ========================================
+   AUCTION QUEUE STYLES
+   ======================================== */
+.eligible-players-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-subtle);
+}
+
+.auction-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+    display: flex;
+    /* Flex to center content */
+    justify-content: center;
+    align-items: center;
+}
+
+.auction-header h1 {
+    font-family: var(--font-heading);
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* Side-by-side cards */
+    gap: 1.5rem;
+}
+
+.queue-card {
+    display: flex;
+    /* Horizontal internal layout */
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+}
+
+.queue-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.queue-card-image {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.queue-tags-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.queue-tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.queue-tag.tag-accent {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.queue-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.queue-card-info {
+    flex: 1;
+    min-width: 0;
+    /* Enable text truncation */
+}
+
+.queue-player-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-player-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+}
+
+.queue-tag {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.25rem;
+    color: var(--text-secondary);
+}
+
+.btn-start-auction {
+    width: 100%;
+    margin-top: auto;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-start-auction:hover:not(:disabled) {
+    background: var(--secondary-color);
+}
+
+.btn-start-auction:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Viewer Status */
+.viewer-status-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.viewer-status-message p {
+    font-size: 1.5rem;
+    /* Bigger text as requested */
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.live-status-badge {
+    background: rgba(220, 38, 38, 0.1);
+    color: #ef4444;
+    /* Bright Red */
+    border: 1px solid #ef4444;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: live-pulse-red 2s infinite;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+@keyframes live-pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        transform: scale(1);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        transform: scale(1.05);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        transform: scale(1);
+    }
+}
+
+/* No Auction State */
+.no-auction {
+    margin-top: 6rem;
+    /* Breathing room from header */
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 300px;
+    background: white;
+    /* Ensure background is visible */
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.no-auction h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-family: var(--font-heading);
+}
+
+.no-auction p {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
