@@ -42,6 +42,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Attach Socket.IO to request object
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

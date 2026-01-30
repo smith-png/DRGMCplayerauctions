@@ -49,6 +49,20 @@ export const startAuction = async (req, res) => {
 
         console.log('✅ Player status updated to auctioning');
 
+        // Broadcast real-time update
+        if (req.io) {
+            req.io.to('auction-room').emit('auction-update', {
+                type: 'started',
+                player: {
+                    ...player,
+                    status: 'auctioning',
+                    base_price: finalBasePrice
+                },
+                timestamp: new Date()
+            });
+            console.log('📡 Socket event emitted: auction-started');
+        }
+
         res.json({
             message: 'Auction started successfully',
             player: {
@@ -88,6 +102,26 @@ export const placeBid = async (req, res) => {
         );
 
         console.log('✅ Bid placed successfully:', result.rows[0]);
+
+        // Get team and player names for socket broadcast
+        const teamRes = await pool.query('SELECT name FROM teams WHERE id = $1', [teamId]);
+        const playerRes = await pool.query('SELECT name FROM players WHERE id = $1', [playerId]);
+
+        const teamName = teamRes.rows[0]?.name || 'Unknown Team';
+        const playerName = playerRes.rows[0]?.name || 'Unknown Player';
+
+        // Broadcast real-time update
+        if (req.io) {
+            req.io.to('auction-room').emit('bid-update', {
+                teamId,
+                teamName,
+                amount: bidAmount,
+                playerId,
+                playerName,
+                timestamp: new Date()
+            });
+            console.log('📡 Socket event emitted: bid-update');
+        }
 
         res.json({
             message: 'Bid placed successfully',
@@ -187,6 +221,23 @@ export const markPlayerSold = async (req, res) => {
             ['sold', teamId, finalPrice, playerId]
         );
 
+        // Get names for broadcast
+        const teamRes = await pool.query('SELECT name FROM teams WHERE id = $1', [teamId]);
+        const playerRes = await pool.query('SELECT name FROM players WHERE id = $1', [playerId]);
+
+        if (req.io) {
+            req.io.to('auction-room').emit('auction-update', {
+                type: 'sold',
+                playerName: playerRes.rows[0]?.name,
+                teamName: teamRes.rows[0]?.name,
+                amount: finalPrice,
+                timestamp: new Date()
+            });
+            // Also refresh leaderboard
+            req.io.emit('refresh-leaderboard');
+            console.log('📡 Socket event emitted: player-sold');
+        }
+
         res.json({ message: 'Player marked as sold successfully' });
     } catch (error) {
         console.error('Mark player sold error:', error);
@@ -210,13 +261,20 @@ export const markPlayerUnsold = async (req, res) => {
 
         // Update player status to unsold
         await pool.query(
-            'UPDATE players SET status = $1, team_id = NULL, sold_price = NULL WHERE id = $2',
+            'UPDATE players SET status = $1 WHERE id = $2',
             ['unsold', playerId]
         );
 
-        console.log('✅ Player marked as unsold');
+        if (req.io) {
+            req.io.to('auction-room').emit('auction-update', {
+                type: 'unsold',
+                player: { id: playerId },
+                timestamp: new Date()
+            });
+            console.log('📡 Socket event emitted: player-unsold');
+        }
 
-        res.json({ message: 'Player marked as unsold successfully' });
+        res.json({ message: 'Player marked as unsold' });
     } catch (error) {
         console.error('❌ Mark player unsold error:', error);
         res.status(500).json({ error: 'Failed to mark player as unsold', details: error.message });
