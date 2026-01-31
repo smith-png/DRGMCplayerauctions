@@ -8,7 +8,8 @@ import {
     getLeaderboard,
     getAuctionState,
     toggleAuctionState,
-    skipPlayer
+    skipPlayer,
+    resetAuctionBid
 } from '../controllers/auctionController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
