@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Home.css';
-import TeamCarousel from '../components/TeamCarousel';
+
 
 export default function Home() {
     const { user } = useAuth();
@@ -101,7 +101,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <TeamCarousel />
+
 
             <section className="sports-section">
                 <h2 className="section-title">Roster of Sports</h2>
