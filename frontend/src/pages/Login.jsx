@@ -8,7 +8,6 @@ export default function Login() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        name: '',
         name: ''
     });
     const [error, setError] = useState('');
