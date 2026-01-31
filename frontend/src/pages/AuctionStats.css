@@ -9,12 +9,19 @@
     margin-bottom: var(--spacing-2xl);
 }
 
-.leaderboard-header h1 {
-    background: var(--gradient-primary);
+.main-title {
+    font-size: 3.5rem;
+    /* Bigger */
+    font-weight: 800;
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 50%, #FF8C00 100%);
+    /* Gold/Orange Gradient */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: var(--spacing-lg);
+    text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
+    /* Subtle glow */
+    letter-spacing: -1px;
 }
 
 .sport-filter {
@@ -25,49 +32,106 @@
 }
 
 .filter-btn {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background: var(--bg-secondary);
-    border: 2px solid transparent;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-weight: 600;
+    padding: var(--spacing-sm) var(--spacing-xl);
+    background: transparent;
+    border: 2px solid #8FBC8F;
+    /* Sage Green Border */
+    border-radius: 50px;
+    color: #556B2F;
+    /* Darker Sage/Olive text for contrast */
+    font-weight: 700;
     cursor: pointer;
-    transition: all var(--transition-base);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .filter-btn:hover {
-    border-color: var(--primary);
-    color: var(--text-primary);
+    background: rgba(143, 188, 143, 0.1);
+    color: #2F4F2F;
+    border-color: #2F4F2F;
 }
 
 .filter-btn.active {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
+    background: #8FBC8F;
+    /* Solid Sage Green */
+    color: #1a3c1e;
+    /* Dark text on sage background */
+    border-color: #8FBC8F;
+    box-shadow: none;
+    /* Removed neon glow */
 }
 
 .leaderboard-grid {
     display: grid;
+    grid-template-columns: 1fr;
     gap: var(--spacing-xl);
+    width: 100%;
 }
 
+/* Ensure plain solid background for maximum readability */
 .team-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
     padding: var(--spacing-xl);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .team-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    /* Space out left rank/name and right tag */
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-    padding-bottom: var(--spacing-lg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.team-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.sport-tag-right {
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Add a subtle accent line at the bottom instead of left border block */
+.team-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-color), transparent);
+    opacity: 0.3;
 }
 
 .team-rank {
     font-size: 2.5rem;
     font-weight: 800;
-    background: var(--gradient-accent);
+    background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -90,20 +154,34 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
     background: var(--bg-tertiary);
-    border-radius: var(--radius-md);
+    /* Solid background */
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color);
 }
 
 .stat-label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
+    font-size: 0.85rem;
+    color: #444444 !important;
+    /* Force dark grey */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
 }
 
 .stat-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111111 !important;
+    /* Force black */
 }
 
 .stat-value.spent {
@@ -126,49 +204,66 @@
 
 .players-list {
     display: grid;
-    gap: var(--spacing-sm);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-md);
 }
 
 .player-item {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
     background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     transition: transform var(--transition-base);
+    text-align: center;
+    height: 100%;
 }
 
 .player-item:hover {
-    transform: translateX(4px);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-color);
 }
 
 .player-item-info {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: var(--spacing-sm);
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
 }
 
 .player-avatar {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid var(--border-subtle);
 }
 
 .player-name {
-    font-weight: 600;
-    color: var(--text-primary);
+    font-weight: 700;
+    color: #111111;
+    font-size: 1rem;
 }
 
 .player-year {
-    font-size: 0.875rem;
-    color: var(--text-muted);
+    font-size: 0.8rem;
+    color: #666666;
 }
 
 .player-price {
     font-weight: 700;
-    color: var(--accent);
+    color: white;
+    background: var(--accent-gradient);
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    margin-top: auto;
 }
 
 .no-data {
@@ -192,6 +287,13 @@
     padding: var(--spacing-2xl);
     margin-bottom: var(--spacing-xl);
     text-align: center;
+    background: var(--bg-secondary);
+    /* Ensure readable background */
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
 }
 
 .team-header-content {
@@ -199,15 +301,31 @@
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-md);
+    position: relative;
+    z-index: 1;
 }
 
-.team-header-large h1 {
-    font-size: 2.5rem;
-    background: var(--gradient-primary);
+.team-owner-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 50%, #FF8C00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0;
+    text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.2);
+    letter-spacing: -1px;
+}
+
+.sport-tag-large {
+    font-size: 1.1rem !important;
+    padding: 0.6rem 1.5rem !important;
+    border-radius: 50px !important;
+    background: var(--accent-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(41, 95, 61, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .team-stats-grid {
@@ -224,7 +342,7 @@
 
 .stat-card .stat-label {
     font-size: 0.875rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin-bottom: var(--spacing-sm);
 }
 
@@ -239,11 +357,13 @@
     gap: var(--spacing-xl);
 }
 
-.squad-section, .bid-activity {
+.squad-section,
+.bid-activity {
     padding: var(--spacing-xl);
 }
 
-.squad-section h2, .bid-activity h2 {
+.squad-section h2,
+.bid-activity h2 {
     margin-bottom: var(--spacing-lg);
     color: var(--text-primary);
 }
@@ -290,7 +410,7 @@
 
 .player-year-small {
     font-size: 0.875rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .player-role-small {
@@ -300,7 +420,7 @@
 }
 
 .player-price-badge {
-    background: var(--gradient-accent);
+    background: var(--accent-gradient);
     color: white;
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-full);
@@ -342,23 +462,23 @@
 
 .bid-player-name {
     font-weight: 600;
-    color: var(--text-primary);
+    color: #111111;
 }
 
 .bid-player-details {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: #555555;
 }
 
 .bid-amount {
     font-weight: 700;
-    color: var(--accent);
+    color: #295F3D;
     font-size: 1.1rem;
 }
 
 .bid-timestamp {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: #555555;
     min-width: 80px;
     text-align: right;
 }
@@ -368,7 +488,7 @@
     .team-content-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .team-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -378,11 +498,11 @@
     .team-header-large h1 {
         font-size: 2rem;
     }
-    
+
     .stat-card .stat-value {
         font-size: 1.5rem;
     }
-    
+
     .players-grid {
         grid-template-columns: 1fr;
     }

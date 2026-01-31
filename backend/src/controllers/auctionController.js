@@ -288,13 +288,27 @@ export const getLeaderboard = async (req, res) => {
             SELECT 
                 t.id,
                 t.name,
+                t.sport,
                 t.budget,
                 COALESCE(SUM(p.sold_price), 0) as total_spent,
                 t.budget - COALESCE(SUM(p.sold_price), 0) as remaining_budget,
-                COUNT(p.id) as players_count
+                COUNT(p.id) as players_count,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', p.id,
+                            'name', p.name,
+                            'photo_url', p.photo_url,
+                            'year', p.year,
+                            'sold_price', p.sold_price,
+                            'stats', p.stats
+                        )
+                    ) FILTER (WHERE p.id IS NOT NULL),
+                    '[]'
+                ) as players
             FROM teams t
             LEFT JOIN players p ON p.team_id = t.id AND p.status = 'sold'
-            GROUP BY t.id, t.name, t.budget
+            GROUP BY t.id, t.name, t.sport, t.budget
             ORDER BY total_spent DESC
         `);
 

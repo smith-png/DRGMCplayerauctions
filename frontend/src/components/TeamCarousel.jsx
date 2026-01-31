@@ -39,15 +39,25 @@ export default function TeamCarousel() {
                         <div key={`${team.id}-${index}`} className="team-card">
                             <div className="team-logo-wrapper-carousel">
                                 {team.logo_url ? (
-                                    <img src={team.logo_url} alt={team.name} className="team-logo-carousel" />
-                                ) : (
-                                    <div
-                                        className="team-logo-placeholder"
-                                        style={{ '--team-color': '#2563EB' }} // Default color
-                                    >
-                                        {team.name.substring(0, 2).toUpperCase()}
-                                    </div>
-                                )}
+                                    <img
+                                        src={team.logo_url}
+                                        alt={team.name}
+                                        className="team-logo-carousel"
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                            e.target.nextSibling.style.display = 'flex';
+                                        }}
+                                    />
+                                ) : null}
+                                <div
+                                    className="team-logo-placeholder"
+                                    style={{
+                                        '--team-color': '#2563EB',
+                                        display: team.logo_url ? 'none' : 'flex'
+                                    }}
+                                >
+                                    {team.name.substring(0, 2).toUpperCase()}
+                                </div>
                             </div>
                             <h3 className="team-name">{team.name}</h3>
                         </div>

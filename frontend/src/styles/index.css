@@ -31,6 +31,8 @@
   --bg-primary: var(--cricket-cream);
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #EAEAE6;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  /* High contrast glass */
 
   /* Text Colors */
   --text-primary: var(--text-dark);

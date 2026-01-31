@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
-import Leaderboard from './pages/Leaderboard';
+import AuctionStats from './pages/AuctionStats';
 import AdminDashboard from './pages/AdminDashboard';
 import './styles/index.css';
 
@@ -50,7 +50,7 @@ function AppRoutes() {
                         }
                     />
                     <Route path="/auction" element={<AuctionLive />} />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/auction-stats" element={<AuctionStats />} />
                     <Route
                         path="/admin"
                         element={

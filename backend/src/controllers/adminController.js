@@ -19,7 +19,7 @@ const uploadToCloudinary = (buffer) => {
 export async function getAllUsers(req, res) {
     try {
         const result = await pool.query(
-            'SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC'
+            'SELECT id, email, name, role, team_id, created_at FROM users ORDER BY created_at DESC'
         );
 
         res.json({ users: result.rows });
@@ -46,7 +46,7 @@ export async function createUser(req, res) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await pool.query(
-            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at',
+            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, team_id, created_at',
             [name, email, hashedPassword, role]
         );
 
@@ -131,7 +131,7 @@ export async function updateUser(req, res) {
         }
 
         params.push(id);
-        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, email, role, created_at`;
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, email, role, team_id, created_at`;
 
         const result = await pool.query(query, params);
 

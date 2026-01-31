@@ -159,7 +159,13 @@ export default function PlayerRegistration() {
                                         <label className="input-label">Playing Role *</label>
                                         <select
                                             value={formData.stats.playingRole || ''}
-                                            onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                            onChange={(e) => {
+                                                const newRole = e.target.value;
+                                                handleStatChange('playingRole', newRole);
+                                                if (newRole === 'Wicketkeeper Batsman') {
+                                                    handleStatChange('bowlingStyle', 'None');
+                                                }
+                                            }}
                                             className="input"
                                             required
                                         >
@@ -194,6 +200,7 @@ export default function PlayerRegistration() {
                                             required
                                         >
                                             <option value="">Select Bowling Style</option>
+                                            <option value="None">None</option>
                                             <option value="Right Arm Pace">Right Arm Pace</option>
                                             <option value="Right Arm Spin">Right Arm Spin</option>
                                             <option value="Left Arm Pace">Left Arm Pace</option>

@@ -28,9 +28,11 @@ export default function Navbar() {
                         <NavLink to="/auction" className="nav-link">
                             <span>Live Auction</span>
                         </NavLink>
-                        <NavLink to="/leaderboard" className="nav-link">
-                            <span>Leaderboard</span>
-                        </NavLink>
+                        {(user?.role === 'admin' || user?.role === 'team_owner') && (
+                            <NavLink to="/auction-stats" className="nav-link">
+                                <span>Auction Stats</span>
+                            </NavLink>
+                        )}
 
                         {user && (
                             <NavLink to="/register-player" className="nav-link">

@@ -74,6 +74,18 @@ class SocketService {
         }
     }
 
+    onRefreshLeaderboard(callback) {
+        if (this.socket) {
+            this.socket.on('refresh-leaderboard', callback);
+        }
+    }
+
+    on(event, callback) {
+        if (this.socket) {
+            this.socket.on(event, callback);
+        }
+    }
+
     // Emit events
     emitNewBid(bidData) {
         if (this.socket && this.connected) {
