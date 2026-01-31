@@ -34,13 +34,13 @@ export default function PlayerRegistration() {
     };
 
     const handleStatChange = (statName, value) => {
-        setFormData({
-            ...formData,
+        setFormData(prevData => ({
+            ...prevData,
             stats: {
-                ...formData.stats,
+                ...prevData.stats,
                 [statName]: value
             }
-        });
+        }));
     };
 
     const handlePhotoChange = (e) => {
