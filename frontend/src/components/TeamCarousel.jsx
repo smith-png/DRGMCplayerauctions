@@ -32,9 +32,13 @@ export default function TeamCarousel() {
 
     return (
         <section className="team-carousel-section">
-            <h2 className="section-title">Participating Teams</h2>
+            <h2 className="section-title">Participating Teams ({teams.length})</h2>
+            {/* DEBUG: Remove in next step */}
+            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>
+                DEBUG: Loaded {teams.length} teams. First: {teams[0]?.name}
+            </div>
             <div className="carousel-container">
-                <div className="carousel-track">
+                <div className="carousel-track" style={{ animation: 'none', justifyContent: 'center', flexWrap: 'wrap' }}>
                     {displayTeams.map((team, index) => (
                         <div key={`${team.id}-${index}`} className="team-card">
                             <div className="team-logo-wrapper-carousel" style={{ position: 'relative' }}>

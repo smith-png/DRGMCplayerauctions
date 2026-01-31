@@ -61,8 +61,11 @@
     justify-content: center;
     width: 260px;
     /* Widened from 200px */
-    background: var(--bg-primary);
-    border: 1px solid var(--border-subtle);
+    /* Widened from 200px */
+    background: #ffffff;
+    /* Force white */
+    border: 2px solid #ccc;
+    /* Force visible border */
     border-radius: 1rem;
     padding: 1.5rem;
     flex-shrink: 0;
