@@ -95,6 +95,28 @@ export const placeBid = async (req, res) => {
 
         console.log(`✅ Placing bid: Player ${playerId}, Team ${teamId}, Amount ${bidAmount}`);
 
+        // Check if team has enough budget
+        const budgetResult = await pool.query(
+            `SELECT t.budget, 
+                    COALESCE(SUM(p.sold_price), 0) as total_spent
+             FROM teams t
+             LEFT JOIN players p ON p.team_id = t.id AND p.status = 'sold'
+             WHERE t.id = $1
+             GROUP BY t.id, t.budget`,
+            [teamId]
+        );
+
+        if (budgetResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        const { budget, total_spent } = budgetResult.rows[0];
+        const remainingBudget = parseFloat(budget) - parseFloat(total_spent);
+
+        if (parseFloat(bidAmount) > remainingBudget) {
+            return res.status(400).json({ error: `Not enough budget. Remaining: ${remainingBudget} Pts` });
+        }
+
         // Insert bid into database
         const result = await pool.query(
             'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3) RETURNING *',
@@ -219,6 +241,12 @@ export const markPlayerSold = async (req, res) => {
         await pool.query(
             'UPDATE players SET status = $1, team_id = $2, sold_price = $3 WHERE id = $4',
             ['sold', teamId, finalPrice, playerId]
+        );
+
+        // Update team's remaining budget in database (for other parts of app that use the column)
+        await pool.query(
+            'UPDATE teams SET remaining_budget = remaining_budget - $1 WHERE id = $2',
+            [finalPrice, teamId]
         );
 
         // Get names for broadcast

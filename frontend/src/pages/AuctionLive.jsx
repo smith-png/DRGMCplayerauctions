@@ -364,25 +364,30 @@ export default function AuctionLive() {
                             <div className="players-list">
                                 {players.map((player, index) => (
                                     <div key={player.id} className="sold-player-item">
-                                        <div className="player-rank">#{index + 1}</div>
-                                        <div className="player-avatar">
-                                            {player.photo_url ? (
-                                                <img src={player.photo_url} alt={player.name} />
-                                            ) : (
-                                                <div className="avatar-placeholder">👤</div>
-                                            )}
-                                        </div>
-                                        <div className="player-details">
-                                            <h4 className="player-name">{player.name}</h4>
-                                            <div className="player-meta">
-                                                <span>{player.year} MBBS</span>
-                                                <span className="meta-divider">•</span>
-                                                <span className="meta-role">{player.stats?.role || 'Player'}</span>
+                                        <div className="sold-player-main">
+                                            <div className="player-rank-detail">
+                                                <div className="player-rank">#{index + 1}</div>
+                                                <div className="player-avatar">
+                                                    {player.photo_url ? (
+                                                        <img src={player.photo_url} alt={player.name} />
+                                                    ) : (
+                                                        <div className="avatar-placeholder">👤</div>
+                                                    )}
+                                                </div>
+                                                <div className="player-details">
+                                                    <h4 className="player-name">{player.name}</h4>
+                                                    <div className="player-meta">
+                                                        <span>{player.year} MBBS</span>
+                                                        <span className="meta-role">{player.stats?.role || 'Player'}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="player-price">
-                                            <div className="price-label">Sold for</div>
-                                            <div className="price-value">{player.sold_price} pts</div>
+                                            <div className="player-price">
+                                                <div className="price-label">Sold</div>
+                                                <div className="price-label">For</div>
+                                                <div className="price-value">{parseFloat(player.sold_price).toLocaleString()}</div>
+                                                <div className="price-unit">pts</div>
+                                            </div>
                                         </div>
                                         {isAuctioneer && (
                                             <button

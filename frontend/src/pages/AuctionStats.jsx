@@ -159,7 +159,7 @@ export default function AuctionStats() {
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.3s' }}>
                             <div className="stat-label">Remaining Budget</div>
-                            <div className="stat-value remaining">{myTeam.remaining_budget.toLocaleString()} Pts</div>
+                            <div className="stat-value remaining">{(myTeam.budget - totalSpent).toLocaleString()} Pts</div>
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                             <div className="stat-label">Players Acquired</div>

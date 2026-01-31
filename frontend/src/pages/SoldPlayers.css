@@ -170,26 +170,45 @@
 
 .players-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1rem;
-    padding: 1rem 1.5rem 1.5rem 1.5rem;
-    /* Reduced top padding to 1rem */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
 }
 
 /* Player Item Styles */
 .sold-player-item {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.sold-player-main {
+    display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.75rem 1rem;
-    /* Compact padding */
-    background: rgba(255, 255, 255, 0.85);
-    /* Whiter background for contrast */
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.player-rank-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.player-rank {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    min-width: 30px;
 }
 
 .sold-player-item:hover {
@@ -258,26 +277,44 @@
 }
 
 .player-price {
-    text-align: right;
+    background: #1b4332;
+    /* Dark Green from hero */
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    /* Circle look as requested */
+    color: white;
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.3);
+    flex-shrink: 0;
 }
 
 .price-label {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 2px;
 }
 
 .price-value {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 800;
-    color: var(--primary-color) !important;
-    /* Force visibility */
-    background: none;
-    -webkit-text-fill-color: initial;
+    color: white !important;
+    line-height: 1;
+}
+
+.price-unit {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .release-btn {
