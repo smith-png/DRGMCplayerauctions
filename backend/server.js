@@ -16,6 +16,7 @@ import playerRoutes from './src/routes/players.js';
 import auctionRoutes from './src/routes/auction.js';
 import adminRoutes from './src/routes/admin.js';
 import teamRoutes from './src/routes/teams.js';
+import teamOwnerRoutes from './src/routes/teamOwner.js';
 
 // Import socket handler
 import { setupAuctionSocket } from './src/socket/auctionSocket.js';
@@ -58,6 +59,7 @@ app.use('/api/players', playerRoutes);
 app.use('/api/auction', auctionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/team-owner', teamOwnerRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

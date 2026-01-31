@@ -166,10 +166,10 @@ export default function AdminDashboard() {
     const handleOpenUserModal = (user = null) => {
         if (user) {
             setEditingUser(user);
-            setUserData({ name: user.name, email: user.email, role: user.role, password: '' });
+            setUserData({ name: user.name, email: user.email, role: user.role, password: '', team_id: user.team_id || '' });
         } else {
             setEditingUser(null);
-            setUserData({ name: '', email: '', password: '', role: 'viewer' });
+            setUserData({ name: '', email: '', password: '', role: 'viewer', team_id: '' });
         }
         setShowUserModal(true);
     };
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
     const handleCloseUserModal = () => {
         setShowUserModal(false);
         setEditingUser(null);
-        setUserData({ name: '', email: '', password: '', role: 'viewer' });
+        setUserData({ name: '', email: '', password: '', role: 'viewer', team_id: '' });
     };
 
     const handleSaveUser = async (e) => {
@@ -554,6 +554,7 @@ export default function AdminDashboard() {
                                                         <th>Name</th>
                                                         <th>Email</th>
                                                         <th>Role</th>
+                                                        <th>Assigned Team</th>
                                                         <th>Joined</th>
                                                         <th>Actions</th>
                                                     </tr>
@@ -567,6 +568,12 @@ export default function AdminDashboard() {
                                                                 <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
                                                                     {user.role}
                                                                 </span>
+                                                            </td>
+                                                            <td>
+                                                                {user.role === 'team_owner' && user.team_id
+                                                                    ? teams.find(t => t.id === user.team_id)?.name || 'N/A'
+                                                                    : '-'
+                                                                }
                                                             </td>
                                                             <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                                             <td>
@@ -809,6 +816,23 @@ export default function AdminDashboard() {
                                     <option value="admin">Admin</option>
                                 </select>
                             </div>
+                            {userData.role === 'team_owner' && (
+                                <div className="input-group">
+                                    <label>Assigned Team</label>
+                                    <select
+                                        className="input"
+                                        value={userData.team_id || ''}
+                                        onChange={e => setUserData({ ...userData, team_id: e.target.value })}
+                                    >
+                                        <option value="">No Team Assigned</option>
+                                        {teams.map(team => (
+                                            <option key={team.id} value={team.id}>
+                                                {team.name} ({team.sport})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div className="input-group">
                                 <label>Password {editingUser && <span className="text-secondary text-sm">(Leave blank to keep current)</span>}</label>
                                 <input

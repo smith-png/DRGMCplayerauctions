@@ -62,6 +62,14 @@ export async function updateUser(req, res) {
     const { name, email, role, password } = req.body;
 
     try {
+        // Validate role if provided
+        const validRoles = ['admin', 'team_owner', 'participant', 'viewer'];
+        if (role && !validRoles.includes(role)) {
+            return res.status(400).json({
+                error: `Invalid role. Must be one of: ${validRoles.join(', ')}`
+            });
+        }
+
         const updates = [];
         const params = [];
         let paramCount = 1;
@@ -80,6 +88,35 @@ export async function updateUser(req, res) {
             updates.push(`role = $${paramCount}`);
             params.push(role);
             paramCount++;
+        }
+
+        // Handle team assignment for team owners
+        if (req.body.hasOwnProperty('team_id')) {
+            const teamId = req.body.team_id;
+
+            if (teamId) {
+                // Validate team exists
+                const teamCheck = await pool.query('SELECT id FROM teams WHERE id = $1', [teamId]);
+                if (teamCheck.rows.length === 0) {
+                    return res.status(400).json({ error: 'Team does not exist' });
+                }
+
+                // Check if another team owner is already assigned to this team
+                const ownerCheck = await pool.query(
+                    'SELECT id FROM users WHERE team_id = $1 AND role = $2 AND id != $3',
+                    [teamId, 'team_owner', id]
+                );
+                if (ownerCheck.rows.length > 0) {
+                    return res.status(400).json({ error: 'This team already has an assigned team owner' });
+                }
+
+                updates.push(`team_id = $${paramCount}`);
+                params.push(teamId);
+                paramCount++;
+            } else {
+                // Allow unsetting team assignment
+                updates.push(`team_id = NULL`);
+            }
         }
         // Only update password if it's a non-empty string with actual characters
         if (password && typeof password === 'string' && password.trim().length > 0) {

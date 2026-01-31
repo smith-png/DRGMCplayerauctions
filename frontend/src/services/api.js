@@ -86,4 +86,11 @@ export const teamsAPI = {
     getAllTeams: () => api.get('/teams'),
 };
 
+// Team Owner API
+export const teamOwnerAPI = {
+    getMyTeam: () => api.get('/team-owner/my-team'),
+    getMyTeamPlayers: () => api.get('/team-owner/my-team/players'),
+    getMyTeamBids: () => api.get('/team-owner/my-team/bids'),
+};
+
 export default api;
