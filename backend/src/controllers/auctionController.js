@@ -391,3 +391,48 @@ export const getLeaderboard = async (req, res) => {
         res.status(500).json({ error: 'Failed to get leaderboard' });
     }
 };
+
+export const resetAuctionBid = async (req, res) => {
+    try {
+        const stateRes = await pool.query('SELECT current_player_id FROM auction_state LIMIT 1');
+        const currentPlayerId = stateRes.rows[0]?.current_player_id;
+
+        if (!currentPlayerId) {
+            return res.status(400).json({ error: 'No active auction to reset' });
+        }
+
+        // 1. Get player sport
+        const playerRes = await pool.query('SELECT sport FROM players WHERE id = $1', [currentPlayerId]);
+        const sport = playerRes.rows[0]?.sport;
+
+        // 2. Get sport min bid
+        const auctionStateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const sportMinBids = auctionStateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+        const minBid = sportMinBids[sport] || 50;
+
+        // 3. Update auction state
+        const result = await pool.query(
+            'UPDATE auction_state SET current_bid = $1, current_team_id = NULL RETURNING *',
+            [minBid]
+        );
+
+        const updatedState = result.rows[0];
+
+        // 4. Broadcast update
+        if (req.io) {
+            req.io.to('auction-room').emit('bid-update', {
+                amount: updatedState.current_bid,
+                teamId: null,
+                teamName: 'None',
+                timestamp: new Date()
+            });
+            console.log('📡 Socket event emitted: bid-reset');
+        }
+
+        res.json({ message: 'Bid reset to minimum', currentBid: minBid });
+    } catch (error) {
+        console.error('Reset bid error:', error);
+        res.status(500).json({ error: 'Failed to reset bid' });
+    }
+};
+

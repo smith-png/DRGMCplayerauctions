@@ -51,7 +51,8 @@ export const auctionAPI = {
     getLeaderboard: () => api.get('/auction/leaderboard'),
     getAuctionState: () => api.get('/auction/state'),
     toggleAuctionState: (isActive) => api.post('/auction/state', { isActive }),
-    skipPlayer: (playerId) => api.post('/auction/skip', { playerId })
+    skipPlayer: (playerId) => api.post('/auction/skip', { playerId }),
+    resetCurrentBid: () => api.post('/auction/reset-bid', {})
 };
 
 // Admin API

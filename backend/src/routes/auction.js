@@ -23,5 +23,6 @@ router.get('/leaderboard', getLeaderboard);
 router.get('/state', getAuctionState);
 router.post('/state', authenticateToken, authorizeRoles('admin'), toggleAuctionState);
 router.post('/skip', authenticateToken, authorizeRoles('admin', 'auctioneer'), skipPlayer);
+router.post('/reset-bid', authenticateToken, authorizeRoles('admin', 'auctioneer'), resetAuctionBid);
 
 export default router;

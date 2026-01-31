@@ -265,6 +265,18 @@ export default function AuctionLive() {
         }
     };
 
+    const handleResetBid = async () => {
+        if (!auction) return;
+        if (!window.confirm('Reset current bid to minimum value?')) return;
+
+        try {
+            await auctionAPI.resetCurrentBid();
+            // Bid update will handle state refresh via socket
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to reset bid');
+        }
+    };
+
     const handleRemoveFromQueue = async (playerId) => {
         if (!window.confirm('Remove this player from the queue? They will be marked as unsold.')) return;
         try {
@@ -379,39 +391,35 @@ export default function AuctionLive() {
                             </div>
                             <div className="players-list">
                                 {players.map((player, index) => (
-                                    <div key={player.id} className="sold-player-item">
-                                        <div className="sold-player-main">
-                                            <div className="player-rank-detail">
-                                                <div className="player-rank">#{index + 1}</div>
-                                                <div className="player-avatar">
-                                                    {player.photo_url ? (
-                                                        <img src={player.photo_url} alt={player.name} />
-                                                    ) : (
-                                                        <div className="avatar-placeholder">👤</div>
-                                                    )}
-                                                </div>
-                                                <div className="player-details">
-                                                    <h4 className="player-name">{player.name}</h4>
-                                                    <div className="player-meta">
-                                                        <span>{player.year} MBBS</span>
-                                                        <span className="meta-role">{player.stats?.role || 'Player'}</span>
-                                                    </div>
+                                    <div key={player.id} className="sold-player-item card-glass-light p-3">
+                                        <div className="sold-player-card-content flex items-center gap-3">
+                                            <div className="player-rank">#{index + 1}</div>
+                                            <div className="player-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-700">
+                                                {player.photo_url ? (
+                                                    <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="avatar-placeholder flex items-center justify-center h-full text-lg">👤</div>
+                                                )}
+                                            </div>
+                                            <div className="player-info flex-1">
+                                                <h4 className="font-bold text-sm m-0">{player.name}</h4>
+                                                <div className="player-tags-row flex gap-2 mt-1">
+                                                    <span className="queue-tag">{player.year} MBBS</span>
+                                                    <span className="queue-tag tag-accent">{player.stats?.role || 'Player'}</span>
                                                 </div>
                                             </div>
-                                            <div className="player-price">
-                                                <div className="price-label">Sold</div>
-                                                <div className="price-label">For</div>
-                                                <div className="price-value">{parseFloat(player.sold_price).toLocaleString()}</div>
-                                                <div className="price-unit">pts</div>
+                                            <div className="sold-price-badge">
+                                                <span className="price-val">{parseFloat(player.sold_price).toLocaleString()}</span>
+                                                <span className="price-unit">pts</span>
                                             </div>
                                         </div>
                                         {isAuctioneer && (
                                             <button
                                                 onClick={() => handleReleasePlayer(player.id)}
-                                                className="release-btn"
+                                                className="release-btn mt-3 w-full"
                                                 title="Release player back to queue"
                                             >
-                                                Release
+                                                Release Player
                                             </button>
                                         )}
                                     </div>
@@ -697,6 +705,16 @@ export default function AuctionLive() {
                                                         >
                                                             Skip
                                                         </button>
+                                                        {isAdmin && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleResetBid}
+                                                                className="btn btn-outline-danger btn-xl"
+                                                                style={{ gridColumn: 'span 3', marginTop: '0.5rem' }}
+                                                            >
+                                                                Reset Bid to Min
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </form>
@@ -711,12 +729,12 @@ export default function AuctionLive() {
                         </div>
                     </div>
                 ) : (
-                    // Admin View when no active auction (Queue)
-                    renderAuctioneerPanel()
+                    // Show Queue even if no active auction (if Admin/Auctioneer/TeamOwner)
+                    (isAuctioneer || isTeamOwner) && renderAuctioneerPanel()
                 )}
 
-                {/* Show queue for Auctioneer always - even during active auction (below hero) */}
-                {isAuctioneer && auction && renderAuctioneerPanel()}
+                {/* Show queue always for Team Owners and Auctioneers even during active auction (below hero) */}
+                {(isAuctioneer || isTeamOwner) && auction && renderAuctioneerPanel()}
 
                 {/* Sold Players Section - Collapsible (Main View) */}
                 <div className="sold-players-section">
