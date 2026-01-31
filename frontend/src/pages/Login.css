@@ -131,6 +131,45 @@
     color: var(--text-tertiary);
 }
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper .input {
+    padding-right: 3.5rem;
+    /* Make room for the toggle button */
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+    z-index: 2;
+}
+
+.password-toggle-btn:hover {
+    color: var(--accent-primary);
+    background: var(--accent-primary-alpha);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
 .btn-lg {
     width: 100%;
     padding: 1rem;

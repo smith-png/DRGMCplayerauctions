@@ -13,6 +13,7 @@ export default function Login() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { login, register } = useAuth();
     const navigate = useNavigate();
@@ -31,11 +32,18 @@ export default function Login() {
 
         try {
             if (isLogin) {
-                await login(formData.email, formData.password);
+                const user = await login(formData.email, formData.password);
+                if (user.role === 'team_owner') {
+                    navigate('/auction-stats');
+                } else if (user.role === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
             } else {
                 await register(formData.email, formData.password, formData.name, formData.role);
+                navigate('/');
             }
-            navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred');
         } finally {
@@ -91,15 +99,25 @@ export default function Login() {
 
                         <div className="input-group">
                             <label className="input-label">Password</label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="input"
-                                placeholder="Enter your password"
-                                required
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="input"
+                                    placeholder="Enter your password"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="password-toggle-btn"
+                                    title={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                </button>
+                            </div>
                         </div>
 
 
