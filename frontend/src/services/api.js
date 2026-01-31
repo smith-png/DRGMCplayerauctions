@@ -63,8 +63,20 @@ export const adminAPI = {
     createTeam: (teamData) => api.post('/admin/teams', teamData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    updateTeam: (id, teamData) => api.put(`/admin/teams/${id}`, teamData),
+    updateTeam: (id, teamData) => api.put(`/admin/teams/${id}`, teamData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
     deleteTeam: (id) => api.delete(`/admin/teams/${id}`),
+
+    // Player Management (Admin)
+    createPlayer: (playerData) => api.post('/admin/players', playerData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    updatePlayer: (id, playerData) => api.put(`/admin/players/${id}`, playerData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    removeFromQueue: (id) => api.post(`/admin/players/${id}/remove-queue`),
+
     getStats: () => api.get('/admin/stats'),
     getPendingPlayers: () => api.get('/admin/players/pending')
 };

@@ -249,6 +249,18 @@ export default function AuctionLive() {
         }
     };
 
+    const handleRemoveFromQueue = async (playerId) => {
+        if (!window.confirm('Remove this player from the queue? They will be marked as unsold.')) return;
+        try {
+            await adminAPI.removeFromQueue(playerId);
+            // Refresh eligible list
+            await loadEligiblePlayers();
+        } catch (err) {
+            console.error(err);
+            setError('Failed to remove player from queue');
+        }
+    };
+
     // Main useEffect hook
     useEffect(() => {
         // Safety timeout to prevent infinite loading

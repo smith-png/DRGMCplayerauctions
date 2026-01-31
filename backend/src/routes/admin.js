@@ -8,7 +8,10 @@ import {
     getAllTeams,
     updateTeam,
     deleteTeam,
-    getDashboardStats
+    getDashboardStats,
+    createPlayer,
+    updatePlayer,
+    removeFromQueue
 } from '../controllers/adminController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -28,8 +31,13 @@ router.delete('/users/:id', deleteUser);
 // Team management
 router.post('/teams', upload.single('logo'), createTeam);
 router.get('/teams', getAllTeams);
-router.put('/teams/:id', updateTeam);
+router.put('/teams/:id', upload.single('logo'), updateTeam);
 router.delete('/teams/:id', deleteTeam);
+
+// Player management (Admin Crud)
+router.post('/players', upload.single('photo'), createPlayer);
+router.put('/players/:id', upload.single('photo'), updatePlayer);
+router.post('/players/:id/remove-queue', removeFromQueue);
 
 // Dashboard stats
 router.get('/stats', getDashboardStats);

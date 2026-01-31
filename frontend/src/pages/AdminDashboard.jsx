@@ -202,6 +202,112 @@ export default function AdminDashboard() {
         }
     };
 
+    // --- Team Extensions ---
+    const [showTeamModal, setShowTeamModal] = useState(false);
+    const [editingTeam, setEditingTeam] = useState(null);
+    const [teamForm, setTeamForm] = useState({ name: '', sport: 'cricket', budget: 100000, logo: null });
+
+    // --- Player Extensions ---
+    const [showPlayerModal, setShowPlayerModal] = useState(false);
+    const [editingPlayer, setEditingPlayer] = useState(null);
+    const [playerForm, setPlayerForm] = useState({ name: '', sport: 'cricket', year: '1st', stats: '', base_price: 50, photo: null });
+
+    const handleOpenTeamModal = (team = null) => {
+        if (team) {
+            setEditingTeam(team);
+            setTeamForm({ name: team.name, sport: team.sport, budget: team.budget, logo: null }); // Don't preload file
+        } else {
+            setEditingTeam(null);
+            setTeamForm({ name: '', sport: 'cricket', budget: 100000, logo: null });
+        }
+        setShowTeamModal(true);
+    };
+
+    const handleSaveTeamExtended = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('name', teamForm.name);
+            formData.append('budget', teamForm.budget);
+            if (!editingTeam) formData.append('sport', teamForm.sport); // Sport usually fixed on creation or editable? API allows updates.
+            if (teamForm.logo) formData.append('logo', teamForm.logo);
+
+            if (editingTeam) {
+                await adminAPI.updateTeam(editingTeam.id, formData);
+                setMessage('Team updated successfully');
+            } else {
+                // Re-use logic or call API directly
+                await adminAPI.createTeam(formData);
+                setMessage('Team created successfully');
+            }
+            setShowTeamModal(false);
+            if (activeTab === 'teams') loadData();
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to save team');
+        }
+    };
+
+    const handleOpenPlayerModal = (player = null) => {
+        if (player) {
+            setEditingPlayer(player);
+            // safe safely parse stats
+            let statsStr = '';
+            try { statsStr = JSON.stringify(player.stats || {}); } catch (e) { }
+
+            setPlayerForm({
+                name: player.name,
+                sport: player.sport,
+                year: player.year,
+                stats: statsStr,
+                base_price: player.base_price,
+                photo: null
+            });
+        } else {
+            setEditingPlayer(null);
+            setPlayerForm({ name: '', sport: 'cricket', year: '1st', stats: '', base_price: 50, photo: null });
+        }
+        setShowPlayerModal(true);
+    }
+
+    const handleSavePlayerExtended = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('name', playerForm.name);
+            formData.append('sport', playerForm.sport);
+            formData.append('year', playerForm.year);
+            formData.append('base_price', playerForm.base_price);
+            formData.append('stats', playerForm.stats); // API parses this string
+            if (playerForm.photo) formData.append('photo', playerForm.photo);
+
+            if (editingPlayer) {
+                await adminAPI.updatePlayer(editingPlayer.id, formData);
+                setMessage('Player updated successfully');
+            } else {
+                await adminAPI.createPlayer(formData);
+                setMessage('Player created successfully');
+            }
+            setShowPlayerModal(false);
+            if (activeTab === 'players' || activeTab === 'users') loadData();
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to save player');
+        }
+    }
+
+    const handleRemoveFromQueue = async (id) => {
+        if (!confirm('Remove this player from the auction queue?')) return;
+        try {
+            await adminAPI.removeFromQueue(id);
+            setMessage('Player removed from queue');
+            loadData();
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to remove player from queue');
+        }
+    }
+
     // Derived state for filtered players
     const pendingPlayers = players.filter(p => p.status === 'pending');
     const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
@@ -488,58 +594,70 @@ export default function AdminDashboard() {
                             )}
 
                             {activeTab === 'players' && (
-                                <div className="players-grid grid grid-4">
-                                    {activePlayers.map((player) => (
-                                        <div key={player.id} className="player-card card simple-card">
-                                            <div className="card-image-wrapper">
-                                                {player.photo_url ? (
-                                                    <img src={player.photo_url} alt={player.name} className="player-card-photo" />
-                                                ) : (
-                                                    <div className="placeholder-photo">No Photo</div>
-                                                )}
-                                            </div>
-                                            <div className="simple-card-content">
-                                                <h4>{player.name}</h4>
-                                                <p className="player-year">{player.year} MBBS</p>
-
-                                                {/* Only show Auction controls for approved (not sold/unsold) */}
-                                                <div className="player-card-actions">
-                                                    {player.status === 'approved' && (
-                                                        <button
-                                                            onClick={() => handleAddToQueue(player.id)}
-                                                            className="btn btn-sm btn-primary"
-                                                            title="Add to Auction Queue"
-                                                        >
-                                                            Add to Queue
-                                                        </button>
+                                <div className="players-section">
+                                    <div className="section-header-row mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <h3>All Active Players</h3>
+                                        <button onClick={() => handleOpenPlayerModal()} className="btn btn-primary">+ Create Player</button>
+                                    </div>
+                                    <div className="players-grid grid grid-4">
+                                        {activePlayers.map((player) => (
+                                            <div key={player.id} className="player-card card simple-card">
+                                                <div className="card-image-wrapper">
+                                                    {player.photo_url ? (
+                                                        <img src={player.photo_url} alt={player.name} className="player-card-photo" />
+                                                    ) : (
+                                                        <div className="placeholder-photo">No Photo</div>
                                                     )}
-                                                    {player.status === 'eligible' && <span className="badge badge-warning">Queued</span>}
-                                                    {player.status === 'sold' && <span className="badge badge-primary">Sold</span>}
-                                                    {player.status === 'unsold' && (
-                                                        <>
-                                                            <span className="badge badge-secondary">Unsold</span>
+                                                </div>
+                                                <div className="simple-card-content">
+                                                    <h4>{player.name}</h4>
+                                                    <p className="player-year">{player.year} MBBS</p>
+
+                                                    {/* Only show Auction controls for approved (not sold/unsold) */}
+                                                    <div className="player-card-actions">
+                                                        {player.status === 'approved' && (
                                                             <button
                                                                 onClick={() => handleAddToQueue(player.id)}
-                                                                className="btn btn-sm btn-outline-primary"
-                                                                title="Add back to Auction Queue"
-                                                                style={{ marginLeft: '0.5rem' }}
+                                                                className="btn btn-sm btn-primary"
+                                                                title="Add to Auction Queue"
                                                             >
-                                                                Queue Again
+                                                                Add to Queue
                                                             </button>
-                                                        </>
-                                                    )}
+                                                        )}
+                                                        {player.status === 'eligible' && <span className="badge badge-warning">Queued</span>}
+                                                        {player.status === 'sold' && <span className="badge badge-primary">Sold</span>}
+                                                        {player.status === 'unsold' && (
+                                                            <>
+                                                                <span className="badge badge-secondary">Unsold</span>
+                                                                <button
+                                                                    onClick={() => handleAddToQueue(player.id)}
+                                                                    className="btn btn-sm btn-outline-primary"
+                                                                    title="Add back to Auction Queue"
+                                                                    style={{ marginLeft: '0.5rem' }}
+                                                                >
+                                                                    Queue Again
+                                                                </button>
+                                                            </>
+                                                        )}
 
-                                                    <button
-                                                        onClick={() => handleDeletePlayer(player.id)}
-                                                        className="btn btn-sm btn-danger"
-                                                        title="Delete Player"
-                                                    >
-                                                        Delete
-                                                    </button>
+                                                        <button
+                                                            onClick={() => handleDeletePlayer(player.id)}
+                                                            className="btn btn-sm btn-danger"
+                                                            title="Delete Player"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                        <button onClick={() => handleOpenPlayerModal(player)} className="btn btn-sm btn-secondary">Edit</button>
+                                                        {(player.status === 'eligible' || player.status === 'approved') && (
+                                                            <button onClick={() => handleRemoveFromQueue(player.id)} className="btn btn-sm btn-warning" title="Remove from Queue/Approval">
+                                                                Remove
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
@@ -578,12 +696,10 @@ export default function AdminDashboard() {
                                                                         <p>Budget: {team.budget.toLocaleString()} Points</p>
                                                                         <p>Remaining: {team.remaining_budget.toLocaleString()} Points</p>
                                                                     </div>
-                                                                    <button
-                                                                        onClick={() => handleDeleteTeam(team.id)}
-                                                                        className="btn btn-sm btn-danger full-width mt-2"
-                                                                    >
-                                                                        Delete Team
-                                                                    </button>
+                                                                    <div className="team-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                                                                        <button onClick={() => handleOpenTeamModal(team)} className="btn btn-sm btn-secondary full-width">Edit</button>
+                                                                        <button onClick={() => handleDeleteTeam(team.id)} className="btn btn-sm btn-danger full-width">Delete</button>
+                                                                    </div>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -689,7 +805,7 @@ export default function AdminDashboard() {
                                 >
                                     <option value="viewer">Viewer</option>
                                     <option value="participant">Participant</option>
-                                    <option value="auctioneer">Auctioneer</option>
+                                    <option value="team_owner">Team Owner</option>
                                     <option value="admin">Admin</option>
                                 </select>
                             </div>
@@ -712,6 +828,97 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+
+            {/* Team Modal */}
+            {showTeamModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content card">
+                        <div className="modal-header">
+                            <h2>{editingTeam ? 'Edit Team' : 'Create Team'}</h2>
+                            <button onClick={() => setShowTeamModal(false)} className="modal-close">×</button>
+                        </div>
+                        <form onSubmit={handleSaveTeamExtended}>
+                            <div className="input-group">
+                                <label>Name</label>
+                                <input type="text" className="input" value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} required />
+                            </div>
+                            {!editingTeam && (
+                                <div className="input-group">
+                                    <label>Sport</label>
+                                    <select className="input" value={teamForm.sport} onChange={e => setTeamForm({ ...teamForm, sport: e.target.value })}>
+                                        <option value="cricket">Cricket</option>
+                                        <option value="futsal">Futsal</option>
+                                        <option value="volleyball">Volleyball</option>
+                                    </select>
+                                </div>
+                            )}
+                            <div className="input-group">
+                                <label>Budget</label>
+                                <input type="number" className="input" value={teamForm.budget} onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })} required />
+                            </div>
+                            <div className="input-group">
+                                <label>Logo (Optional)</label>
+                                <input type="file" className="file-input" onChange={e => setTeamForm({ ...teamForm, logo: e.target.files[0] })} />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary">Cancel</button>
+                                <button type="submit" className="btn btn-primary">Save Team</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Player Modal */}
+            {showPlayerModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content card">
+                        <div className="modal-header">
+                            <h2>{editingPlayer ? 'Edit Player' : 'Create Player'}</h2>
+                            <button onClick={() => setShowPlayerModal(false)} className="modal-close">×</button>
+                        </div>
+                        <form onSubmit={handleSavePlayerExtended}>
+                            <div className="input-group">
+                                <label>Name</label>
+                                <input type="text" className="input" value={playerForm.name} onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })} required />
+                            </div>
+                            <div className="input-group">
+                                <label>Sport</label>
+                                <select className="input" value={playerForm.sport} onChange={e => setPlayerForm({ ...playerForm, sport: e.target.value })}>
+                                    <option value="cricket">Cricket</option>
+                                    <option value="futsal">Futsal</option>
+                                    <option value="volleyball">Volleyball</option>
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label>Year</label>
+                                <select className="input" value={playerForm.year} onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}>
+                                    <option value="1st">1st Year</option>
+                                    <option value="2nd">2nd Year</option>
+                                    <option value="3rd">3rd Year</option>
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label>Base Price</label>
+                                <input type="number" className="input" value={playerForm.base_price} onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })} />
+                            </div>
+                            <div className="input-group">
+                                <label>Stats (JSON)</label>
+                                <textarea className="input" rows="3" value={playerForm.stats} onChange={e => setPlayerForm({ ...playerForm, stats: e.target.value })} placeholder='{"role":"Batsman"}'></textarea>
+                            </div>
+                            <div className="input-group">
+                                <label>Photo (Optional)</label>
+                                <input type="file" className="file-input" onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })} />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary">Cancel</button>
+                                <button type="submit" className="btn btn-primary">Save Player</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
