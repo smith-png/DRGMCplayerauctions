@@ -1,5 +1,6 @@
 import pool from '../config/database.js';
 import { v2 as cloudinary } from 'cloudinary';
+import bcrypt from 'bcrypt';
 
 // Helper to upload buffer to Cloudinary
 const uploadToCloudinary = (buffer) => {
@@ -28,30 +29,81 @@ export async function getAllUsers(req, res) {
     }
 }
 
-export async function updateUserRole(req, res) {
-    const { id } = req.params;
-    const { role } = req.body;
+export async function createUser(req, res) {
+    const { name, email, password, role } = req.body;
 
     try {
-        if (!['admin', 'auctioneer', 'participant', 'viewer'].includes(role)) {
-            return res.status(400).json({ error: 'Invalid role' });
+        if (!name || !email || !password || !role) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
+        // Check if user exists
+        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser.rows.length > 0) {
+            return res.status(409).json({ error: 'Email already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const result = await pool.query(
-            'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, email, name, role',
-            [role, id]
+            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at',
+            [name, email, hashedPassword, role]
         );
+
+        res.status(201).json({ user: result.rows[0], message: 'User created successfully' });
+    } catch (error) {
+        console.error('Create user error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export async function updateUser(req, res) {
+    const { id } = req.params;
+    const { name, email, role, password } = req.body;
+
+    try {
+        const updates = [];
+        const params = [];
+        let paramCount = 1;
+
+        if (name) {
+            updates.push(`name = $${paramCount}`);
+            params.push(name);
+            paramCount++;
+        }
+        if (email) {
+            updates.push(`email = $${paramCount}`);
+            params.push(email);
+            paramCount++;
+        }
+        if (role) {
+            updates.push(`role = $${paramCount}`);
+            params.push(role);
+            paramCount++;
+        }
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updates.push(`password = $${paramCount}`);
+            params.push(hashedPassword);
+            paramCount++;
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update' });
+        }
+
+        params.push(id);
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, email, role, created_at`;
+
+        const result = await pool.query(query, params);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.json({
-            message: 'User role updated successfully',
-            user: result.rows[0]
-        });
+        res.json({ user: result.rows[0], message: 'User updated successfully' });
     } catch (error) {
-        console.error('Update role error:', error);
+        console.error('Update user error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }

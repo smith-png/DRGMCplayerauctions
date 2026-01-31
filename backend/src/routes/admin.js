@@ -1,7 +1,8 @@
 import express from 'express';
 import {
     getAllUsers,
-    updateUserRole,
+    createUser,
+    updateUser,
     deleteUser,
     createTeam,
     getAllTeams,
@@ -20,7 +21,8 @@ router.use(authenticateToken, authorizeRoles('admin'));
 
 // User management
 router.get('/users', getAllUsers);
-router.put('/users/:id/role', updateUserRole);
+router.post('/users', authenticateToken, authorizeRoles('admin'), createUser); // Changed to include middleware explicitly as reminder, though router.use already covers it
+router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
 // Team management

@@ -56,7 +56,8 @@ export const auctionAPI = {
 // Admin API
 export const adminAPI = {
     getAllUsers: () => api.get('/admin/users'),
-    updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+    createUser: (userData) => api.post('/admin/users', userData),
+    updateUser: (id, userData) => api.put(`/admin/users/${id}`, userData),
     deleteUser: (id) => api.delete(`/admin/users/${id}`),
     getAllTeams: () => api.get('/admin/teams'),
     createTeam: (teamData) => api.post('/admin/teams', teamData, {

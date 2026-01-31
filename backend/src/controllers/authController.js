@@ -60,7 +60,9 @@ export const login = async (req, res) => {
 // Register controller
 export const register = async (req, res) => {
     try {
-        const { email, password, name, role = 'viewer' } = req.body;
+        const { email, password, name } = req.body;
+        // Security: Force role to be 'viewer' for all public registrations
+        const role = 'viewer';
 
         if (!email || !password || !name) {
             return res.status(400).json({ error: 'Email, password, and name are required' });

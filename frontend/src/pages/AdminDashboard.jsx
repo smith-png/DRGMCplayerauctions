@@ -14,6 +14,11 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
 
+    // User Modal State
+    const [showUserModal, setShowUserModal] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
+    const [userData, setUserData] = useState({ name: '', email: '', password: '', role: 'viewer' });
+
     useEffect(() => {
         loadData();
     }, [activeTab]);
@@ -154,6 +159,46 @@ export default function AdminDashboard() {
         } catch (err) {
             setMessage('Failed to update auction state');
             console.error(err);
+        }
+    };
+
+    // User Management Handlers
+    const handleOpenUserModal = (user = null) => {
+        if (user) {
+            setEditingUser(user);
+            setUserData({ name: user.name, email: user.email, role: user.role, password: '' });
+        } else {
+            setEditingUser(null);
+            setUserData({ name: '', email: '', password: '', role: 'viewer' });
+        }
+        setShowUserModal(true);
+    };
+
+    const handleCloseUserModal = () => {
+        setShowUserModal(false);
+        setEditingUser(null);
+        setUserData({ name: '', email: '', password: '', role: 'viewer' });
+    };
+
+    const handleSaveUser = async (e) => {
+        e.preventDefault();
+        try {
+            if (editingUser) {
+                // Update
+                const dataToSend = { ...userData };
+                if (!dataToSend.password) delete dataToSend.password; // Don't send empty password
+                await adminAPI.updateUser(editingUser.id, dataToSend);
+                setMessage('User updated successfully');
+            } else {
+                // Create
+                await adminAPI.createUser(userData);
+                setMessage('User created successfully');
+            }
+            handleCloseUserModal();
+            loadData();
+        } catch (err) {
+            console.error(err);
+            setMessage(err.response?.data?.error || 'Failed to save user');
         }
     };
 
@@ -390,7 +435,12 @@ export default function AdminDashboard() {
 
                                     {/* User Accounts Section */}
                                     <div className="section-block">
-                                        <h3>User Accounts</h3>
+                                        <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                            <h3>User Accounts</h3>
+                                            <button onClick={() => handleOpenUserModal()} className="btn btn-primary btn-sm">
+                                                + Create User
+                                            </button>
+                                        </div>
                                         <div className="users-table card">
                                             <table>
                                                 <thead>
@@ -408,19 +458,19 @@ export default function AdminDashboard() {
                                                             <td>{user.name}</td>
                                                             <td>{user.email}</td>
                                                             <td>
-                                                                <select
-                                                                    value={user.role}
-                                                                    onChange={(e) => handleUpdateRole(user.id, e.target.value)}
-                                                                    className="role-select"
-                                                                >
-                                                                    <option value="viewer">Viewer</option>
-                                                                    <option value="participant">Participant</option>
-                                                                    <option value="auctioneer">Auctioneer</option>
-                                                                    <option value="admin">Admin</option>
-                                                                </select>
+                                                                <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
+                                                                    {user.role}
+                                                                </span>
                                                             </td>
                                                             <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                                             <td>
+                                                                <button
+                                                                    onClick={() => handleOpenUserModal(user)}
+                                                                    className="btn btn-sm btn-secondary"
+                                                                    style={{ marginRight: '0.5rem' }}
+                                                                >
+                                                                    Edit
+                                                                </button>
                                                                 <button
                                                                     onClick={() => handleDeleteUser(user.id)}
                                                                     className="btn btn-sm btn-danger"
@@ -601,6 +651,67 @@ export default function AdminDashboard() {
                     )}
                 </div>
             </div>
+            {/* User Modal */}
+            {showUserModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content card">
+                        <div className="modal-header">
+                            <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
+                            <button onClick={handleCloseUserModal} className="modal-close">×</button>
+                        </div>
+                        <form onSubmit={handleSaveUser}>
+                            <div className="input-group">
+                                <label>Name</label>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={userData.name}
+                                    onChange={e => setUserData({ ...userData, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Email</label>
+                                <input
+                                    type="email"
+                                    className="input"
+                                    value={userData.email}
+                                    onChange={e => setUserData({ ...userData, email: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Role</label>
+                                <select
+                                    className="input"
+                                    value={userData.role}
+                                    onChange={e => setUserData({ ...userData, role: e.target.value })}
+                                >
+                                    <option value="viewer">Viewer</option>
+                                    <option value="participant">Participant</option>
+                                    <option value="auctioneer">Auctioneer</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label>Password {editingUser && <span className="text-secondary text-sm">(Leave blank to keep current)</span>}</label>
+                                <input
+                                    type="password"
+                                    className="input"
+                                    value={userData.password}
+                                    onChange={e => setUserData({ ...userData, password: e.target.value })}
+                                    required={!editingUser}
+                                    placeholder={editingUser ? "Example: NewPassword123" : ""}
+                                />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary">Cancel</button>
+                                <button type="submit" className="btn btn-primary">{editingUser ? 'Update User' : 'Create User'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

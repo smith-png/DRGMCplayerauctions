@@ -23,8 +23,10 @@ export default function AuctionLive() {
 
     // Helper functions (defined before useEffect for clarity, or after if they don't depend on state/props directly)
     const loadAuction = async () => {
+        console.log('loadAuction: Starting...');
         try {
             const response = await auctionAPI.getCurrentAuction();
+            console.log('loadAuction: Got response', response.data);
             const data = response.data.currentAuction;
 
             if (data) {
@@ -50,6 +52,7 @@ export default function AuctionLive() {
                     }
                 }
             } else {
+                console.log('loadAuction: No active auction data');
                 setAuction(null);
             }
 
@@ -61,6 +64,7 @@ export default function AuctionLive() {
         } catch (err) {
             console.error('Failed to load auction:', err);
         } finally {
+            console.log('loadAuction: Finished, setting loading false');
             setLoading(false);
         }
     };
@@ -77,9 +81,10 @@ export default function AuctionLive() {
     const loadEligiblePlayers = async () => {
         try {
             const response = await playerAPI.getEligiblePlayers();
-            setEligiblePlayers(response.data.players);
+            setEligiblePlayers(response.data.players || []);
         } catch (err) {
             console.error('Failed to load eligible players:', err);
+            setEligiblePlayers([]);
         }
     };
 
@@ -246,12 +251,25 @@ export default function AuctionLive() {
 
     // Main useEffect hook
     useEffect(() => {
+        // Safety timeout to prevent infinite loading
+        const safetyTimeout = setTimeout(() => {
+            setLoading(prev => {
+                if (prev) {
+                    console.warn('Safety timeout triggered: Loading took too long.');
+                    return false;
+                }
+                return prev;
+            });
+        }, 5000);
+
         loadAuction();
         loadTeams();
         loadSoldPlayers();
         if (isAuctioneer) {
             loadEligiblePlayers();
         }
+
+
 
         // Connect to Socket.IO
         socketService.connect();
@@ -271,11 +289,18 @@ export default function AuctionLive() {
 
         // Listen for real-time updates
         socketService.onBidUpdate((data) => {
-            setAuction(prev => ({
-                ...prev,
-                current_bid: data.amount,
-                current_team_name: data.teamName
-            }));
+            console.log('Socket: Bid update received', data);
+            setAuction(prev => {
+                if (!prev) {
+                    console.warn('Socket: Received bid update but no active auction in state. Ignoring.');
+                    return null;
+                }
+                return {
+                    ...prev,
+                    current_bid: data.amount,
+                    current_team_name: data.teamName
+                };
+            });
         });
 
         socketService.onAuctionUpdate((data) => {
@@ -368,7 +393,7 @@ export default function AuctionLive() {
 
     const renderAuctioneerPanel = () => {
         // Prepare eligible players by sport
-        const playersBySport = eligiblePlayers.reduce((acc, player) => {
+        const playersBySport = (eligiblePlayers || []).reduce((acc, player) => {
             const sport = player.sport || 'Other';
             if (!acc[sport]) acc[sport] = [];
             acc[sport].push(player);
@@ -430,14 +455,24 @@ export default function AuctionLive() {
     };
 
     if (loading) {
+        console.log('Rendering: Loading state is true');
         return (
             <div className="auction-page">
-                <div className="container">
+                <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
                     <div className="spinner"></div>
+                    <h3 style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-primary)' }}>Loading Auction Data...</h3>
+                    <p style={{ marginTop: '0.5rem', opacity: 0.7 }}>Please wait while we connect to the server.</p>
                 </div>
             </div>
         );
     }
+
+    console.log('Rendering: Loading is false', {
+        isAuctionActive,
+        isAuctioneer,
+        hasAuction: !!auction,
+        eligibleCount: eligiblePlayers?.length
+    });
 
     if (!isAuctionActive && !isAuctioneer) {
         return (

@@ -9,7 +9,7 @@ export default function Login() {
         email: '',
         password: '',
         name: '',
-        role: 'viewer'
+        name: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -102,22 +102,7 @@ export default function Login() {
                             />
                         </div>
 
-                        {!isLogin && (
-                            <div className="input-group">
-                                <label className="input-label">Role</label>
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className="input"
-                                >
-                                    <option value="viewer">Viewer</option>
-                                    <option value="participant">Participant</option>
-                                    <option value="auctioneer">Auctioneer</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-                        )}
+
 
                         <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
                             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
