@@ -122,14 +122,12 @@
 /* Stats Row at bottom of card (outside image, inside card container) */
 .player-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    /* Sage Green background as requested */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 2rem;
     background: #6b8c70;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    flex: 1;
-    /* Fill remaining height of card */
+    flex: 0;
 }
 
 .stat-box {
@@ -138,19 +136,17 @@
 
 .stat-box .stat-label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.9);
-    /* Light text for dark background */
+    color: rgba(255, 255, 255, 0.8);
     letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .stat-box .stat-value {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #ffffff;
-    /* White text for value */
 }
 
 /* ========================================
@@ -315,8 +311,15 @@
 /* Button Group */
 .auction-actions-row {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
+}
+
+.action-button-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
 }
 
 .auction-actions-row .btn {
@@ -337,6 +340,27 @@
     background: #ef4444;
     color: white;
     border: none;
+}
+
+.btn-secondary {
+    background: #64748b;
+    color: white;
+    border: none;
+}
+
+.btn-outline-danger {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.btn-outline-danger:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.full-width {
+    width: 100%;
 }
 
 /* Mobile Response */

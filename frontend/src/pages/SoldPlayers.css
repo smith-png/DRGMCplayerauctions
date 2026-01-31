@@ -170,8 +170,8 @@
 
 .players-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 1.5rem;
     padding: 1.5rem;
 }
 
@@ -179,15 +179,15 @@
 .sold-player-item {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 1.25rem;
+    gap: 1.25rem;
+    padding: 1.5rem;
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 1rem;
+    border-radius: 1.25rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     position: relative;
-    overflow: hidden;
+    /* Removed overflow: hidden to prevent clipping of the price circle if it slightly overflows */
 }
 
 .sold-player-main {

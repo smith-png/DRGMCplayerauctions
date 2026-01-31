@@ -220,11 +220,56 @@ export const toggleAuctionState = async (req, res) => {
 // Get global auction state
 export const getAuctionState = async (req, res) => {
     try {
-        const result = await pool.query('SELECT is_active FROM auction_state LIMIT 1');
-        res.json({ isActive: result.rows[0]?.is_active || false });
+        const result = await pool.query('SELECT is_active, sport_min_bids FROM auction_state LIMIT 1');
+        res.json({
+            isActive: result.rows[0]?.is_active || false,
+            sportMinBids: result.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 }
+        });
     } catch (error) {
         console.error('Get auction state error:', error);
         res.status(500).json({ error: 'Failed to get auction state' });
+    }
+};
+
+// Skip a player from auction
+export const skipPlayer = async (req, res) => {
+    try {
+        const { playerId } = req.body;
+
+        if (!playerId) {
+            return res.status(400).json({ error: 'Player ID is required' });
+        }
+
+        // 1. Get player sport
+        const playerRes = await pool.query('SELECT name, sport FROM players WHERE id = $1', [playerId]);
+        if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
+        const player = playerRes.rows[0];
+
+        // 2. Get sport min bid
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const sportMinBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+        const minBid = sportMinBids[player.sport] || 50;
+
+        // 3. Reset player status and base price
+        await pool.query(
+            "UPDATE players SET status = 'eligible', base_price = $1 WHERE id = $2",
+            [minBid, playerId]
+        );
+
+        // 4. Broadcast update
+        if (req.io) {
+            req.io.to('auction-room').emit('auction-update', {
+                type: 'skipped',
+                player: { id: playerId, name: player.name, status: 'eligible', base_price: minBid },
+                timestamp: new Date()
+            });
+            console.log('📡 Socket event emitted: player-skipped');
+        }
+
+        res.json({ message: 'Player skipped and sent back to queue', minBid });
+    } catch (error) {
+        console.error('Skip player error:', error);
+        res.status(500).json({ error: 'Failed to skip player' });
     }
 };
 

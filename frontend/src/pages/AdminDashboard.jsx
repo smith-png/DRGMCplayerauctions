@@ -13,6 +13,9 @@ export default function AdminDashboard() {
     const [isAuctionActive, setIsAuctionActive] = useState(false);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const [bulkSport, setBulkSport] = useState('cricket');
+    const [bulkMinBid, setBulkMinBid] = useState(50);
+    const [sportMinBids, setSportMinBids] = useState({ cricket: 50, futsal: 50, volleyball: 50 });
 
     // User Modal State
     const [showUserModal, setShowUserModal] = useState(false);
@@ -31,6 +34,7 @@ export default function AdminDashboard() {
                 setStats(response.data.stats);
                 const stateResponse = await auctionAPI.getAuctionState();
                 setIsAuctionActive(stateResponse.data.isActive);
+                setSportMinBids(stateResponse.data.sportMinBids || { cricket: 50, futsal: 50, volleyball: 50 });
             } else if (activeTab === 'users') {
                 // Fetch both users and players for the Users tab
                 // Fetch both users and players for the Users tab independently
@@ -167,6 +171,29 @@ export default function AdminDashboard() {
         } catch (err) {
             setMessage('Failed to update auction state');
             console.error(err);
+        }
+    };
+
+    const handleBulkMinBidUpdate = async () => {
+        try {
+            const response = await adminAPI.bulkUpdateMinBid(bulkSport, bulkMinBid);
+            setSportMinBids(response.data.sportMinBids);
+            setMessage(`Updated ${bulkSport} minimum bid to ${bulkMinBid}`);
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to update minimum bid');
+        }
+    };
+
+    const handleBulkResetReleased = async () => {
+        if (!confirm('Reset all released players to "Approved" and clear their bid history?')) return;
+        try {
+            await adminAPI.bulkResetReleasedBids();
+            setMessage('Successfully reset all released players');
+            loadData();
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to reset players');
         }
     };
 
@@ -452,6 +479,64 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Bulk Operations Section */}
+                                    <div className="card full-width mt-4" style={{ gridColumn: '1 / -1' }}>
+                                        <h3 className="mb-3">Bulk Operations</h3>
+                                        <div className="bulk-ops-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                            {/* Min Bid Control */}
+                                            <div className="bulk-op-item p-3 card-glass-light rounded">
+                                                <h4 className="mb-2">Sport Minimum Bids</h4>
+                                                <div className="flex gap-3 items-end">
+                                                    <div className="form-group flex-1">
+                                                        <label className="text-sm">Sport</label>
+                                                        <select
+                                                            className="input"
+                                                            value={bulkSport}
+                                                            onChange={(e) => {
+                                                                setBulkSport(e.target.value);
+                                                                setBulkMinBid(sportMinBids[e.target.value] || 50);
+                                                            }}
+                                                        >
+                                                            <option value="cricket">Cricket</option>
+                                                            <option value="futsal">Futsal</option>
+                                                            <option value="volleyball">Volleyball</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="form-group flex-1">
+                                                        <label className="text-sm">Bid Value (Current: {sportMinBids[bulkSport] || 50})</label>
+                                                        <input
+                                                            type="number"
+                                                            className="input"
+                                                            value={bulkMinBid}
+                                                            onChange={(e) => setBulkMinBid(e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        onClick={handleBulkMinBidUpdate}
+                                                        className="btn btn-primary"
+                                                    >
+                                                        Update
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs text-secondary mt-2">Updating this will change the base price of all non-sold players in the selected sport.</p>
+                                            </div>
+
+                                            {/* Reset Released Control */}
+                                            <div className="bulk-op-item p-3 card-glass-light rounded flex flex-col justify-between">
+                                                <div>
+                                                    <h4 className="mb-2">Reset Released Players</h4>
+                                                    <p className="text-sm text-secondary mb-3">Moves all "Unsold" players back to the "Approved" list and resets their base price to the current minimum bid.</p>
+                                                </div>
+                                                <button
+                                                    onClick={handleBulkResetReleased}
+                                                    className="btn btn-warning full-width"
+                                                >
+                                                    Reset All Released Bids
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

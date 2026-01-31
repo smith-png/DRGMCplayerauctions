@@ -50,7 +50,8 @@ export const auctionAPI = {
     markPlayerUnsold: (playerId) => api.post('/auction/unsold', { playerId }),
     getLeaderboard: () => api.get('/auction/leaderboard'),
     getAuctionState: () => api.get('/auction/state'),
-    toggleAuctionState: (isActive) => api.post('/auction/state', { isActive })
+    toggleAuctionState: (isActive) => api.post('/auction/state', { isActive }),
+    skipPlayer: (playerId) => api.post('/auction/skip', { playerId })
 };
 
 // Admin API
@@ -78,7 +79,9 @@ export const adminAPI = {
     removeFromQueue: (id) => api.post(`/admin/players/${id}/remove-queue`),
 
     getStats: () => api.get('/admin/stats'),
-    getPendingPlayers: () => api.get('/admin/players/pending')
+    getPendingPlayers: () => api.get('/admin/players/pending'),
+    bulkUpdateMinBid: (sport, minBid) => api.post('/admin/bulk/min-bid', { sport, minBid }),
+    bulkResetReleasedBids: () => api.post('/admin/bulk/reset-released')
 };
 
 // Teams API

@@ -7,7 +7,8 @@ import {
     markPlayerUnsold,
     getLeaderboard,
     getAuctionState,
-    toggleAuctionState
+    toggleAuctionState,
+    skipPlayer
 } from '../controllers/auctionController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -21,5 +22,6 @@ router.post('/unsold', authenticateToken, authorizeRoles('admin', 'auctioneer'),
 router.get('/leaderboard', getLeaderboard);
 router.get('/state', getAuctionState);
 router.post('/state', authenticateToken, authorizeRoles('admin'), toggleAuctionState);
+router.post('/skip', authenticateToken, authorizeRoles('admin', 'auctioneer'), skipPlayer);
 
 export default router;

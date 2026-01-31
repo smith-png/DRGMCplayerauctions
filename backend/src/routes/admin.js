@@ -11,7 +11,9 @@ import {
     getDashboardStats,
     createPlayer,
     updatePlayer,
-    removeFromQueue
+    removeFromQueue,
+    bulkUpdateMinBid,
+    bulkResetReleasedBids
 } from '../controllers/adminController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -38,6 +40,10 @@ router.delete('/teams/:id', deleteTeam);
 router.post('/players', upload.single('photo'), createPlayer);
 router.put('/players/:id', upload.single('photo'), updatePlayer);
 router.post('/players/:id/remove-queue', removeFromQueue);
+
+// Bulk operations
+router.post('/bulk/min-bid', bulkUpdateMinBid);
+router.post('/bulk/reset-released', bulkResetReleasedBids);
 
 // Dashboard stats
 router.get('/stats', getDashboardStats);

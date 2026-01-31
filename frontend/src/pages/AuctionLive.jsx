@@ -19,7 +19,7 @@ export default function AuctionLive() {
     const [soldPlayers, setSoldPlayers] = useState([]); // Sold players grouped by team
     const [showSoldPlayers, setShowSoldPlayers] = useState(false); // Toggle for collapsible section
 
-    const { user, isAuctioneer } = useAuth();
+    const { user, isAuctioneer, isTeamOwner, isAdmin } = useAuth();
 
     // Helper functions (defined before useEffect for clarity, or after if they don't depend on state/props directly)
     const loadAuction = async () => {
@@ -249,6 +249,22 @@ export default function AuctionLive() {
         }
     };
 
+    const handleSkipPlayer = async () => {
+        if (!auction) return;
+        if (!window.confirm('Skip this player? They will be sent back to queue with minimum bid.')) return;
+
+        try {
+            const playerId = auction.current_player_id || auction.id;
+            await auctionAPI.skipPlayer(playerId);
+
+            setAuction(null);
+            await loadEligiblePlayers();
+            await loadAuction();
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to skip player');
+        }
+    };
+
     const handleRemoveFromQueue = async (playerId) => {
         if (!window.confirm('Remove this player from the queue? They will be marked as unsold.')) return;
         try {
@@ -452,13 +468,26 @@ export default function AuctionLive() {
                                                         <span className="queue-tag tag-accent">{player.stats?.role || 'Player'}</span>
                                                     </div>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleStartAuction(player.id)}
-                                                    className="btn btn-primary btn-sm full-width mt-2"
-                                                    disabled={loading || !!auction}
-                                                >
-                                                    {auction ? 'Complete Current Auction First' : 'Start Auction'}
-                                                </button>
+                                                <div className="queue-card-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                                    {isAuctioneer && (
+                                                        <button
+                                                            onClick={() => handleStartAuction(player.id)}
+                                                            className="btn btn-primary btn-sm flex-1"
+                                                            disabled={loading || !!auction}
+                                                        >
+                                                            {auction ? 'Wait' : 'Start'}
+                                                        </button>
+                                                    )}
+                                                    {isAdmin && (
+                                                        <button
+                                                            onClick={() => handleRemoveFromQueue(player.id)}
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            title="Remove from queue"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -507,7 +536,7 @@ export default function AuctionLive() {
         );
     }
 
-    if (!auction && !isAuctioneer) {
+    if (!auction && !isAuctioneer && !isTeamOwner) {
         return (
             <div className="auction-page">
                 <div className="container">
@@ -563,18 +592,25 @@ export default function AuctionLive() {
                                     </div>
                                 </div>
                                 <div className="player-stats-grid">
-                                    <div className="player-badges-row" style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-                                        <span className="hero-badge badge-primary">{auction.sport}</span>
+                                    <div className="player-badges-row" style={{ gridColumn: '1 / -1', marginBottom: '0.5rem' }}>
+                                        <span className="hero-badge badge-primary uppercase">{auction.sport}</span>
                                         <span className="hero-badge badge-secondary">{auction.year} MBBS</span>
                                     </div>
-                                    {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
-                                        key !== 'role' && (
+                                    {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => {
+                                        if (key === 'role') return null;
+                                        // Format key: PlayingRole -> Playing Role
+                                        const formattedKey = key
+                                            .replace(/([A-Z])/g, ' $1')
+                                            .replace(/^./, str => str.toUpperCase())
+                                            .trim();
+
+                                        return (
                                             <div key={key} className="stat-box">
-                                                <span className="stat-label">{key}</span>
+                                                <span className="stat-label">{formattedKey}</span>
                                                 <span className="stat-value">{value}</span>
                                             </div>
-                                        )
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -636,22 +672,32 @@ export default function AuctionLive() {
                                                     />
                                                 </div>
                                                 <div className="auction-actions-row">
-                                                    <button type="submit" className="btn btn-warning btn-xl">Update Bid</button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleMarkSold}
-                                                        className="btn btn-success btn-lg"
-                                                        disabled={!auction.current_team_id}
-                                                    >
-                                                        Mark SOLD
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleMarkUnsold}
-                                                        className="btn btn-danger btn-lg"
-                                                    >
-                                                        Mark UNSOLD
-                                                    </button>
+                                                    <button type="submit" className="btn btn-warning btn-xl full-width">Update Bid</button>
+                                                    <div className="action-button-group">
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleMarkSold}
+                                                            className="btn btn-success btn-xl"
+                                                            disabled={!auction.current_team_id}
+                                                        >
+                                                            Mark SOLD
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleMarkUnsold}
+                                                            className="btn btn-danger btn-xl"
+                                                        >
+                                                            Mark UNSOLD
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleSkipPlayer}
+                                                            className="btn btn-secondary btn-xl"
+                                                            title="Skip and send back to queue"
+                                                        >
+                                                            Skip
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </form>
                                         </div>

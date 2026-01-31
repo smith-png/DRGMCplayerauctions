@@ -89,16 +89,27 @@ export async function initializeDatabase() {
         current_bid DECIMAL(10, 2),
         current_team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
         is_active BOOLEAN DEFAULT false,
+        sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb,
         started_at TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
-    // Insert default auction state if not exists
     await client.query(`
       INSERT INTO auction_state (is_active)
       SELECT false
       WHERE NOT EXISTS (SELECT 1 FROM auction_state LIMIT 1)
+    `);
+
+    // Add sport_min_bids column to auction_state if it doesn't exist (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='sport_min_bids') THEN
+          ALTER TABLE auction_state ADD COLUMN sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb;
+        END IF;
+      END
+      $$;
     `);
 
     await client.query('COMMIT');

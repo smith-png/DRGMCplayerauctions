@@ -59,6 +59,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
         isAuctioneer: user?.role === 'auctioneer' || user?.role === 'admin',
+        isTeamOwner: user?.role === 'team_owner',
         isParticipant: user?.role === 'participant'
     };
 

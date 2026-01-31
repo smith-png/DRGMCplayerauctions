@@ -471,13 +471,77 @@ export async function removeFromQueue(req, res) {
         // 'pending' puts them back in approval queue.
         // Let's use 'unsold' so we know they were processed/removed.
         const result = await pool.query(
-            "UPDATE players SET status = 'unsold' WHERE id = $1 RETURNING *",
+            "UPDATE players SET status = 'approved' WHERE id = $1 RETURNING *",
             [id]
         );
         if (result.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
-        res.json({ message: 'Player removed from queue', player: result.rows[0] });
+        res.json({ message: 'Player removed from queue and sent back to Approved list', player: result.rows[0] });
     } catch (error) {
         console.error('Remove from queue error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Bulk update minimum bid for a sport
+export async function bulkUpdateMinBid(req, res) {
+    const { sport, minBid } = req.body;
+    try {
+        if (!sport || minBid === undefined) {
+            return res.status(400).json({ error: 'Sport and min bid value are required' });
+        }
+
+        const value = parseFloat(minBid);
+
+        // 1. Update all non-sold players of that sport
+        await pool.query(
+            "UPDATE players SET base_price = $1 WHERE sport = $2 AND status != 'sold'",
+            [value, sport]
+        );
+
+        // 2. Update auction_state sport_min_bids
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const sportMinBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+        sportMinBids[sport] = value;
+
+        await pool.query(
+            'UPDATE auction_state SET sport_min_bids = $1',
+            [JSON.stringify(sportMinBids)]
+        );
+
+        res.json({ message: `Updated minimum bid for ${sport} to ${value}`, sportMinBids });
+    } catch (error) {
+        console.error('Bulk update min bid error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Bulk reset bids for released players
+export async function bulkResetReleasedBids(req, res) {
+    try {
+        // Reset sold_price, team_id and status for 'unsold' players (released)
+        // Actually, if they are 'unsold', they are released.
+        // We might want to reset their base_price to current min_bid too.
+
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const minBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+
+        // Need to loop per sport or do complex case-when
+        const sports = ['cricket', 'futsal', 'volleyball'];
+        for (const sport of sports) {
+            const val = minBids[sport] || 50;
+            await pool.query(
+                "UPDATE players SET status = 'approved', base_price = $1, sold_price = NULL, team_id = NULL WHERE status = 'unsold' AND sport = $2",
+                [val, sport]
+            );
+        }
+
+        // Also delete bids for any players who were just reset
+        // This is optional but cleaner.
+        // DELETE FROM bids WHERE player_id IN (SELECT id FROM players WHERE status = 'approved' AND ...)
+
+        res.json({ message: 'Resetted all released players to approved with minimum bids' });
+    } catch (error) {
+        console.error('Bulk reset released bids error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
