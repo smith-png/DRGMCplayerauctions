@@ -312,9 +312,9 @@
 /* Actions Section for Player Card */
 .player-card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    justify-content: flex-start;
-    /* Align to left */
+    justify-content: center;
     align-items: center;
     margin-top: 1rem;
     width: 100%;
