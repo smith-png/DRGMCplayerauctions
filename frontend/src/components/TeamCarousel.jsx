@@ -37,27 +37,36 @@ export default function TeamCarousel() {
                 <div className="carousel-track">
                     {displayTeams.map((team, index) => (
                         <div key={`${team.id}-${index}`} className="team-card">
-                            <div className="team-logo-wrapper-carousel">
-                                {team.logo_url ? (
-                                    <img
-                                        src={team.logo_url}
-                                        alt={team.name}
-                                        className="team-logo-carousel"
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                            e.target.nextSibling.style.display = 'flex';
-                                        }}
-                                    />
-                                ) : null}
+                            <div className="team-logo-wrapper-carousel" style={{ position: 'relative' }}>
                                 <div
                                     className="team-logo-placeholder"
                                     style={{
                                         '--team-color': '#2563EB',
-                                        display: team.logo_url ? 'none' : 'flex'
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        zIndex: 1
                                     }}
                                 >
-                                    {team.name.substring(0, 2).toUpperCase()}
+                                    {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
                                 </div>
+                                {team.logo_url && (
+                                    <img
+                                        src={team.logo_url}
+                                        alt={team.name}
+                                        className="team-logo-carousel"
+                                        style={{
+                                            position: 'relative',
+                                            zIndex: 2,
+                                            background: 'var(--bg-primary)'
+                                        }}
+                                        onError={(e) => {
+                                            e.target.style.opacity = '0';
+                                        }}
+                                    />
+                                )}
                             </div>
                             <h3 className="team-name">{team.name}</h3>
                         </div>
