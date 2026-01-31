@@ -32,12 +32,12 @@ async function seedAdmin() {
         }
     } catch (err) {
         console.error('Error seeding admin:', err);
-
     }
+}
 
-    // Only run if executed directly
-    if (process.argv[1] === import.meta.url) {
-        seedAdmin().then(() => pool.end());
-    }
+// Only run if executed directly
+if (process.argv[1] === import.meta.url) {
+    seedAdmin().then(() => pool.end());
+}
 
-    export default seedAdmin;
+export default seedAdmin;
