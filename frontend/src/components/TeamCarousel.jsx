@@ -33,8 +33,9 @@ export default function TeamCarousel() {
     return (
         <section className="team-carousel-section">
             <h2 className="section-title">Participating Teams</h2>
-            <div className="carousel-container">
-                <div className="carousel-track">
+            <h2 className="section-title">Participating Teams</h2>
+            <div className="carousel-wrapper-new">
+                <div className="carousel-track-new">
                     {displayTeams.map((team, index) => (
                         <div key={`${team.id}-${index}`} className="team-card">
                             <div className="team-logo-wrapper-carousel" style={{ position: 'relative' }}>

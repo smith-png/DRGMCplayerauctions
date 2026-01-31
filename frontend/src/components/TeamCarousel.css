@@ -1,5 +1,5 @@
 /* ========================================
-   TEAM CAROUSEL STYLES
+   TEAM CAROUSEL STYLES (UPDATED)
    ======================================== */
 
 .team-carousel-section {
@@ -11,16 +11,18 @@
     width: 100%;
 }
 
-.carousel-container {
+.carousel-wrapper-new {
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
     position: relative;
+    padding: 1rem 0;
     white-space: nowrap;
 }
 
-.carousel-container::before,
-.carousel-container::after {
+/* Gradient Masks */
+.carousel-wrapper-new::before,
+.carousel-wrapper-new::after {
     content: "";
     position: absolute;
     top: 0;
@@ -30,27 +32,25 @@
     pointer-events: none;
 }
 
-.carousel-container::before {
+.carousel-wrapper-new::before {
     left: 0;
     background: linear-gradient(to right, var(--bg-secondary), transparent);
 }
 
-.carousel-container::after {
+.carousel-wrapper-new::after {
     right: 0;
     background: linear-gradient(to left, var(--bg-secondary), transparent);
 }
 
-.carousel-track {
+.carousel-track-new {
     display: flex;
     width: max-content;
-    /* Ensure track takes full width of children */
     gap: 3rem;
     padding: 1rem 0;
-    /* Animation must be last to ensure it applies */
-    animation: scroll-infinite 40s linear infinite;
+    animation: scroll-carousel-new 60s linear infinite;
 }
 
-.carousel-track:hover {
+.carousel-track-new:hover {
     animation-play-state: paused;
 }
 
@@ -60,104 +60,107 @@
     align-items: center;
     justify-content: center;
     width: 260px;
-    /* Widened from 200px */
-    /* Widened from 200px */
+    min-width: 260px;
+    /* Critical */
     background: #ffffff;
-    /* Force white */
-    border: 2px solid #ccc;
-    /* Force visible border */
+    border: 2px solid #e5e7eb;
     border-radius: 1rem;
     padding: 1.5rem;
     flex-shrink: 0;
+    /* Critical */
     transition: all 0.3s ease;
     cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .team-card:hover {
-    transform: translateY(-5px) scale(1.05);
-    border-color: var(--cricket-green);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--accent-primary);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 .team-logo-wrapper-carousel {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    /* Context for absolute placeholder */
+    background: #f9fafb;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
 }
 
 .team-logo-carousel {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     border-radius: 50%;
-    /* Optional: if you want circular logos */
+    position: relative;
+    z-index: 2;
+    background: transparent;
 }
 
+/* Placeholder sits behind image */
 .team-logo-placeholder {
-    width: 80px;
-    height: 80px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background: var(--bg-tertiary);
+    background: #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--text-secondary);
-    border: 2px solid var(--border-subtle);
-    transition: all 0.3s;
-}
-
-.team-card:hover .team-logo-placeholder {
-    background: var(--cricket-green);
-    color: #fff;
-    border-color: var(--cricket-green);
+    color: #6b7280;
+    z-index: 1;
 }
 
 .team-name {
-    font-family: var(--font-heading);
     font-weight: 700;
     font-size: 1.1rem;
-    color: var(--text-primary);
+    color: #1f2937;
     text-align: center;
     white-space: normal;
-    /* Allow wrapping */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    /* Limit to 2 lines */
     -webkit-box-orient: vertical;
     line-height: 1.3;
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .team-card {
-        width: 160px;
-        padding: 1rem;
-    }
-
-    .team-logo-placeholder {
-        width: 60px;
-        height: 60px;
-        font-size: 1.25rem;
-    }
-
-    .carousel-track {
-        gap: 2rem;
-    }
-}
-
-@keyframes scroll-infinite {
+/* Animation */
+@keyframes scroll-carousel-new {
     0% {
         transform: translateX(0);
     }
 
     100% {
         transform: translateX(-50%);
+        /* Scroll 50% because we duplicated 4x, so -50% is 2 full sets */
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .team-card {
+        width: 180px;
+        min-width: 180px;
+        padding: 1rem;
+    }
+
+    .team-logo-wrapper-carousel {
+        width: 80px;
+        height: 80px;
+    }
+
+    .carousel-track-new {
+        gap: 2rem;
     }
 }
