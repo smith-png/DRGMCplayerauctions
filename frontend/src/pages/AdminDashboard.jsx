@@ -49,6 +49,14 @@ export default function AdminDashboard() {
                     console.error("Failed to fetch players:", e);
                 }
 
+                // Fetch teams to display assigned team names
+                try {
+                    const teamsRes = await adminAPI.getAllTeams();
+                    setTeams(teamsRes.data.teams);
+                } catch (e) {
+                    console.error("Failed to fetch teams:", e);
+                }
+
             } else if (activeTab === 'players') {
                 const response = await playerAPI.getAllPlayers();
                 setPlayers(response.data.players);
