@@ -12,8 +12,8 @@
 
 .hero-container-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    /* Give more space to text */
+    grid-template-columns: 1fr 1fr;
+    /* Balanced columns */
     gap: 2rem;
     align-items: center;
 }
@@ -122,7 +122,8 @@
 /* Hero Visuals (Floating Cards) */
 .hero-visuals {
     position: relative;
-    height: 500px;
+    height: 600px;
+    /* Increased height */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -130,13 +131,15 @@
 
 .floating-card {
     position: absolute;
-    width: 260px;
+    width: 340px;
+    /* Increased width */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
+    /* Increased padding */
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     transition: transform 0.3s ease;
 }
@@ -150,14 +153,14 @@
 .fc-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .fc-badge {
     background: rgba(16, 185, 129, 0.2);
     color: #10b981;
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 4px;
     font-weight: 600;
 }
@@ -171,35 +174,41 @@
 .fc-price {
     font-weight: 700;
     color: var(--text-primary);
+    font-size: 1.2rem;
+    /* Increased size */
 }
 
 .fc-body {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .fc-avatar {
-    width: 40px;
-    height: 40px;
+    width: 55px;
+    /* Increased size */
+    height: 55px;
     background: var(--bg-secondary);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.75rem;
+    /* Increased icon size */
     border: 1px solid var(--border-subtle);
 }
 
 .fc-info h4 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    /* Increased size */
     color: var(--text-primary);
 }
 
 .fc-info p {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: 1rem;
+    /* Increased size */
     color: var(--text-muted);
 }
 

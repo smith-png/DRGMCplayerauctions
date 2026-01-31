@@ -156,21 +156,49 @@ export default function PlayerRegistration() {
                                     </div>
 
                                     <div className="input-group role-field">
-                                        <label className="input-label">Role *</label>
+                                        <label className="input-label">Playing Role *</label>
                                         <select
-                                            value={formData.stats.role || ''}
-                                            onChange={(e) => handleStatChange('role', e.target.value)}
+                                            value={formData.stats.playingRole || ''}
+                                            onChange={(e) => handleStatChange('playingRole', e.target.value)}
                                             className="input"
                                             required
                                         >
                                             <option value="">Select Role</option>
-                                            <option value="Batsman (Rt H)">Batsman (Rt H)</option>
-                                            <option value="Batsman (Lt H)">Batsman (Lt H)</option>
-                                            <option value="Batsman (WK)">Batsman (WK)</option>
-                                            <option value="Bowler (Rt H/ Pace)">Bowler (Rt H/ Pace)</option>
-                                            <option value="Bowler (Lt H/ Pace)">Bowler (Lt H/ Pace)</option>
-                                            <option value="Bowler (Rt H/ Spin)">Bowler (Rt H/ Spin)</option>
-                                            <option value="Bowler (Lt H/ Spin)">Bowler (Lt H/ Spin)</option>
+                                            <option value="Batsman">Batsman</option>
+                                            <option value="Wicketkeeper Batsman">Wicketkeeper Batsman</option>
+                                            <option value="Bowler">Bowler</option>
+                                            <option value="All Rounder">All Rounder</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="input-group role-field">
+                                        <label className="input-label">Batting Style *</label>
+                                        <select
+                                            value={formData.stats.battingStyle || ''}
+                                            onChange={(e) => handleStatChange('battingStyle', e.target.value)}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="">Select Batting Style</option>
+                                            <option value="Right Handed">Right Handed</option>
+                                            <option value="Left Handed">Left Handed</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="input-group role-field">
+                                        <label className="input-label">Bowling Style *</label>
+                                        <select
+                                            value={formData.stats.bowlingStyle || ''}
+                                            onChange={(e) => handleStatChange('bowlingStyle', e.target.value)}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="">Select Bowling Style</option>
+                                            <option value="Right Arm Pace">Right Arm Pace</option>
+                                            <option value="Right Arm Spin">Right Arm Spin</option>
+                                            <option value="Left Arm Pace">Left Arm Pace</option>
+                                            <option value="Left Arm Spin">Left Arm Spin</option>
+                                            <option value="Slow Left Arm Orthodox">Slow Left Arm Orthodox</option>
                                         </select>
                                     </div>
                                 </div>
