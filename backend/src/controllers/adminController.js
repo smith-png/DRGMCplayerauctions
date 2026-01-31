@@ -66,14 +66,14 @@ export async function updateUser(req, res) {
         const params = [];
         let paramCount = 1;
 
-        if (name) {
+        if (name && name.trim()) {
             updates.push(`name = $${paramCount}`);
-            params.push(name);
+            params.push(name.trim());
             paramCount++;
         }
-        if (email) {
+        if (email && email.trim()) {
             updates.push(`email = $${paramCount}`);
-            params.push(email);
+            params.push(email.trim());
             paramCount++;
         }
         if (role) {
@@ -81,8 +81,9 @@ export async function updateUser(req, res) {
             params.push(role);
             paramCount++;
         }
-        if (password) {
-            const hashedPassword = await bcrypt.hash(password, 10);
+        // Only update password if it's a non-empty string with actual characters
+        if (password && typeof password === 'string' && password.trim().length > 0) {
+            const hashedPassword = await bcrypt.hash(password.trim(), 10);
             updates.push(`password = $${paramCount}`);
             params.push(hashedPassword);
             paramCount++;
