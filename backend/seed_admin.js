@@ -10,7 +10,9 @@ async function seedAdmin() {
             // Check if admin exists
             const checkRes = await client.query("SELECT * FROM users WHERE email = 'admin@example.com'");
             if (checkRes.rows.length > 0) {
-                console.log('✅ Admin user already exists.');
+                console.log('🔄 Admin user exists. Resetting password...');
+                await client.query("UPDATE users SET password = $1 WHERE email = 'admin@example.com'", [hashedPassword]);
+                console.log('✅ Admin password reset successfully.');
                 console.log('Email: admin@example.com');
                 console.log('Password: admin123');
                 return;
@@ -30,9 +32,12 @@ async function seedAdmin() {
         }
     } catch (err) {
         console.error('Error seeding admin:', err);
-    } finally {
-        await pool.end();
-    }
-}
 
-seedAdmin();
+    }
+
+    // Only run if executed directly
+    if (process.argv[1] === import.meta.url) {
+        seedAdmin().then(() => pool.end());
+    }
+
+    export default seedAdmin;

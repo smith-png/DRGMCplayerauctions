@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 // Import database
 import pool, { initializeDatabase } from './src/config/database.js';
+import seedAdmin from './seed_admin.js';
 
 // Import routes
 import authRoutes from './src/routes/auth.js';
@@ -81,6 +82,9 @@ async function startServer() {
     try {
         // Initialize database tables
         await initializeDatabase();
+
+        // Seed/Reset Admin User (Ensures access on deployment)
+        await seedAdmin();
 
         // Start server
         httpServer.listen(PORT, () => {
