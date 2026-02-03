@@ -10,6 +10,10 @@ import { fileURLToPath } from 'url';
 import pool, { initializeDatabase } from './src/config/database.js';
 import seedAdmin from './seed_admin.js';
 
+// Import keep-alive job
+import { setupKeepAliveJob, logKeepAliveCall } from './src/jobs/keepAlive.js';
+import { startInternalScheduler } from './src/jobs/scheduler.js';
+
 // Import routes
 import authRoutes from './src/routes/auth.js';
 import playerRoutes from './src/routes/players.js';
@@ -44,6 +48,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Keep-alive logging middleware
+app.use(logKeepAliveCall);
+
 // Attach Socket.IO to request object
 app.use((req, res, next) => {
     req.io = io;
@@ -52,6 +59,9 @@ app.use((req, res, next) => {
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Setup Keep-Alive endpoint (BEFORE other routes)
+setupKeepAliveJob(app);
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -92,7 +102,13 @@ async function startServer() {
         httpServer.listen(PORT, () => {
             console.log(`\n🚀 Server running on port ${PORT}`);
             console.log(`📡 API: http://localhost:${PORT}`);
-            console.log(`🔌 Socket.IO ready for connections\n`);
+            console.log(`🔌 Socket.IO ready for connections`);
+            console.log(`💚 Keep-alive endpoint: http://localhost:${PORT}/health/keep-alive\n`);
+            
+            // Start internal scheduler in production
+            if (process.env.ENABLE_INTERNAL_SCHEDULER === 'true') {
+                startInternalScheduler();
+            }
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);
