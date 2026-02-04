@@ -1,0 +1,167 @@
+/* ========================================
+   TEAM CAROUSEL STYLES (UPDATED)
+   ======================================== */
+
+.team-carousel-section {
+    padding: 3rem 0;
+    overflow: hidden;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    width: 100%;
+}
+
+.carousel-wrapper-new {
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    padding: 1rem 0;
+    white-space: nowrap;
+}
+
+/* Gradient Masks */
+.carousel-wrapper-new::before,
+.carousel-wrapper-new::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.carousel-wrapper-new::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg-secondary), transparent);
+}
+
+.carousel-wrapper-new::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg-secondary), transparent);
+}
+
+.carousel-track-new {
+    display: flex;
+    width: max-content;
+    gap: 3rem;
+    padding: 1rem 0;
+    animation: scroll-carousel-new 60s linear infinite;
+}
+
+.carousel-track-new:hover {
+    animation-play-state: paused;
+}
+
+.team-carousel-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 260px;
+    min-width: 260px;
+    /* Critical */
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    flex-shrink: 0;
+    /* Critical */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.team-carousel-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--accent-primary);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.team-logo-wrapper-carousel {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* Context for absolute placeholder */
+    background: #f9fafb;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+}
+
+.team-logo-carousel {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+}
+
+/* Placeholder sits behind image */
+.team-logo-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #6b7280;
+    z-index: 1;
+}
+
+.team-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1f2937;
+    text-align: center;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+}
+
+/* Animation */
+@keyframes scroll-carousel-new {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+        /* Scroll 50% because we duplicated 4x, so -50% is 2 full sets */
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .team-carousel-card {
+        width: 180px;
+        min-width: 180px;
+        padding: 1rem;
+    }
+
+    .team-logo-wrapper-carousel {
+        width: 80px;
+        height: 80px;
+    }
+
+    .carousel-track-new {
+        gap: 2rem;
+    }
+}

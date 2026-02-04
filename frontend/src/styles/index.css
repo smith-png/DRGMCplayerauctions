@@ -1,0 +1,266 @@
+/* ========================================
+   CSS VARIABLES - CRICKET AUCTION THEME
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+:root {
+  /* Theme Colors extracted from reference */
+  /* Premium Muted Background */
+  --bg-primary: #0f172a;
+  /* Slate 900 */
+  --bg-secondary: #1e293b;
+  /* Slate 800 */
+  --bg-tertiary: #334155;
+  /* Slate 700 */
+
+  --text-dark: #f8fafc;
+  /* Slate 50 (almost white) */
+  --text-green: #4ade80;
+  /* Brighter green for contrast on dark */
+
+  --cricket-green: #22c55e;
+  --cricket-cream: #0f172a;
+  /* Mapping cream to dark base for logic consistency */
+
+  /* Darker black for better contrast */
+  --text-green: #1A3C26;
+  /* Darker green for text */
+
+  /* Mapped Variables */
+  --accent-primary: var(--cricket-green);
+  --accent-secondary: #408156;
+  /* Lighter green for hovers */
+  --accent-tertiary: #1A3C26;
+  /* Darker green for active states */
+  --accent-primary-alpha: rgba(41, 95, 61, 0.1);
+  /* Alpha version for focus rings */
+
+  --accent-gradient: linear-gradient(180deg, #295F3D 0%, #1F4A2F 100%);
+
+  /* Backgrounds */
+  --bg-primary: var(--cricket-cream);
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EAEAE6;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  /* High contrast glass */
+
+  /* Text Colors */
+  --text-primary: var(--text-dark);
+  --text-secondary: #555555;
+  --text-tertiary: #888888;
+  --text-on-accent: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #295F3D;
+  /* Green borders like in image */
+  --border-subtle: #D1D1C7;
+
+  /* Status Colors */
+  --success: #295F3D;
+  --warning: #D4A017;
+  --error: #B91C1C;
+
+  /* Shadows - Crisp, not glowing */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 0 rgba(41, 95, 61, 0.1);
+  /* Subtle green tint shadow */
+
+  /* Typography */
+  --font-heading: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  /* Clean Sans for headers */
+  --font-body: 'Source Sans Pro', sans-serif;
+  /* Clean Sans for UI elements */
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-base: all 0.2s ease;
+}
+
+/* Dark Mode Removed as per request */
+/* Fallback to light theme defaults */
+[data-theme='dark'] {
+  --bg-primary: var(--cricket-cream);
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EAEAE6;
+  --text-primary: var(--text-dark);
+  --text-secondary: #555555;
+  --text-tertiary: #888888;
+  --border-color: #295F3D;
+  --border-subtle: #D1D1C7;
+  --accent-primary: #295F3D;
+  --accent-secondary: #408156;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 0 rgba(41, 95, 61, 0.1);
+}
+
+/* ========================================
+   GLOBAL STYLES
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
+  min-height: 100vh;
+  color: var(--text-primary);
+  line-height: 1.6;
+
+  /* Grid removed as requested */
+  /* background-image: ... (removed) */
+}
+
+/* Headings - Non-italicized, Serif */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  color: var(--text-green);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-style: normal;
+  /* Explicitly normal */
+}
+
+/* Uppercase small labels/subtitles often used in this style */
+.label-text {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-green);
+}
+
+/* Cards - using new palette but keeping modern shape */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  /* Restored rounded corners */
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--cricket-green);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  /* Restored rounded corners */
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--cricket-green);
+  color: var(--text-on-accent);
+  box-shadow: 0 4px 6px rgba(41, 95, 61, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(41, 95, 61, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(41, 95, 61, 0.1);
+  color: var(--cricket-green);
+}
+
+.btn-secondary:hover {
+  background: rgba(41, 95, 61, 0.2);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  /* Restored rounded corners */
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--cricket-green);
+  box-shadow: 0 0 0 4px rgba(41, 95, 61, 0.1);
+}
+
+/* Utility */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+/* Spinner */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border-left-color: var(--cricket-green);
+  animation: spin 1s ease infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

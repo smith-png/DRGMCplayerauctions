@@ -1,0 +1,412 @@
+/* Player Profiles Page Layout */
+.player-profiles-page {
+    min-height: 100vh;
+    padding: var(--spacing-2xl) 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.profiles-container {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    /* Left (Sold) wider than Right (All) */
+    gap: var(--spacing-2xl);
+    max-width: 1400px;
+    /* Wider container for this page */
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    align-items: start;
+}
+
+/* Section Common Styles */
+.section-header-styled {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--border-subtle);
+}
+
+.section-header-styled h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+/* Sold Feed Section (Left) */
+.sold-feed-section {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    min-height: 600px;
+}
+
+.sold-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    max-height: 800px;
+    overflow-y: auto;
+    padding-right: var(--spacing-sm);
+}
+
+.sold-feed-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: 1rem;
+    min-height: 80px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    /* overflow: hidden; Removed to prevent clipping of larger avatars if they slightly protrude, or just to be safe */
+}
+
+.sold-feed-item:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-primary);
+}
+
+.sold-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--accent-primary);
+}
+
+.sold-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sold-item-info {
+    flex: 1;
+}
+
+.sold-player-name {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    margin-bottom: 4px;
+}
+
+.sold-details-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.sold-to-badge {
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.sold-price {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--success);
+    margin-left: auto;
+}
+
+/* All Players Section (Right) */
+.all-players-section {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+}
+
+.all-players-list {
+    display: grid;
+    /* Mini cards grid */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+    max-height: 800px;
+    overflow-y: auto;
+    padding-right: var(--spacing-sm);
+}
+
+.mini-player-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.mini-player-card:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--text-tertiary);
+    transform: translateY(-2px);
+}
+
+.mini-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    margin-bottom: var(--spacing-sm);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mini-info {
+    width: 100%;
+}
+
+.mini-name {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-meta {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Pagination */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.page-btn {
+    background: var(--bg-tertiary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: background 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Overlay / Modal */
+.profile-overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md);
+    animation: fadeIn 0.3s ease;
+}
+
+.profile-overlay-content {
+    background: var(--bg-primary);
+    width: 100%;
+    max-width: 500px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid var(--border-subtle);
+    animation: slideUp 0.3s ease;
+}
+
+.overlay-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-hero {
+    height: 250px;
+    background: var(--accent-gradient);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.profile-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.profile-body {
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: var(--spacing-xs);
+}
+
+.profile-id {
+    color: var(--text-tertiary);
+    font-family: monospace;
+    margin-bottom: var(--spacing-lg);
+}
+
+.profile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.tag-large {
+    background: var(--bg-tertiary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: var(--font-size-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.tag-accent {
+    background: var(--accent-primary-alpha);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar for lists */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .profiles-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sold-feed-section {
+        min-height: auto;
+    }
+}
+
+/* Sort Select */
+.sort-select {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.sort-select:hover {
+    background: var(--bg-secondary);
+}
+
+/* Meta Year Tag */
+.meta-year {
+    background: var(--accent-primary-alpha);
+    color: var(--accent-primary);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
