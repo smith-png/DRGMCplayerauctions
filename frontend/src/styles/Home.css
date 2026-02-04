@@ -7,477 +7,449 @@
     padding: 6rem 0;
     position: relative;
     overflow: hidden;
-    background: transparent;
-}
 
-.hero-container-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* Balanced columns */
-    gap: 2rem;
-    align-items: center;
-}
-
-.hero-section::before {
-    content: "";
-    position: absolute;
-    top: -10%;
-    left: -10%;
-    right: -10%;
-    bottom: -10%;
-    /* Extend to allow zoom without edges showing too early */
-    background-image: url('/assets/hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.4;
-    /* Fading manner */
-    transform: scale(1.1);
-    /* Slightly zoomed in */
-    z-index: -1;
-
-    /* Faded at boundaries using mask */
-    mask-image: radial-gradient(closest-side, black 40%, transparent 100%);
-    -webkit-mask-image: radial-gradient(closest-side, black 40%, transparent 100%);
-
-    filter: blur(2px);
-    /* Optional: adds to the "faded" feel */
-}
-
-.hero-content {
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
-}
-
-.hero-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-primary);
-    background: none;
-    -webkit-text-fill-color: var(--text-primary);
-    line-height: 1.1;
-}
-
-.hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
-    line-height: 1.6;
-    max-width: 90%;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    /* justify-content: flex-start; */
-    /* Start alignment */
-    flex-wrap: wrap;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-    width: 100%;
-}
-
-/* Hero Stats Strip */
-.hero-stats {
-    display: flex;
-    flex-direction: row;
-    /* Explicitly row */
-    align-items: center;
-    gap: 3rem;
-    /* Increase gap */
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-subtle);
-    width: 100%;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-divider {
-    width: 1px;
-    height: 30px;
-    background: var(--border-subtle);
-}
-
-
-/* Hero Visuals (Floating Cards) */
-.hero-visuals {
-    position: relative;
-    height: 600px;
-    /* Increased height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.floating-card {
-    position: absolute;
-    width: 340px;
-    /* Increased width */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    /* Increased padding */
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    transition: transform 0.3s ease;
-}
-
-.floating-card:hover {
-    z-index: 10;
-    transform: scale(1.05) !important;
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.fc-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.fc-badge {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    font-size: 0.8rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-weight: 600;
-}
-
-.fc-badge.badge-live {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    animation: pulse 1.5s infinite;
-}
-
-.fc-price {
-    font-weight: 700;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    /* Increased size */
-}
-
-.fc-body {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.fc-avatar {
-    width: 55px;
-    /* Increased size */
-    height: 55px;
-    background: var(--bg-secondary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    /* Increased icon size */
-    border: 1px solid var(--border-subtle);
-}
-
-.fc-info h4 {
-    margin: 0;
-    font-size: 1.2rem;
-    /* Increased size */
-    color: var(--text-primary);
-}
-
-.fc-info p {
-    margin: 0;
-    font-size: 1rem;
-    /* Increased size */
-    color: var(--text-muted);
-}
-
-/* Animations and Positioning */
-.card-1 {
-    top: 10%;
-    right: 15%;
-    transform: rotate(6deg);
-    animation: float 6s ease-in-out infinite;
-}
-
-.card-2 {
-    top: 40%;
-    right: 5%;
-    /* Pushed right */
-    transform: rotate(-3deg);
-    animation: float 5s ease-in-out infinite 0.5s;
-    /* Staggered */
-    z-index: 2;
-}
-
-.card-3 {
-    top: 70%;
-    right: 20%;
-    transform: rotate(4deg);
-    animation: float 7s ease-in-out infinite 1s;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-
-    50% {
-        transform: translateY(-15px) rotate(var(--r));
-    }
-
-    100% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-}
-
-/* Pass rotation as variable if needed, or just hardcode rotation in keyframes per card if supported. simpler to just transform Y while keeping rotate? */
-/* CSS doesn't support composing transform easily like that without variables, so let's simplify animation to just Y */
-
-.card-1 {
-    --r: 6deg;
-}
-
-.card-2 {
-    --r: -3deg;
-}
-
-.card-3 {
-    --r: 4deg;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-
-    50% {
-        transform: translateY(-15px) rotate(var(--r));
-    }
-
-    100% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-}
-
-.features-section,
-.sports-section {
-    padding: 4rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-title {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-xl);
-    color: var(--text-primary);
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-    padding: 0 var(--spacing-lg);
-}
-
-.feature-card {
-    background: var(--bg-secondary);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all var(--transition-base);
-}
-
-.feature-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-}
-
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-md);
-}
-
-.feature-card h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-}
-
-.feature-card p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-.sports-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg);
-    padding: 0 var(--spacing-lg);
-}
-
-.sport-card {
-    background: var(--bg-secondary);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all var(--transition-base);
-}
-
-.sport-card:hover {
-    transform: scale(1.05);
-    border-color: rgba(168, 85, 247, 0.5);
-}
-
-.sport-icon {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-md);
-}
-
-.sport-card h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-}
-
-.sport-card p {
-    color: var(--text-secondary);
-}
-
-.cta-section {
-    padding: 4rem 0;
-    text-align: center;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-}
-
-.cta-content {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-.cta-content h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-primary);
-}
-
-.cta-content p {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
-}
-
-.btn-large {
-    padding: 1rem 2.5rem;
-    font-size: 1.125rem;
-}
-
-@media (max-width: 900px) {
-    .hero-container-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2rem;
+    /* Hero background now relies on global body pattern */
+    .hero-section {
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
     }
 
     .hero-content {
-        text-align: center;
-        max-width: 600px;
-        margin: 0 auto;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100%;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: var(--spacing-md);
+        color: var(--text-primary);
+        background: none;
+        -webkit-text-fill-color: var(--text-primary);
+        line-height: 1.1;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-xl);
+        line-height: 1.6;
+        max-width: 90%;
     }
 
     .hero-buttons {
-        justify-content: center;
+        display: flex;
+        gap: var(--spacing-md);
+        /* justify-content: flex-start; */
+        /* Start alignment */
+        flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        width: 100%;
     }
 
+    /* Hero Stats Strip */
     .hero-stats {
-        justify-content: center;
-        border-top: none;
-        border-bottom: 1px solid var(--border-subtle);
-        padding-bottom: 2rem;
+        display: flex;
+        flex-direction: row;
+        /* Explicitly row */
+        align-items: center;
+        gap: 3rem;
+        /* Increase gap */
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-subtle);
+        width: 100%;
     }
 
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-divider {
+        width: 1px;
+        height: 30px;
+        background: var(--border-subtle);
+    }
+
+
+    /* Hero Visuals (Floating Cards) */
     .hero-visuals {
-        height: 300px;
-        /* Smaller height on mobile */
+        position: relative;
+        height: 600px;
+        /* Increased height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .floating-card {
-        transform: scale(0.8);
-        /* Scale down slightly */
+        position: absolute;
+        width: 340px;
+        /* Increased width */
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        /* Increased padding */
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        transition: transform 0.3s ease;
     }
-}
 
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 2.5rem;
+    .floating-card:hover {
+        z-index: 10;
+        transform: scale(1.05) !important;
+        border-color: rgba(255, 255, 255, 0.3);
     }
 
-    .hero-subtitle {
+    .fc-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .fc-badge {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .fc-badge.badge-live {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        animation: pulse 1.5s infinite;
+    }
+
+    .fc-price {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        /* Increased size */
+    }
+
+    .fc-body {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .fc-avatar {
+        width: 55px;
+        /* Increased size */
+        height: 55px;
+        background: var(--bg-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        /* Increased icon size */
+        border: 1px solid var(--border-subtle);
+    }
+
+    .fc-info h4 {
+        margin: 0;
+        font-size: 1.2rem;
+        /* Increased size */
+        color: var(--text-primary);
+    }
+
+    .fc-info p {
+        margin: 0;
         font-size: 1rem;
-        margin: 0 auto var(--spacing-xl);
+        /* Increased size */
+        color: var(--text-muted);
+    }
+
+    /* Animations and Positioning */
+    .card-1 {
+        top: 10%;
+        right: 15%;
+        transform: rotate(6deg);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .card-2 {
+        top: 40%;
+        right: 5%;
+        /* Pushed right */
+        transform: rotate(-3deg);
+        animation: float 5s ease-in-out infinite 0.5s;
+        /* Staggered */
+        z-index: 2;
+    }
+
+    .card-3 {
+        top: 70%;
+        right: 20%;
+        transform: rotate(4deg);
+        animation: float 7s ease-in-out infinite 1s;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px) rotate(var(--r));
+        }
+
+        50% {
+            transform: translateY(-15px) rotate(var(--r));
+        }
+
+        100% {
+            transform: translateY(0px) rotate(var(--r));
+        }
+    }
+
+    /* Pass rotation as variable if needed, or just hardcode rotation in keyframes per card if supported. simpler to just transform Y while keeping rotate? */
+    /* CSS doesn't support composing transform easily like that without variables, so let's simplify animation to just Y */
+
+    .card-1 {
+        --r: 6deg;
+    }
+
+    .card-2 {
+        --r: -3deg;
+    }
+
+    .card-3 {
+        --r: 4deg;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px) rotate(var(--r));
+        }
+
+        50% {
+            transform: translateY(-15px) rotate(var(--r));
+        }
+
+        100% {
+            transform: translateY(0px) rotate(var(--r));
+        }
+    }
+
+    .features-section,
+    .sports-section {
+        padding: 4rem 0;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     .section-title {
-        font-size: 2rem;
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: var(--spacing-xl);
+        color: var(--text-primary);
     }
 
-    .features-grid,
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-lg);
+        padding: 0 var(--spacing-lg);
+    }
+
+    .feature-card {
+        background: var(--bg-secondary);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all var(--transition-base);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-primary);
+    }
+
+    .feature-card p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
     .sports-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero-title {
-        font-size: 2rem;
-        word-wrap: break-word;
-        /* Ensure valid wrap */
-        hyphens: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        padding: 0 var(--spacing-lg);
     }
 
-    .hero-subtitle {
-        font-size: 0.95rem;
+    .sport-card {
+        background: var(--bg-secondary);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all var(--transition-base);
     }
 
-    .hero-section {
-        padding: 3rem 0;
-        /* Reduce vertical padding */
+    .sport-card:hover {
+        transform: scale(1.05);
+        border-color: rgba(168, 85, 247, 0.5);
     }
 
-    .hero-buttons {
-        gap: 0.75rem;
+    .sport-icon {
+        font-size: 4rem;
+        margin-bottom: var(--spacing-md);
     }
 
-    .btn {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
+    .sport-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-primary);
     }
-}
+
+    .sport-card p {
+        color: var(--text-secondary);
+    }
+
+    .cta-section {
+        padding: 4rem 0;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+    }
+
+    .cta-content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 var(--spacing-lg);
+    }
+
+    .cta-content h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: var(--spacing-md);
+        color: var(--text-primary);
+    }
+
+    .cta-content p {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .btn-large {
+        padding: 1rem 2.5rem;
+        font-size: 1.125rem;
+    }
+
+    @media (max-width: 900px) {
+        .hero-container-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 2rem;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-buttons {
+            justify-content: center;
+        }
+
+        .hero-stats {
+            justify-content: center;
+            border-top: none;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 2rem;
+        }
+
+        .hero-visuals {
+            height: 300px;
+            /* Smaller height on mobile */
+        }
+
+        .floating-card {
+            transform: scale(0.8);
+            /* Scale down slightly */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            margin: 0 auto var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .features-grid,
+        .sports-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 2rem;
+            word-wrap: break-word;
+            /* Ensure valid wrap */
+            hyphens: auto;
+        }
+
+        .hero-subtitle {
+            font-size: 0.95rem;
+        }
+
+        .hero-section {
+            padding: 3rem 0;
+            /* Reduce vertical padding */
+        }
+
+        .hero-buttons {
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+    }
