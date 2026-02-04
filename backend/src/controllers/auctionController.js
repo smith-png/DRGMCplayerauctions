@@ -5,49 +5,37 @@ export const startAuction = async (req, res) => {
     try {
         console.log('=== START AUCTION REQUEST ===');
         console.log('Request body:', req.body);
-        console.log('Request user:', req.user);
-
         const { playerId, basePrice } = req.body;
 
         if (!playerId) {
-            console.log('❌ Error: No playerId provided');
             return res.status(400).json({ error: 'Player ID is required' });
         }
 
-        console.log(`✅ Starting auction for player ID: ${playerId}`);
+        // Atomic Update: Checks existence and status in one go
+        const finalBasePrice = basePrice || 50; // We might need to fetch default if not provided, but for now assuming 50 or existing logic.
+        // Actually, to get existing base_price fallback, we might need a COALESCE in SQL or a prior select.
+        // Let's stick to the Gemini suggestion but ensure we handle base_price correctly.
+        // "base_price = COALESCE($1, base_price, 50)"
 
-        // Check if player exists
-        const playerResult = await pool.query(
-            'SELECT * FROM players WHERE id = $1',
-            [playerId]
+        const updateResult = await pool.query(
+            `UPDATE players 
+             SET status = 'auctioning', base_price = COALESCE($1, base_price, 50) 
+             WHERE id = $2 AND status != 'sold' 
+             RETURNING *`,
+            [basePrice || null, playerId]
         );
 
-        console.log(`Found ${playerResult.rows.length} player(s)`);
-
-        if (playerResult.rows.length === 0) {
-            console.log('❌ Error: Player not found');
-            return res.status(404).json({ error: 'Player not found' });
+        if (updateResult.rows.length === 0) {
+            // Check why it failed
+            const check = await pool.query('SELECT status FROM players WHERE id = $1', [playerId]);
+            if (check.rows.length === 0) {
+                return res.status(404).json({ error: 'Player not found' });
+            }
+            return res.status(400).json({ error: 'Player is already sold or invalid status' });
         }
 
-        const player = playerResult.rows[0];
-        console.log('Player details:', { id: player.id, name: player.name, status: player.status });
-
-        // Check if player is already sold
-        if (player.status === 'sold') {
-            console.log('❌ Error: Player already sold');
-            return res.status(400).json({ error: 'Player is already sold' });
-        }
-
-        // Update player status to 'auctioning'
-        const finalBasePrice = basePrice || player.base_price || 50;
-        console.log(`Setting base price to: ${finalBasePrice}`);
-
-        await pool.query(
-            'UPDATE players SET status = $1, base_price = $2 WHERE id = $3',
-            ['auctioning', finalBasePrice, playerId]
-        );
-
-        console.log('✅ Player status updated to auctioning');
+        const player = updateResult.rows[0];
+        console.log(`✅ Started auction for player: ${player.name} (ID: ${player.id})`);
 
         // Broadcast real-time update
         if (req.io) {
@@ -55,8 +43,7 @@ export const startAuction = async (req, res) => {
                 type: 'started',
                 player: {
                     ...player,
-                    status: 'auctioning',
-                    base_price: finalBasePrice
+                    status: 'auctioning'
                 },
                 timestamp: new Date()
             });
@@ -65,42 +52,35 @@ export const startAuction = async (req, res) => {
 
         res.json({
             message: 'Auction started successfully',
-            player: {
-                ...player,
-                status: 'auctioning',
-                base_price: finalBasePrice
-            }
+            player
         });
-
-        console.log('=== AUCTION STARTED SUCCESSFULLY ===');
     } catch (error) {
         console.error('❌ START AUCTION ERROR:', error);
-        console.error('Error stack:', error.stack);
         res.status(500).json({ error: 'Failed to start auction', details: error.message });
     }
 };
 
 // Place a bid
+// Place a bid
 export const placeBid = async (req, res) => {
     const client = await pool.connect();
     try {
         console.log('=== PLACE BID REQUEST ===');
-        console.log('Request body:', req.body);
-
         const { playerId, teamId, bidAmount } = req.body;
 
+        // Input Validation
         if (!playerId || !teamId || !bidAmount) {
-            console.log('❌ Missing required fields');
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
         }
-
-        console.log(`✅ Placing bid: Player ${playerId}, Team ${teamId}, Amount ${bidAmount}`);
+        if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
+            return res.status(400).json({ error: 'Invalid bid amount' });
+        }
 
         await client.query('BEGIN');
 
-        // Check if team has enough budget using stored remaining_budget - LOCK the row
+        // Check budget & Lock Row
         const budgetResult = await client.query(
-            'SELECT remaining_budget FROM teams WHERE id = $1 FOR UPDATE',
+            'SELECT remaining_budget, name FROM teams WHERE id = $1 FOR UPDATE',
             [teamId]
         );
 
@@ -110,28 +90,27 @@ export const placeBid = async (req, res) => {
         }
 
         const remainingBudget = parseFloat(budgetResult.rows[0].remaining_budget);
+        const teamName = budgetResult.rows[0].name;
 
         if (parseFloat(bidAmount) > remainingBudget) {
             await client.query('ROLLBACK');
             return res.status(400).json({ error: `Not enough budget. Remaining: ${remainingBudget} Pts` });
         }
 
-        // Insert bid into database
+        // Insert Bid
         const result = await client.query(
             'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3) RETURNING *',
             [playerId, teamId, bidAmount]
         );
 
+        // Fetch Player Name (using SAME client) to ensure atomicity and correctness
+        const playerRes = await client.query('SELECT name FROM players WHERE id = $1', [playerId]);
+        const playerName = playerRes.rows[0]?.name || 'Unknown Player';
+
+        // COMMIT only after all data is ready
         await client.query('COMMIT');
 
         console.log('✅ Bid placed successfully:', result.rows[0]);
-
-        // Get team and player names for socket broadcast (can be outside transaction)
-        const teamRes = await pool.query('SELECT name FROM teams WHERE id = $1', [teamId]);
-        const playerRes = await pool.query('SELECT name FROM players WHERE id = $1', [playerId]);
-
-        const teamName = teamRes.rows[0]?.name || 'Unknown Team';
-        const playerName = playerRes.rows[0]?.name || 'Unknown Player';
 
         // Broadcast real-time update
         if (req.io) {
