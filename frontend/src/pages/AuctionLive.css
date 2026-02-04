@@ -697,8 +697,8 @@
 }
 
 .sold-price-badge {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border: 1px solid #334155;
+    background: linear-gradient(135deg, var(--cricket-green), #1b4332);
+    border: 1px solid var(--border-color);
     color: #ffd700;
     /* Gold text */
     padding: 0.3rem 0.6rem;
