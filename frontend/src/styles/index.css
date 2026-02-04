@@ -6,23 +6,12 @@
 
 :root {
   /* Theme Colors extracted from reference */
-  /* Premium Muted Background */
-  --bg-primary: #0f172a;
-  /* Slate 900 */
-  --bg-secondary: #1e293b;
-  /* Slate 800 */
-  --bg-tertiary: #334155;
-  /* Slate 700 */
-
-  --text-dark: #f8fafc;
-  /* Slate 50 (almost white) */
-  --text-green: #4ade80;
-  /* Brighter green for contrast on dark */
-
-  --cricket-green: #22c55e;
-  --cricket-cream: #0f172a;
-  /* Mapping cream to dark base for logic consistency */
-
+  --cricket-green: #295F3D;
+  /* Deep Hunter Green */
+  --cricket-cream: #F4F4F0;
+  /* Off-White/Cream Background */
+  --cricket-white: #FFFFFF;
+  --text-dark: #111111;
   /* Darker black for better contrast */
   --text-green: #1A3C26;
   /* Darker green for text */
@@ -123,13 +112,14 @@
 body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
-  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
+  /* Subtle Cricket/Sport Pattern as requested (Hollow/Repeating) */
+  background-image: radial-gradient(var(--cricket-green) 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  /* Very subtle opacity for the pattern */
+
   min-height: 100vh;
   color: var(--text-primary);
   line-height: 1.6;
-
-  /* Grid removed as requested */
-  /* background-image: ... (removed) */
 }
 
 /* Headings - Non-italicized, Serif */

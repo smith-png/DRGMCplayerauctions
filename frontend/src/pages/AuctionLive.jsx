@@ -443,22 +443,22 @@ export default function AuctionLive() {
         );
     };
 
-    const renderAuctioneerPanel = () => {
-        const sortedEligible = useMemo(() => {
-            let sorted = [...eligiblePlayers];
-            if (queueSortBy === 'name') {
-                sorted.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (queueSortBy === 'year') {
-                const order = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'intern': 5 };
-                sorted.sort((a, b) => {
-                    const aVal = order[String(a.year).toLowerCase()] || 0;
-                    const bVal = order[String(b.year).toLowerCase()] || 0;
-                    return bVal - aVal;
-                });
-            }
-            return sorted;
-        }, [eligiblePlayers, queueSortBy]);
+    const sortedEligible = useMemo(() => {
+        let sorted = [...eligiblePlayers];
+        if (queueSortBy === 'name') {
+            sorted.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (queueSortBy === 'year') {
+            const order = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'intern': 5 };
+            sorted.sort((a, b) => {
+                const aVal = order[String(a.year).toLowerCase()] || 0;
+                const bVal = order[String(b.year).toLowerCase()] || 0;
+                return bVal - aVal;
+            });
+        }
+        return sorted;
+    }, [eligiblePlayers, queueSortBy]);
 
+    const renderAuctioneerPanel = () => {
         const playersBySport = (sortedEligible || []).reduce((acc, player) => {
             const sport = player.sport || 'Other';
             if (!acc[sport]) acc[sport] = [];
