@@ -284,11 +284,12 @@
 
 /* Team Owner Dashboard Styles */
 .team-owner-dashboard .team-header-large {
-    padding: var(--spacing-2xl);
+    padding: var(--spacing-lg);
+    /* Reduced padding */
     margin-bottom: var(--spacing-xl);
-    text-align: center;
+    text-align: left;
+    /* align left */
     background: var(--bg-secondary);
-    /* Ensure readable background */
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -298,7 +299,8 @@
 
 .team-header-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    /* Row instead of column */
     align-items: center;
     gap: var(--spacing-md);
     position: relative;
@@ -306,26 +308,29 @@
 }
 
 .team-owner-title {
-    font-size: 3rem;
+    font-size: 1.75rem;
+    /* Shrunk from 3rem */
     font-weight: 800;
     margin: 0;
     background: linear-gradient(135deg, #FFD700 0%, #B8860B 50%, #FF8C00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.2);
-    letter-spacing: -1px;
+    text-shadow: 0px 2px 5px rgba(255, 215, 0, 0.1);
+    letter-spacing: -0.5px;
 }
 
 .sport-tag-large {
-    font-size: 1.1rem !important;
-    padding: 0.6rem 1.5rem !important;
+    font-size: 0.85rem !important;
+    /* Shrunk */
+    padding: 0.35rem 1rem !important;
+    /* Shrunk */
     border-radius: 50px !important;
     background: var(--accent-gradient) !important;
     color: white !important;
-    box-shadow: 0 4px 15px rgba(41, 95, 61, 0.3);
+    box-shadow: 0 2px 8px rgba(41, 95, 61, 0.2);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .team-stats-grid {
