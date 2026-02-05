@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { adminAPI, playerAPI, auctionAPI } from '../services/api';
 // import socketService from '../services/socket';
 import './AdminDashboard.css';
 
 export default function AdminDashboard() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
@@ -448,6 +450,12 @@ export default function AdminDashboard() {
                         onClick={() => setActiveTab('teams')}
                     >
                         Teams
+                    </button>
+                    <button
+                        className="tab-btn testgrounds-tab"
+                        onClick={() => navigate('/testgrounds')}
+                    >
+                        ⚗️ Testgrounds
                     </button>
                 </div>
 

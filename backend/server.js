@@ -21,6 +21,7 @@ import auctionRoutes from './src/routes/auction.js';
 import adminRoutes from './src/routes/admin.js';
 import teamRoutes from './src/routes/teams.js';
 import teamOwnerRoutes from './src/routes/teamOwner.js';
+import testgroundsRoutes from './src/routes/testgrounds.js';
 
 // Import socket handler
 import { setupAuctionSocket } from './src/socket/auctionSocket.js';
@@ -70,6 +71,7 @@ app.use('/api/auction', auctionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/team-owner', teamOwnerRoutes);
+app.use('/api/testgrounds', testgroundsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -104,7 +106,7 @@ async function startServer() {
             console.log(`📡 API: http://localhost:${PORT}`);
             console.log(`🔌 Socket.IO ready for connections`);
             console.log(`💚 Keep-alive endpoint: http://localhost:${PORT}/health/keep-alive\n`);
-            
+
             // Start internal scheduler in production
             if (process.env.ENABLE_INTERNAL_SCHEDULER === 'true') {
                 startInternalScheduler();

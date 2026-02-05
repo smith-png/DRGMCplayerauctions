@@ -107,21 +107,21 @@ export default function Home() {
             <section className="sports-section">
                 <h2 className="section-title">Roster of Sports</h2>
                 <div className="sports-grid">
-                    <div className="sport-card">
+                    <Link to="/players/cricket" className="sport-card">
                         <div className="sport-icon">🏏</div>
                         <h3>Cricket</h3>
-                        <p>Build your dream cricket team</p>
-                    </div>
-                    <div className="sport-card">
+                        <p>Click here to view all participating player profiles!</p>
+                    </Link>
+                    <Link to="/players/futsal" className="sport-card">
                         <div className="sport-icon">⚽</div>
                         <h3>Futsal</h3>
-                        <p>Assemble your futsal squad</p>
-                    </div>
-                    <div className="sport-card">
+                        <p>Click here to view all participating player profiles!</p>
+                    </Link>
+                    <Link to="/players/volleyball" className="sport-card">
                         <div className="sport-icon">🏐</div>
                         <h3>Volleyball</h3>
-                        <p>Create your volleyball lineup</p>
-                    </div>
+                        <p>Click here to view all participating player profiles!</p>
+                    </Link>
                 </div>
             </section>
 

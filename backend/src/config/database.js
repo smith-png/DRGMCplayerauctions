@@ -135,6 +135,53 @@ export async function initializeDatabase() {
       $$;
     `);
 
+    // Add is_test_data column to players table (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='players' AND column_name='is_test_data') THEN
+          ALTER TABLE players ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
+          CREATE INDEX idx_players_test_data ON players(is_test_data);
+        END IF;
+      END
+      $$;
+    `);
+
+    // Add is_test_data column to teams table (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='teams' AND column_name='is_test_data') THEN
+          ALTER TABLE teams ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
+          CREATE INDEX idx_teams_test_data ON teams(is_test_data);
+        END IF;
+      END
+      $$;
+    `);
+
+    // Add is_test_data column to users table (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='is_test_data') THEN
+          ALTER TABLE users ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
+          CREATE INDEX idx_users_test_data ON users(is_test_data);
+        END IF;
+      END
+      $$;
+    `);
+
+    // Add testgrounds_locked column to auction_state (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='testgrounds_locked') THEN
+          ALTER TABLE auction_state ADD COLUMN testgrounds_locked BOOLEAN DEFAULT FALSE;
+        END IF;
+      END
+      $$;
+    `);
+
     await client.query('COMMIT');
     console.log('✅ Database tables initialized successfully');
   } catch (error) {

@@ -9,7 +9,10 @@ import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
 import AuctionStats from './pages/AuctionStats';
 import AdminDashboard from './pages/AdminDashboard';
-import PlayerProfiles from './pages/PlayerProfiles';
+import Testgrounds from './pages/Testgrounds';
+import Teams from './pages/Teams';
+import PlayerProfilesBySport from './pages/PlayerProfilesBySport';
+// import PlayerProfiles from './pages/PlayerProfiles'; // Kept for future use
 import './styles/index.css';
 
 function ProtectedRoute({ children, requireAdmin = false }) {
@@ -62,8 +65,19 @@ function AppRoutes() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/testgrounds"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <Testgrounds />
+                            </ProtectedRoute>
+                        }
+                    />
                     {/* Public Routes */}
-                    <Route path="/player-profiles" element={<PlayerProfiles />} />
+                    <Route path="/teams" element={<Teams />} />
+                    <Route path="/players/:sport" element={<PlayerProfilesBySport />} />
+                    {/* Old player profiles - kept for future use */}
+                    {/* <Route path="/player-profiles" element={<PlayerProfiles />} /> */}
                 </Routes>
             </main>
         </Router>

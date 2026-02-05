@@ -95,9 +95,19 @@ export async function getAllPlayers(req, res) {
     const { sport, year, status } = req.query;
 
     try {
+        // Get testgrounds lockdown state
+        const lockdownResult = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = lockdownResult.rows[0]?.testgrounds_locked || false;
+        const isAdmin = req.user?.role === 'admin';
+
         let query = 'SELECT * FROM players WHERE 1=1';
         const params = [];
         let paramCount = 1;
+
+        // Filter test data based on lockdown and user role
+        if (isLocked && !isAdmin) {
+            query += ' AND is_test_data = FALSE';
+        }
 
         if (sport) {
             query += ` AND sport = $${paramCount}`;
@@ -244,9 +254,21 @@ export const markEligible = async (req, res) => {
 // Get eligible players
 export const getEligiblePlayers = async (req, res) => {
     try {
-        const result = await pool.query(
-            "SELECT * FROM players WHERE status = 'eligible' ORDER BY created_at ASC"
-        );
+        // Get testgrounds lockdown state
+        const lockdownResult = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = lockdownResult.rows[0]?.testgrounds_locked || false;
+        const isAdmin = req.user?.role === 'admin';
+
+        let query = "SELECT * FROM players WHERE status = 'eligible'";
+
+        // Filter test data based on lockdown and user role
+        if (isLocked && !isAdmin) {
+            query += ' AND is_test_data = FALSE';
+        }
+
+        query += ' ORDER BY created_at ASC';
+
+        const result = await pool.query(query);
         res.json({ players: result.rows });
     } catch (error) {
         console.error('Get eligible players error:', error);

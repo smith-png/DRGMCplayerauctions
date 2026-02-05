@@ -357,7 +357,17 @@ export const markPlayerUnsold = async (req, res) => {
 // Get leaderboard (teams with their players and total spent)
 export const getLeaderboard = async (req, res) => {
     try {
-        const result = await pool.query(`
+        // Get testgrounds lockdown state
+        const lockdownResult = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = lockdownResult.rows[0]?.testgrounds_locked || false;
+        const isAdmin = req.user?.role === 'admin';
+
+        let teamFilter = '';
+        if (isLocked && !isAdmin) {
+            teamFilter = 'WHERE t.is_test_data = FALSE';
+        }
+
+        const query = `
             SELECT 
                 t.id,
                 t.name,
@@ -381,10 +391,12 @@ export const getLeaderboard = async (req, res) => {
                 ) as players
             FROM teams t
             LEFT JOIN players p ON p.team_id = t.id AND p.status = 'sold'
+            ${teamFilter}
             GROUP BY t.id, t.name, t.sport, t.budget, t.remaining_budget
             ORDER BY total_spent DESC
-        `);
+        `;
 
+        const result = await pool.query(query);
         res.json({ leaderboard: result.rows });
     } catch (error) {
         console.error('Get leaderboard error:', error);

@@ -40,8 +40,8 @@ export default function Navbar() {
                             </NavLink>
                         )}
 
-                        <NavLink to="/player-profiles" className="nav-link">
-                            <span>Player Profiles</span>
+                        <NavLink to="/teams" className="nav-link">
+                            <span>Teams</span>
                         </NavLink>
 
                         {isAdmin && (
