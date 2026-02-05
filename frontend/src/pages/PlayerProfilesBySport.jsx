@@ -134,6 +134,7 @@ export default function PlayerProfilesBySport() {
                                         src={player.photo_url}
                                         alt={player.name}
                                         className="profile-photo"
+                                        loading="lazy"
                                     />
                                 ) : (
                                     <div className="profile-photo-placeholder">
@@ -202,6 +203,7 @@ export default function PlayerProfilesBySport() {
                                         src={selectedPlayer.photo_url}
                                         alt={selectedPlayer.name}
                                         className="modal-photo"
+                                        loading="lazy"
                                     />
                                 ) : (
                                     <div className="modal-photo-placeholder">

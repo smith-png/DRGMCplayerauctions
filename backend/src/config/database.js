@@ -182,6 +182,38 @@ export async function initializeDatabase() {
       $$;
     `);
 
+    // Create performance indexes
+    console.log('Creating performance indexes...');
+
+    // Players table indexes
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_players_sport ON players(sport);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_players_status ON players(status);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_players_team_id ON players(team_id);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_players_sport_status ON players(sport, status);
+    `);
+
+    // Teams table indexes
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_teams_sport ON teams(sport);
+    `);
+
+    // Bids table indexes
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_bids_player_id ON bids(player_id);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_bids_team_id ON bids(team_id);
+    `);
+
+    console.log('✅ Performance indexes created successfully');
+
     await client.query('COMMIT');
     console.log('✅ Database tables initialized successfully');
   } catch (error) {

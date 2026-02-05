@@ -156,6 +156,7 @@ export default function Teams() {
                                             src={team.logo_url}
                                             alt={team.name}
                                             className="team-logo"
+                                            loading="lazy"
                                         />
                                     )}
                                     <h2 className="team-name">{team.name}</h2>
@@ -194,6 +195,7 @@ export default function Teams() {
                                                             src={player.photo_url}
                                                             alt={player.name}
                                                             className="player-photo"
+                                                            loading="lazy"
                                                         />
                                                     )}
                                                     <div className="player-info">
