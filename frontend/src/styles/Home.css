@@ -322,6 +322,9 @@
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all var(--transition-base);
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .sport-card:hover {
@@ -343,6 +346,7 @@
 
 .sport-card p {
     color: var(--text-secondary);
+    text-decoration: none;
 }
 
 .cta-section {

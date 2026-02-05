@@ -1,14 +1,56 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { teamsAPI } from '../services/api';
 import './Navbar.css';
 
 export default function Navbar() {
     const { user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
+    const [showUserOverlay, setShowUserOverlay] = useState(false);
+    const [userTeam, setUserTeam] = useState(null);
+    const overlayRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (overlayRef.current && !overlayRef.current.contains(event.target)) {
+                setShowUserOverlay(false);
+            }
+        };
+
+        if (showUserOverlay) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showUserOverlay]);
+
+    useEffect(() => {
+        if (user?.role === 'team_owner' && showUserOverlay) {
+            fetchUserTeam();
+        }
+    }, [showUserOverlay, user]);
+
+    const fetchUserTeam = async () => {
+        try {
+            const response = await teamsAPI.getAllTeams();
+            // Find team where this user is the owner
+            const team = response.data.teams.find(t => t.owner_name === user.name);
+            setUserTeam(team);
+        } catch (error) {
+            console.error('Error fetching user team:', error);
+        }
+    };
 
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const toggleUserOverlay = () => {
+        setShowUserOverlay(!showUserOverlay);
     };
 
     return (
@@ -52,15 +94,48 @@ export default function Navbar() {
                     </div>
 
                     {/* User Menu */}
-                    <div className="navbar-user">
+                    <div className="navbar-user" ref={overlayRef}>
                         {user ? (
                             <div className="user-menu">
-                                <div className="user-info">
+                                <div className="user-info" onClick={toggleUserOverlay} style={{ cursor: 'pointer' }}>
                                     <div className="user-details">
                                         <span className="user-name">{user.name || user.email}</span>
                                         <span className="user-role">{user.role}</span>
                                     </div>
                                 </div>
+
+                                {/* User Info Overlay */}
+                                {showUserOverlay && (
+                                    <div className="user-info-overlay">
+                                        <div className="overlay-header">
+                                            <h4>Account Details</h4>
+                                        </div>
+                                        <div className="overlay-content">
+                                            <div className="overlay-item">
+                                                <span className="overlay-label">Name:</span>
+                                                <span className="overlay-value">{user.name || user.email}</span>
+                                            </div>
+                                            <div className="overlay-item">
+                                                <span className="overlay-label">Role:</span>
+                                                <span className="overlay-value">{user.role}</span>
+                                            </div>
+                                            {user.role === 'team_owner' && (
+                                                <div className="overlay-item">
+                                                    <span className="overlay-label">Team:</span>
+                                                    <span className="overlay-value">
+                                                        {userTeam ? userTeam.name : 'Loading...'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="overlay-item">
+                                                <span className="overlay-label">Password:</span>
+                                                <span className="overlay-value password-value">••••••••</span>
+                                                <span className="overlay-hint">Contact admin to reset</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <button onClick={handleLogout} className="btn btn-logout">
                                     Logout
                                 </button>

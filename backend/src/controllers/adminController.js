@@ -203,15 +203,26 @@ export async function getAllTeams(req, res) {
     const { sport } = req.query;
 
     try {
-        let query = 'SELECT * FROM teams';
+        let query = `
+            SELECT t.*, u.name as owner_name 
+            FROM teams t 
+            LEFT JOIN users u ON u.role = 'team_owner' AND (
+                u.email LIKE CONCAT('%', LOWER(t.name), '%') OR
+                EXISTS (
+                    SELECT 1 FROM users u2 
+                    WHERE u2.id = u.id 
+                    AND u2.team_assigned = t.id
+                )
+            )
+        `;
         const params = [];
 
         if (sport) {
-            query += ' WHERE sport = $1';
+            query += ' WHERE t.sport = $1';
             params.push(sport);
         }
 
-        query += ' ORDER BY name';
+        query += ' ORDER BY t.name';
 
         const result = await pool.query(query, params);
 

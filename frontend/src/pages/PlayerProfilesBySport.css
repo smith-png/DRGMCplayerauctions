@@ -50,6 +50,50 @@
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
+/* ===== FILTER SECTION ===== */
+.filter-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.filter-label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.year-filter-dropdown {
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.year-filter-dropdown:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.year-filter-dropdown:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.year-filter-dropdown option {
+    background: #1a1a2e;
+    color: white;
+}
+
+
 /* ===== PLAYERS GRID ===== */
 .players-grid {
     display: grid;
@@ -322,6 +366,18 @@
     font-weight: 600;
     color: white;
 }
+
+.team-link {
+    cursor: pointer;
+    color: #667eea;
+    transition: all 0.3s ease;
+}
+
+.team-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
 
 .sold-price {
     color: #10B981;

@@ -1,54 +1,80 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { playerAPI } from '../services/api';
+import { playerAPI, teamsAPI } from '../services/api';
 import './PlayerProfilesBySport.css';
 
 export default function PlayerProfilesBySport() {
     const { sport } = useParams();
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
+    const [filteredPlayers, setFilteredPlayers] = useState([]);
+    const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [yearFilter, setYearFilter] = useState('All');
     const playersPerPage = 12;
 
     useEffect(() => {
-        fetchPlayers();
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sport]);
 
-    const fetchPlayers = async () => {
+    useEffect(() => {
+        applyYearFilter();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [players, yearFilter]);
+
+    const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await playerAPI.getAllPlayers();
-            const sportPlayers = response.data.players.filter(
+            const [playersRes, teamsRes] = await Promise.all([
+                playerAPI.getAllPlayers(),
+                teamsAPI.getAllTeams()
+            ]);
+
+            const sportPlayers = playersRes.data.players.filter(
                 p => p.sport === sport && (p.status === 'approved' || p.status === 'eligible' || p.status === 'sold')
             );
             setPlayers(sportPlayers);
+            setTeams(teamsRes.data.teams || []);
         } catch (error) {
-            console.error('Error fetching players:', error);
+            console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
         }
     };
 
+    const applyYearFilter = () => {
+        if (yearFilter === 'All') {
+            setFilteredPlayers(players);
+        } else {
+            setFilteredPlayers(players.filter(p => p.year === yearFilter));
+        }
+        setCurrentPage(1); // Reset to first page when filter changes
+    };
+
+    const getPlayerTeam = (teamId) => {
+        return teams.find(t => t.id === teamId);
+    };
+
+    const handleTeamClick = (teamId, sport) => {
+        navigate(`/teams?sport=${sport}&team=${teamId}`);
+    };
+
     // Pagination logic
     const indexOfLastPlayer = currentPage * playersPerPage;
     const indexOfFirstPlayer = indexOfLastPlayer - playersPerPage;
-    const currentPlayers = players.slice(indexOfFirstPlayer, indexOfLastPlayer);
-    const totalPages = Math.ceil(players.length / playersPerPage);
+    const currentPlayers = filteredPlayers.slice(indexOfFirstPlayer, indexOfLastPlayer);
+    const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const getSportIcon = () => {
-        switch (sport) {
-            case 'cricket': return '🏏';
-            case 'futsal': return '⚽';
-            case 'volleyball': return '🏐';
-            default: return '🏆';
-        }
+    const getSportName = () => {
+        return sport.charAt(0).toUpperCase() + sport.slice(1);
     };
 
     return (
@@ -59,19 +85,40 @@ export default function PlayerProfilesBySport() {
                 </button>
                 <h1 className="profiles-title">Participating Players</h1>
                 <span className="sport-pill">
-                    {getSportIcon()} {sport.charAt(0).toUpperCase() + sport.slice(1)}
+                    {getSportName()}
                 </span>
+            </div>
+
+            {/* Year Filter */}
+            <div className="filter-section">
+                <label htmlFor="year-filter" className="filter-label">Filter by MBBS Year:</label>
+                <select
+                    id="year-filter"
+                    className="year-filter-dropdown"
+                    value={yearFilter}
+                    onChange={(e) => setYearFilter(e.target.value)}
+                >
+                    <option value="All">All Years</option>
+                    <option value="FE">FE (First Year)</option>
+                    <option value="SE">SE (Second Year)</option>
+                    <option value="TE">TE (Third Year)</option>
+                    <option value="BE">BE (Final Year)</option>
+                </select>
             </div>
 
             {loading ? (
                 <div className="loading-spinner">
                     <div className="spinner"></div>
                 </div>
-            ) : players.length === 0 ? (
+            ) : filteredPlayers.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-icon">👤</div>
-                    <h3>Currently no registrations for {sport}</h3>
-                    <p>Players will appear here once they register and are approved</p>
+                    <h3>No players found</h3>
+                    <p>
+                        {yearFilter === 'All'
+                            ? `No registrations for ${sport} yet`
+                            : `No ${yearFilter} students registered for ${sport}`
+                        }
+                    </p>
                 </div>
             ) : (
                 <>
@@ -170,7 +217,7 @@ export default function PlayerProfilesBySport() {
                                     <div className="info-item">
                                         <span className="info-label">Sport</span>
                                         <span className="info-value">
-                                            {getSportIcon()} {selectedPlayer.sport.charAt(0).toUpperCase() + selectedPlayer.sport.slice(1)}
+                                            {selectedPlayer.sport.charAt(0).toUpperCase() + selectedPlayer.sport.slice(1)}
                                         </span>
                                     </div>
 
@@ -193,8 +240,27 @@ export default function PlayerProfilesBySport() {
                                         <div className="info-item">
                                             <span className="info-label">Sold For</span>
                                             <span className="info-value sold-price">
-                                                💰 {selectedPlayer.final_price} Pts
+                                                {selectedPlayer.final_price} Pts
                                             </span>
+                                        </div>
+                                    )}
+
+                                    {selectedPlayer.status === 'sold' && selectedPlayer.team_id && (
+                                        <div className="info-item">
+                                            <span className="info-label">Team</span>
+                                            {(() => {
+                                                const team = getPlayerTeam(selectedPlayer.team_id);
+                                                return team ? (
+                                                    <span
+                                                        className="info-value team-link"
+                                                        onClick={() => handleTeamClick(team.id, team.sport)}
+                                                    >
+                                                        {team.name} →
+                                                    </span>
+                                                ) : (
+                                                    <span className="info-value">Unknown</span>
+                                                );
+                                            })()}
                                         </div>
                                     )}
 

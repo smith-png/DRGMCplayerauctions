@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { playerAPI, teamsAPI } from '../services/api';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import './Teams.css';
 
 export default function Teams() {
@@ -37,10 +39,77 @@ export default function Teams() {
         return players.filter(p => p.team_id === teamId && p.status === 'sold');
     };
 
+    const downloadTeamPDF = (team) => {
+        const doc = new jsPDF();
+        const teamPlayers = getTeamPlayers(team.id);
+
+        // Add team name as title
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text(team.name, 14, 20);
+
+        // Add team info
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Sport: ${team.sport.charAt(0).toUpperCase() + team.sport.slice(1)}`, 14, 30);
+        doc.text(`Remaining Budget: ${team.remaining_budget || team.budget} Pts`, 14, 36);
+        if (team.owner_name) {
+            doc.text(`Owner: ${team.owner_name}`, 14, 42);
+        }
+
+        // Add players table
+        const tableData = teamPlayers.map(player => [
+            player.name,
+            player.year,
+            player.stats || 'Player',
+            `${player.final_price || player.base_price} Pts`
+        ]);
+
+        doc.autoTable({
+            startY: team.owner_name ? 48 : 42,
+            head: [['Player Name', 'Year', 'Role', 'Price']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [102, 126, 234],
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 3
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            }
+        });
+
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.text(
+                `Generated on ${new Date().toLocaleDateString()}`,
+                14,
+                doc.internal.pageSize.height - 10
+            );
+            doc.text(
+                `Page ${i} of ${pageCount}`,
+                doc.internal.pageSize.width - 30,
+                doc.internal.pageSize.height - 10
+            );
+        }
+
+        // Download
+        doc.save(`${team.name.replace(/\s+/g, '_')}_Roster.pdf`);
+    };
+
     return (
         <div className="teams-page">
             <div className="teams-header">
-                <h1 className="teams-title">🏆 Team Rosters</h1>
+                <h1 className="teams-title">Team Rosters</h1>
                 <p className="teams-subtitle">View all teams and their secured players</p>
             </div>
 
@@ -49,19 +118,19 @@ export default function Teams() {
                     className={`sport-tab ${activeSport === 'cricket' ? 'active' : ''}`}
                     onClick={() => setActiveSport('cricket')}
                 >
-                    🏏 Cricket
+                    Cricket
                 </button>
                 <button
                     className={`sport-tab ${activeSport === 'futsal' ? 'active' : ''}`}
                     onClick={() => setActiveSport('futsal')}
                 >
-                    ⚽ Futsal
+                    Futsal
                 </button>
                 <button
                     className={`sport-tab ${activeSport === 'volleyball' ? 'active' : ''}`}
                     onClick={() => setActiveSport('volleyball')}
                 >
-                    🏐 Volleyball
+                    Volleyball
                 </button>
             </div>
 
@@ -90,10 +159,22 @@ export default function Teams() {
                                         />
                                     )}
                                     <h2 className="team-name">{team.name}</h2>
+                                    {team.owner_name && (
+                                        <p className="team-owner">Owned by {team.owner_name}</p>
+                                    )}
                                     <div className="team-budget">
                                         <span className="budget-label">Remaining Budget:</span>
                                         <span className="budget-value">{team.remaining_budget || team.budget} Pts</span>
                                     </div>
+
+                                    {/* Download PDF Button */}
+                                    <button
+                                        className="btn-download-pdf"
+                                        onClick={() => downloadTeamPDF(team)}
+                                        title="Download Team Roster PDF"
+                                    >
+                                        Download PDF
+                                    </button>
                                 </div>
 
                                 <div className="team-players">
@@ -123,7 +204,7 @@ export default function Teams() {
                                                             <span className="player-year">{player.year}</span>
                                                         </div>
                                                         <div className="player-price">
-                                                            💰 {player.final_price || player.base_price} Pts
+                                                            {player.final_price || player.base_price} Pts
                                                         </div>
                                                     </div>
                                                 </div>
