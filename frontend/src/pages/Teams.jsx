@@ -160,9 +160,6 @@ export default function Teams() {
                                         />
                                     )}
                                     <h2 className="team-name">{team.name}</h2>
-                                    {team.owner_name && (
-                                        <p className="team-owner">Owned by {team.owner_name}</p>
-                                    )}
                                     <div className="team-budget">
                                         <span className="budget-label">Remaining Budget:</span>
                                         <span className="budget-value">{team.remaining_budget || team.budget} Pts</span>
