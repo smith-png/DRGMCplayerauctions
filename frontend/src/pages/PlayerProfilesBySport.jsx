@@ -213,11 +213,10 @@ export default function PlayerProfilesBySport() {
                                         {selectedPlayer.name.charAt(0).toUpperCase()}
                                     </div>
                                 )}
+                                <h2 className="modal-name">{selectedPlayer.name}</h2>
                             </div>
 
                             <div className="modal-info-section">
-                                <h2 className="modal-name">{selectedPlayer.name}</h2>
-
                                 <div className="info-grid">
                                     <div className="info-item">
                                         <span className="info-label">Sport</span>

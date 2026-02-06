@@ -482,18 +482,31 @@
     }
 
     .modal-photo-section {
-        width: 40%;
+        width: 35%;
+        /* Left column width */
         margin-bottom: 0;
-        justify-content: flex-end;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Center name under photo */
+        gap: 1.5rem;
     }
 
     .modal-info-section {
-        width: 60%;
-        align-items: flex-start;
+        width: 65%;
+        /* Right column width */
+        align-items: stretch;
+        /* Stretch items to fill width */
     }
 
     .modal-name {
-        text-align: left;
+        text-align: center;
+        font-size: 2.2rem;
+    }
+
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns for grid items on desktop */
     }
 }
 
