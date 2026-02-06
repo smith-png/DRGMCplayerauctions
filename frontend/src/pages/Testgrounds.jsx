@@ -39,6 +39,9 @@ export default function Testgrounds() {
         team_id: ''
     });
 
+    // Search State
+    const [searchQuery, setSearchQuery] = useState('');
+
     // Load initial data
     useEffect(() => {
         fetchLockdownState();
@@ -513,8 +516,52 @@ export default function Testgrounds() {
                     <div className="test-queue-section">
                         <div className="card">
                             <h2>Test Player Queue</h2>
+
+                            {/* Search to Add */}
+                            <div className="queue-search-container">
+                                <input
+                                    type="text"
+                                    placeholder="Search eligible test players to add..."
+                                    className="queue-search-input"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+
+                            {searchQuery && (
+                                <div className="available-players-list">
+                                    <h3>Found Players</h3>
+                                    <div className="test-players-grid mini-grid">
+                                        {testPlayers
+                                            .filter(p =>
+                                                p.status !== 'eligible' &&
+                                                p.status !== 'sold' &&
+                                                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                            )
+                                            .map(player => (
+                                                <div key={player.id} className="player-card mini-card">
+                                                    <div className="mini-card-info">
+                                                        <h4>{player.name}</h4>
+                                                        <span>{player.sport} • {player.base_price} Pts</span>
+                                                    </div>
+                                                    <button onClick={() => {
+                                                        handleAddToQueue(player.id);
+                                                        setSearchQuery(''); // Clear search after adding
+                                                    }} className="btn-queue-sm">
+                                                        Add to Queue
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        {testPlayers.filter(p => p.status !== 'eligible' && p.status !== 'sold' && p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                            <p className="no-results">No eligible players found.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            <h3>Current Queue</h3>
                             {queuedPlayers.length === 0 ? (
-                                <p className="empty-message">No test players in queue. Add players from the Test Players tab.</p>
+                                <p className="empty-message">No test players in queue.</p>
                             ) : (
                                 <div className="queue-list">
                                     {queuedPlayers.map(player => (

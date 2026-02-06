@@ -455,3 +455,95 @@
         padding: 0.5rem;
     }
 }
+
+/* ===== QUEUE SEARCH ===== */
+.queue-search-container {
+    margin-bottom: 2rem;
+}
+
+.queue-search-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 2px solid rgba(133, 119, 119, 0.1);
+    background: white;
+    color: #1a202c;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.queue-search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 8px 15px rgba(102, 126, 234, 0.1);
+}
+
+/* ===== AVAILABLE PLAYERS LIST ===== */
+.available-players-list {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.available-players-list h3 {
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-bottom: 1rem;
+}
+
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.mini-card {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white !important;
+    /* Override transparent/glass */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mini-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-card-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    color: #2d3748;
+}
+
+.mini-card-info span {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.btn-queue-sm {
+    padding: 0.4rem 0.8rem;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-queue-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+}
+
+.no-results {
+    color: #718096;
+    font-style: italic;
+    padding: 1rem;
+}
