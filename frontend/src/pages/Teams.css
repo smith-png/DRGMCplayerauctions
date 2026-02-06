@@ -109,17 +109,15 @@
 }
 
 .team-logo {
-    width: 80px;
-    height: 80px;
-    min-width: 80px;
-    /* Prevent squishing */
-    border-radius: 50%;
-    object-fit: contain;
-    background-color: white;
-    border: 3px solid white;
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important;
+    border-radius: 50% !important;
+    object-fit: contain !important;
+    background-color: white !important;
+    border: 3px solid white !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 8px;
-    /* Space inside the circle */
+    padding: 8px !important;
 }
 
 .team-info-header {
