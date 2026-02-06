@@ -239,9 +239,8 @@
 }
 
 .profile-modal {
-    background: rgba(20, 20, 30, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 20px;
     max-width: 800px;
     width: 100%;
@@ -269,10 +268,9 @@
     right: 1.5rem;
     width: 45px;
     height: 45px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    color: white;
+    color: #4a5568;
     font-size: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -303,8 +301,8 @@
     max-width: 300px;
     height: auto;
     border-radius: 15px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    border: 3px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .modal-photo-placeholder {
@@ -318,8 +316,8 @@
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
     font-size: 6rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.5);
-    border: 3px solid rgba(255, 255, 255, 0.2);
+    color: rgba(0, 0, 0, 0.3);
+    border: 3px solid rgba(102, 126, 234, 0.2);
 }
 
 .modal-info-section {
@@ -348,22 +346,23 @@
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: #f8f9fa;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .info-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: #4a5568;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 .info-value {
     font-size: 1.1rem;
-    font-weight: 600;
-    color: white;
+    font-weight: 700;
+    color: #1a202c;
 }
 
 .team-link {
