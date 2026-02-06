@@ -82,25 +82,26 @@ export default function Teams() {
                         return (
                             <div key={team.id} className="team-card">
                                 <div className="team-header">
-                                    {team.logo_url && (
-                                        <img
-                                            src={team.logo_url}
-                                            alt={team.name}
-                                            className="team-logo"
-                                            loading="lazy"
-                                        />
-                                    )}
-                                    <h2 className="team-name">{team.name}</h2>
-                                    {team.owner_name && (
-                                        <div className="team-owner">Owner: {team.owner_name}</div>
-                                    )}
+                                    <div className="team-identity">
+                                        {team.logo_url && (
+                                            <img
+                                                src={team.logo_url}
+                                                alt={team.name}
+                                                className="team-logo"
+                                                loading="lazy"
+                                            />
+                                        )}
+                                        <div className="team-info-header">
+                                            <h2 className="team-name">{team.name}</h2>
+                                            {team.owner_name && (
+                                                <div className="team-owner">Owner: {team.owner_name}</div>
+                                            )}
+                                        </div>
+                                    </div>
                                     <div className="team-budget">
-                                        <span className="budget-label">Remaining Budget:</span>
+                                        <span className="budget-label">Remaining Budget</span>
                                         <span className="budget-value">{team.remaining_budget || team.budget} Pts</span>
                                     </div>
-
-                                    {/* Download PDF Button */}
-
                                 </div>
 
                                 <div className="team-players">
