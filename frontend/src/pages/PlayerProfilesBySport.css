@@ -259,18 +259,22 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 20px;
     border-radius: 20px;
-    max-width: 1200px;
-    /* Wider modal */
-    width: 95%;
-    /* Use almost full width on smaller screens */
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: 1100px;
+    width: 90%;
+    /* Let the grid content dictate height, but cap it to viewport */
+    height: auto;
+    max-height: 85vh;
+    overflow: hidden;
+    /* Prevent outer scroll */
     position: relative;
     animation: slideUp 0.3s ease;
-    background: #F0F4F0;
-    /* Sage Green Tint */
-    border: 1px solid rgba(26, 60, 38, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    background: white;
+    /* Clean white bg */
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    /* Flex container to allow content to stretch */
+    flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -475,53 +479,84 @@
 }
 
 /* ===== RESPONSIVE ===== */
-/* Desktop Layout Revision for Modal */
-@media (min-width: 768px) {
+/* Desktop Layout Revision for Modal - COMPLETE REBUILD */
+@media (min-width: 900px) {
     .modal-content {
-        flex-direction: row;
-        align-items: flex-start;
-        padding: 2.5rem;
-        gap: 2rem;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        /* Fixed Left, Fluid Right */
+        gap: 0;
+        /* Remove gap, handle via padding */
+        padding: 0;
+        /* Reset padding to handle internally */
+        overflow: hidden;
+        /* Prevent scrolling on the container */
+        height: 100%;
+        max-height: 80vh;
+        /* Enforce height limit on desktop */
+        align-items: stretch;
     }
 
+    /* Left Column: Photo & Name */
     .modal-photo-section {
-        flex: 0 0 35%;
-        /* Fixed 35% width */
-        width: 35%;
-        max-width: 350px;
-        margin-bottom: 0;
+        width: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%);
+        padding: 3rem 2rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        justify-content: center;
+        gap: 1.5rem;
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    .modal-info-section {
-        flex: 1;
-        /* Take remaining space */
-        min-width: 0;
-        /* Prevent flex blowout */
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+    .modal-photo,
+    .modal-photo-placeholder {
+        width: 250px;
+        /* Fixed robust size */
+        height: 250px;
+        max-width: 100%;
+        border-radius: 50%;
+        /* Circle shape for modern profile look */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        margin: 0;
     }
 
     .modal-name {
         text-align: center;
         font-size: 2rem;
-        word-break: break-word;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    /* Right Column: Stats Grid */
+    .modal-info-section {
+        padding: 3rem;
+        width: 100%;
+        overflow-y: auto;
+        /* Only stats scroll if absolutely needed */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
+        /* Strict 2x2 or 2xN grid */
         gap: 1.5rem;
         width: 100%;
     }
+
+    .info-item {
+        padding: 1.5rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: none;
+        background: #f8fafc;
+    }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 899px) {
     .player-profiles-page {
         padding: 1rem;
     }
@@ -541,26 +576,18 @@
         gap: 1.5rem;
     }
 
-    .profile-photo,
-    .profile-photo-placeholder {
-        height: 220px;
-    }
-
     .modal-content {
         flex-direction: column;
-        /* Ensure stacked on mobile */
-        padding: 1.5rem;
+        padding: 2rem;
+        gap: 2rem;
     }
 
     .modal-photo,
     .modal-photo-placeholder {
-        max-width: 250px;
-        height: 250px;
-    }
-
-    .modal-name {
-        font-size: 1.5rem;
-        text-align: center;
+        width: 200px;
+        height: 200px;
+        border-radius: 20px;
+        /* Keep rounded rect on mobile */
     }
 
     .info-grid {
