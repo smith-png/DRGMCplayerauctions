@@ -99,10 +99,9 @@ export default function PlayerProfilesBySport() {
                     onChange={(e) => setYearFilter(e.target.value)}
                 >
                     <option value="All">All Years</option>
-                    <option value="FE">FE (First Year)</option>
-                    <option value="SE">SE (Second Year)</option>
-                    <option value="TE">TE (Third Year)</option>
-                    <option value="BE">BE (Final Year)</option>
+                    <option value="FE">First Year</option>
+                    <option value="SE">Second Year</option>
+                    <option value="TE">Third Year</option>
                 </select>
             </div>
 
