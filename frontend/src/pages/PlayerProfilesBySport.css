@@ -17,10 +17,9 @@
     left: 0;
     top: 0;
     padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    color: white;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1A3C26;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -61,16 +60,16 @@
 
 .filter-label {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
+    color: #1A3C26;
+    font-weight: 600;
 }
 
 .year-filter-dropdown {
     padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    color: white;
+    color: #1A3C26;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -165,10 +164,10 @@
 
 .page-btn {
     padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    color: white;
+    color: #1A3C26;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -192,10 +191,10 @@
 .page-num {
     width: 45px;
     height: 45px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    color: white;
+    color: #1A3C26;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
