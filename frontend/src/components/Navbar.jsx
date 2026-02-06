@@ -8,6 +8,7 @@ export default function Navbar() {
     const { user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [showUserOverlay, setShowUserOverlay] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [userTeam, setUserTeam] = useState(null);
     const overlayRef = useRef(null);
 
@@ -129,7 +130,18 @@ export default function Navbar() {
                                             )}
                                             <div className="overlay-item">
                                                 <span className="overlay-label">Password:</span>
-                                                <span className="overlay-value password-value">••••••••</span>
+                                                <div className="password-container">
+                                                    <span className="overlay-value password-value">
+                                                        {showPassword ? '********' : '••••••••'}
+                                                    </span>
+                                                    <button
+                                                        className="password-toggle-btn"
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        title={showPassword ? 'Hide password' : 'Show password'}
+                                                    >
+                                                        {showPassword ? '👁️' : '👁️‍🗨️'}
+                                                    </button>
+                                                </div>
                                                 <span className="overlay-hint">Contact admin to reset</span>
                                             </div>
                                         </div>

@@ -103,13 +103,13 @@
 }
 
 .player-profile-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .player-profile-card:hover {
@@ -143,14 +143,14 @@
 .profile-name {
     font-size: 1.3rem;
     font-weight: 600;
-    color: white;
+    color: #1a202c;
     margin-bottom: 0.5rem;
 }
 
 .profile-year,
 .profile-role {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
     margin-bottom: 0.3rem;
 }
 

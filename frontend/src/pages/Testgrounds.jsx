@@ -227,10 +227,10 @@ export default function Testgrounds() {
     return (
         <div className="testgrounds-container">
             <div className="testgrounds-header">
-                <h1 className="testgrounds-title">⚗️ Testgrounds</h1>
+                <h1 className="testgrounds-title">Testgrounds</h1>
                 <div className="lockdown-controls">
                     <div className={`lockdown-status ${isLocked ? 'locked' : 'unlocked'}`}>
-                        {isLocked ? '🔒 Locked' : '🔓 Unlocked'}
+                        {isLocked ? 'Locked' : 'Unlocked'}
                         <span className="lockdown-info">
                             {isLocked ? ' (Test data hidden from non-admins)' : ' (Test data visible to all)'}
                         </span>
@@ -247,7 +247,7 @@ export default function Testgrounds() {
                         onClick={handleClearAll}
                         disabled={loading}
                     >
-                        🗑️ Clear All Test Data
+                        Clear All Test Data
                     </button>
                 </div>
             </div>
@@ -284,7 +284,7 @@ export default function Testgrounds() {
                 {activeTab === 'players' && (
                     <div className="test-players-section">
                         <div className="card">
-                            <h2>➕ Add Test Player</h2>
+                            <h2>Add Test Player</h2>
                             <form onSubmit={handleCreatePlayer} className="test-form">
                                 <div className="form-row">
                                     <input
@@ -374,7 +374,7 @@ export default function Testgrounds() {
                 {activeTab === 'teams' && (
                     <div className="test-teams-section">
                         <div className="card">
-                            <h2>➕ Add Test Team</h2>
+                            <h2>Add Test Team</h2>
                             <form onSubmit={handleCreateTeam} className="test-form">
                                 <input
                                     type="text"
@@ -434,7 +434,7 @@ export default function Testgrounds() {
                 {activeTab === 'owners' && (
                     <div className="pseudo-owners-section">
                         <div className="card">
-                            <h2>➕ Add Pseudo Owner</h2>
+                            <h2>Add Pseudo Owner</h2>
                             <form onSubmit={handleCreateOwner} className="test-form">
                                 <input
                                     type="text"
@@ -513,7 +513,7 @@ export default function Testgrounds() {
                 {activeTab === 'queue' && (
                     <div className="test-queue-section">
                         <div className="card">
-                            <h2>🎯 Test Player Queue</h2>
+                            <h2>Test Player Queue</h2>
                             {queuedPlayers.length === 0 ? (
                                 <p className="empty-message">No test players in queue. Add players from the Test Players tab.</p>
                             ) : (
