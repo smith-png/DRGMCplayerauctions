@@ -38,8 +38,10 @@ export default function Navbar() {
         setLoadingTeam(true);
         try {
             const response = await teamsAPI.getAllTeams();
-            // Find team where this user is the owner
-            const team = response.data.teams.find(t => t.owner_name === user.name);
+            // Find team where this user is the owner (case-insensitive check)
+            const team = response.data.teams.find(t =>
+                t.owner_name && t.owner_name.trim().toLowerCase() === user.name.trim().toLowerCase()
+            );
             setUserTeam(team);
         } catch (error) {
             console.error('Error fetching user team:', error);
