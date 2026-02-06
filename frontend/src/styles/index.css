@@ -113,7 +113,7 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   /* Fixed, covering pattern that won't scroll away or get cut off */
-  background-image: radial-gradient(var(--cricket-green) 0.8px, transparent 0.8px);
+  background-image: radial-gradient(rgba(41, 95, 61, 0.2) 0.8px, transparent 0.8px);
   background-size: 24px 24px;
   background-attachment: fixed;
   /* Ensures pattern stays put */

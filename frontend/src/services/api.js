@@ -88,7 +88,8 @@ export const adminAPI = {
     bulkUpdateMinBid: (sport, minBid) => api.post('/admin/bulk/min-bid', { sport, minBid }),
     bulkResetReleasedBids: () => api.post('/admin/bulk/reset-released'),
     resetAllWallets: () => api.post('/admin/teams/reset-all'),
-    updateAnimationDuration: (duration) => api.put('/auction/animation-duration', { duration })
+    updateAnimationDuration: (duration) => api.put('/auction/animation-duration', { duration }),
+    updateAnimationType: (type) => api.put('/auction/animation-type', { type })
 };
 
 // Teams API

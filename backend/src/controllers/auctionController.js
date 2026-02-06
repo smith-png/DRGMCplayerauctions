@@ -210,7 +210,8 @@ export const getAuctionState = async (req, res) => {
             isActive: result.rows[0]?.is_active || false,
             sportMinBids: result.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 },
             isRegistrationOpen: result.rows[0]?.is_registration_open ?? true,
-            animationDuration: result.rows[0]?.animation_duration || 25
+            animationDuration: result.rows[0]?.animation_duration || 25,
+            animationType: result.rows[0]?.animation_type || 'confetti'
         });
     } catch (error) {
         console.error('Get auction state error:', error);
@@ -226,6 +227,17 @@ export const updateAnimationDuration = async (req, res) => {
     } catch (error) {
         console.error('Update animation duration error:', error);
         res.status(500).json({ error: 'Failed to update animation duration' });
+    }
+};
+
+export const updateAnimationType = async (req, res) => {
+    try {
+        const { type } = req.body;
+        await pool.query('UPDATE auction_state SET animation_type = $1', [type]);
+        res.json({ message: 'Animation type updated', type });
+    } catch (error) {
+        console.error('Update animation type error:', error);
+        res.status(500).json({ error: 'Failed to update animation type' });
     }
 };
 

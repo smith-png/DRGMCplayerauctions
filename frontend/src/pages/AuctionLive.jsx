@@ -6,33 +6,7 @@ import './AuctionLive.css';
 import './SoldPlayers.css';
 import './AuctionAnimation.css';
 
-// Confetti Component
-const Confetti = () => {
-    // Generate pieces only once
-    const pieces = useMemo(() => Array.from({ length: 50 }).map((_, i) => ({
-        id: i,
-        left: Math.random() * 100 + 'vw',
-        animationDuration: (Math.random() * 3 + 2) + 's',
-        animationDelay: Math.random() * 2 + 's',
-        backgroundColor: ['#FFD700', '#FF8C00', '#FF4500', '#4ade80', '#60a5fa'][Math.floor(Math.random() * 5)]
-    })), []);
 
-    return (
-        <div className="confetti-wrapper">
-            {pieces.map(p => (
-                <div
-                    key={p.id}
-                    className="confetti-piece"
-                    style={{
-                        left: p.left,
-                        backgroundColor: p.backgroundColor,
-                        animation: `fall ${p.animationDuration} linear ${p.animationDelay} infinite`
-                    }}
-                />
-            ))}
-        </div>
-    );
-};
 
 export default function AuctionLive() {
     const [auction, setAuction] = useState(null);
@@ -52,6 +26,7 @@ export default function AuctionLive() {
     // Animation State
     const [soldAnimationData, setSoldAnimationData] = useState(null);
     const [animationDuration, setAnimationDuration] = useState(25);
+    const [animationType, setAnimationType] = useState('confetti');
     const [sportMinBids, setSportMinBids] = useState({ cricket: 50, futsal: 50, volleyball: 50 });
 
     const { user, isAuctioneer, isTeamOwner, isAdmin } = useAuth();
@@ -88,6 +63,9 @@ export default function AuctionLive() {
             const stateRes = await auctionAPI.getAuctionState();
             if (stateRes.data.animationDuration) {
                 setAnimationDuration(stateRes.data.animationDuration);
+            }
+            if (stateRes.data.animationType) {
+                setAnimationType(stateRes.data.animationType);
             }
             if (stateRes.data.sportMinBids) {
                 setSportMinBids(stateRes.data.sportMinBids);
@@ -208,8 +186,11 @@ export default function AuctionLive() {
         }
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleMarkSold = async () => {
-        if (!auction) return;
+        if (!auction || isSubmitting) return;
+        setIsSubmitting(true);
         try {
             const playerId = auction.current_player_id || auction.id;
             const teamId = auction.current_team_id;
@@ -217,20 +198,23 @@ export default function AuctionLive() {
 
             if (!teamId) {
                 setError("Cannot sell player without a valid bid/team.");
+                setIsSubmitting(false);
                 return;
             }
 
             await auctionAPI.markPlayerSold(playerId, teamId, finalPrice);
-            socketService.emitPlayerSold({ playerId, teamId, amount: finalPrice });
+            // socketService.emitPlayerSold removed - Backend handles broadcast
 
+            // Immediate UI update to clear view, but effective data reload comes from socket
             setAuction(null);
-            await loadEligiblePlayers();
-            await loadAuction();
-            await loadSoldPlayers();
         } catch (err) {
             console.error('Mark sold error:', err);
             setError(err.response?.data?.error || 'Failed to mark player as sold');
+            setIsSubmitting(false);
         }
+        // Note: isSubmitting stays true until socket update or component refresh to prevent double clicks
+        // But we should reset it in case of error or if we want to allow immediate subsequent actions if something goes wrong
+        setTimeout(() => setIsSubmitting(false), 2000);
     };
 
     const handleMarkUnsold = async () => {
@@ -609,9 +593,8 @@ export default function AuctionLive() {
 
     return (
         <div className="auction-page">
-            {soldAnimationData && !isAdmin && (
+            {soldAnimationData && (
                 <div className="sold-animation-overlay">
-                    <Confetti />
                     <div className="sold-content">
                         <div className="sold-header-text">SOLD TO</div>
 
@@ -652,7 +635,7 @@ export default function AuctionLive() {
                                 <button className="btn-stop-anim" onClick={() => setSoldAnimationData(null)}>
                                     Dismiss
                                 </button>
-                                <div style={{ color: 'white', opacity: 0.7, alignSelf: 'center' }}>
+                                <div style={{ color: '#475569', fontWeight: '600', alignSelf: 'center', marginTop: '0.5rem' }}>
                                     (Auto-close in {animationDuration}s)
                                 </div>
                             </div>
@@ -763,9 +746,16 @@ export default function AuctionLive() {
                                                 <div className="auction-actions-row">
                                                     <button type="submit" className="btn btn-warning btn-xl full-width">Update Bid</button>
                                                     <div className="action-button-group">
-                                                        <button type="button" onClick={handleMarkSold} className="btn btn-success btn-xl" disabled={!auction.current_team_id}>Mark SOLD</button>
-                                                        <button type="button" onClick={handleMarkUnsold} className="btn btn-danger btn-xl">Mark UNSOLD</button>
-                                                        <button type="button" onClick={handleSkipPlayer} className="btn btn-secondary btn-xl" title="Skip and send back to queue">Skip</button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleMarkSold}
+                                                            className="btn btn-success btn-xl"
+                                                            disabled={!auction.current_team_id || isSubmitting}
+                                                        >
+                                                            {isSubmitting ? '...' : 'Mark SOLD'}
+                                                        </button>
+                                                        <button type="button" onClick={handleMarkUnsold} className="btn btn-danger btn-xl" disabled={isSubmitting}>Mark UNSOLD</button>
+                                                        <button type="button" onClick={handleSkipPlayer} className="btn btn-secondary btn-xl" title="Skip and send back to queue" disabled={isSubmitting}>Skip</button>
                                                         {isAdmin && <button type="button" onClick={handleResetBid} className="btn btn-outline-danger btn-xl" style={{ gridColumn: 'span 3', marginTop: '0.5rem' }}>Reset Bid to Min</button>}
                                                     </div>
                                                 </div>

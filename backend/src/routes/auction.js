@@ -12,7 +12,8 @@ import {
     resetAuctionBid,
     toggleRegistrationState,
     updateSportMinBids,
-    updateAnimationDuration
+    updateAnimationDuration,
+    updateAnimationType
 } from '../controllers/auctionController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -35,5 +36,8 @@ router.put('/min-bids', authenticateToken, authorizeRoles('admin'), updateSportM
 
 // Update Animation Duration
 router.put('/animation-duration', authenticateToken, authorizeRoles('admin'), updateAnimationDuration);
+
+// Update Animation Type
+router.put('/animation-type', authenticateToken, authorizeRoles('admin'), updateAnimationType);
 
 export default router;

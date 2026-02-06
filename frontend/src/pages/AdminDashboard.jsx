@@ -20,6 +20,7 @@ export default function AdminDashboard() {
     const [bulkMinBid, setBulkMinBid] = useState(50);
     const [sportMinBids, setSportMinBids] = useState({ cricket: 50, futsal: 50, volleyball: 50 });
     const [animationDuration, setAnimationDuration] = useState(25);
+    const [animationType, setAnimationType] = useState('confetti');
 
     // User Modal State
     const [showUserModal, setShowUserModal] = useState(false);
@@ -42,6 +43,7 @@ export default function AdminDashboard() {
                 setIsRegistrationOpen(stateResponse.data.isRegistrationOpen ?? true);
                 setSportMinBids(stateResponse.data.sportMinBids || { cricket: 50, futsal: 50, volleyball: 50 });
                 setAnimationDuration(stateResponse.data.animationDuration || 25);
+                setAnimationType(stateResponse.data.animationType || 'confetti');
             } else if (activeTab === 'users') {
                 try {
                     const usersRes = await adminAPI.getAllUsers();
@@ -218,6 +220,17 @@ export default function AdminDashboard() {
         } catch (err) {
             console.error(err);
             setMessage('Failed to update animation duration');
+        }
+    };
+
+    const handleUpdateAnimationType = async (type) => {
+        try {
+            setAnimationType(type);
+            await adminAPI.updateAnimationType(type);
+            setMessage(`Animation style updated to ${type}`);
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to update animation style');
         }
     };
 
@@ -576,21 +589,21 @@ export default function AdminDashboard() {
                                     <div className="card mt-4" style={{ gridColumn: '1 / -1', padding: '1rem' }}>
                                         <h3 className="mb-3" style={{ fontSize: '1.1rem' }}>Auction Controls & Settings</h3>
                                         <div className="auction-controls-grid">
-                                            {/* Animation Duration */}
+                                            {/* Sold Overlay Duration */}
                                             <div className="control-item">
-                                                <label className="text-xs font-bold text-secondary uppercase mb-1 block">Animation Duration</label>
-                                                <div className="flex gap-2">
+                                                <label className="text-xs font-bold text-secondary uppercase mb-1 block">Sold Overlay Duration</label>
+                                                <div className="flex bg-dark-input rounded-lg overflow-hidden border border-white/10">
                                                     <input
                                                         type="number"
-                                                        className="input input-sm"
                                                         value={animationDuration}
-                                                        onChange={(e) => setAnimationDuration(e.target.value)}
-                                                        style={{ width: '60px' }}
+                                                        onChange={(e) => handleUpdateAnimationDuration(parseInt(e.target.value) || 0)}
+                                                        className="input input-sm flex-1 text-center bg-transparent border-none focus:ring-0"
                                                         min="5"
-                                                        max="60"
+                                                        max="120"
                                                     />
-                                                    <button onClick={handleUpdateAnimationDuration} className="btn btn-sm btn-primary">Set</button>
+                                                    <span className="px-3 flex items-center bg-white/5 text-xs font-bold text-secondary border-l border-white/10">SEC</span>
                                                 </div>
+                                                <button onClick={handleUpdateAnimationDuration} className="btn btn-sm btn-primary h-auto ml-2">Set</button>
                                             </div>
 
                                             {/* Min Bid Control */}
@@ -1043,224 +1056,230 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* User Modal */}
-                {showUserModal && (
-                    <div className="modal-overlay">
-                        <div className="modal-content card">
-                            <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
-                            <form onSubmit={handleSaveUser}>
-                                <div className="form-group">
-                                    <label>Full Name</label>
-                                    <input
-                                        type="text"
-                                        className="input"
-                                        value={userData.name}
-                                        onChange={e => setUserData({ ...userData, name: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Email Address</label>
-                                    <input
-                                        type="email"
-                                        className="input"
-                                        value={userData.email}
-                                        onChange={e => setUserData({ ...userData, email: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Password {editingUser && <span className="text-secondary text-sm">(Leave blank to keep current)</span>}</label>
-                                    <input
-                                        type="password"
-                                        className="input"
-                                        value={userData.password}
-                                        onChange={e => setUserData({ ...userData, password: e.target.value })}
-                                        required={!editingUser}
-                                        placeholder={editingUser ? '••••••' : ''}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Role</label>
-                                    <select
-                                        className="input"
-                                        value={userData.role}
-                                        onChange={e => setUserData({ ...userData, role: e.target.value })}
-                                    >
-                                        <option value="viewer">Viewer</option>
-                                        <option value="auctioneer">Auctioneer</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="team_owner">Team Owner</option>
-                                    </select>
-                                </div>
-
-                                {userData.role === 'team_owner' && (
+                {
+                    showUserModal && (
+                        <div className="modal-overlay">
+                            <div className="modal-content card">
+                                <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
+                                <form onSubmit={handleSaveUser}>
                                     <div className="form-group">
-                                        <label>Assign Team</label>
+                                        <label>Full Name</label>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            value={userData.name}
+                                            onChange={e => setUserData({ ...userData, name: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Email Address</label>
+                                        <input
+                                            type="email"
+                                            className="input"
+                                            value={userData.email}
+                                            onChange={e => setUserData({ ...userData, email: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Password {editingUser && <span className="text-secondary text-sm">(Leave blank to keep current)</span>}</label>
+                                        <input
+                                            type="password"
+                                            className="input"
+                                            value={userData.password}
+                                            onChange={e => setUserData({ ...userData, password: e.target.value })}
+                                            required={!editingUser}
+                                            placeholder={editingUser ? '••••••' : ''}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Role</label>
                                         <select
                                             className="input"
-                                            value={userData.team_id}
-                                            onChange={e => setUserData({ ...userData, team_id: e.target.value })}
-                                            required
+                                            value={userData.role}
+                                            onChange={e => setUserData({ ...userData, role: e.target.value })}
                                         >
-                                            <option value="">Select a team...</option>
-                                            {teams.map(team => (
-                                                <option key={team.id} value={team.id}>
-                                                    {team.name} ({team.sport})
-                                                </option>
-                                            ))}
+                                            <option value="viewer">Viewer</option>
+                                            <option value="auctioneer">Auctioneer</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="team_owner">Team Owner</option>
                                         </select>
                                     </div>
-                                )}
 
-                                <div className="modal-actions">
-                                    <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary">Cancel</button>
-                                    <button type="submit" className="btn btn-primary">{editingUser ? 'Update' : 'Create'}</button>
-                                </div>
-                            </form>
+                                    {userData.role === 'team_owner' && (
+                                        <div className="form-group">
+                                            <label>Assign Team</label>
+                                            <select
+                                                className="input"
+                                                value={userData.team_id}
+                                                onChange={e => setUserData({ ...userData, team_id: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">Select a team...</option>
+                                                {teams.map(team => (
+                                                    <option key={team.id} value={team.id}>
+                                                        {team.name} ({team.sport})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div className="modal-actions">
+                                        <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary">Cancel</button>
+                                        <button type="submit" className="btn btn-primary">{editingUser ? 'Update' : 'Create'}</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
                 {/* Team Modal */}
-                {showTeamModal && (
-                    <div className="modal-overlay">
-                        <div className="modal-content card">
-                            <h2>{editingTeam ? 'Edit Team' : 'Create Team'}</h2>
-                            <form onSubmit={handleSaveTeamExtended}>
-                                <div className="form-group">
-                                    <label>Team Name</label>
-                                    <input
-                                        type="text"
-                                        className="input"
-                                        value={teamForm.name}
-                                        onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Budget</label>
-                                    <input
-                                        type="number"
-                                        className="input"
-                                        value={teamForm.budget}
-                                        onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Sport</label>
-                                    <select
-                                        className="input"
-                                        value={teamForm.sport}
-                                        onChange={e => setTeamForm({ ...teamForm, sport: e.target.value })}
-                                        disabled={!!editingTeam} // Lock sport on edit if desired, or allow
-                                    >
-                                        <option value="cricket">Cricket</option>
-                                        <option value="futsal">Futsal</option>
-                                        <option value="volleyball">Volleyball</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label>Logo</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={e => setTeamForm({ ...teamForm, logo: e.target.files[0] })}
-                                        className="input"
-                                    />
-                                    <p className="text-secondary text-xs mt-1">Leave empty to keep current logo (if editing)</p>
-                                </div>
-                                <div className="modal-actions">
-                                    <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary">Cancel</button>
-                                    <button type="submit" className="btn btn-primary">Save Team</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* Player Modal */}
-                {showPlayerModal && (
-                    <div className="modal-overlay">
-                        <div className="modal-content card">
-                            <h2>{editingPlayer ? 'Edit Player' : 'Create Player'}</h2>
-                            <form onSubmit={handleSavePlayerExtended}>
-                                <div className="form-group">
-                                    <label>Full Name</label>
-                                    <input
-                                        type="text"
-                                        className="input"
-                                        value={playerForm.name}
-                                        onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="row gap-2">
-                                    <div className="form-group flex-1">
+                {
+                    showTeamModal && (
+                        <div className="modal-overlay">
+                            <div className="modal-content card">
+                                <h2>{editingTeam ? 'Edit Team' : 'Create Team'}</h2>
+                                <form onSubmit={handleSaveTeamExtended}>
+                                    <div className="form-group">
+                                        <label>Team Name</label>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            value={teamForm.name}
+                                            onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Budget</label>
+                                        <input
+                                            type="number"
+                                            className="input"
+                                            value={teamForm.budget}
+                                            onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
                                         <label>Sport</label>
                                         <select
                                             className="input"
-                                            value={playerForm.sport}
-                                            onChange={e => setPlayerForm({ ...playerForm, sport: e.target.value })}
+                                            value={teamForm.sport}
+                                            onChange={e => setTeamForm({ ...teamForm, sport: e.target.value })}
+                                            disabled={!!editingTeam} // Lock sport on edit if desired, or allow
                                         >
                                             <option value="cricket">Cricket</option>
                                             <option value="futsal">Futsal</option>
                                             <option value="volleyball">Volleyball</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
-                                    <div className="form-group flex-1">
-                                        <label>Year</label>
-                                        <select
+                                    <div className="form-group">
+                                        <label>Logo</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={e => setTeamForm({ ...teamForm, logo: e.target.files[0] })}
                                             className="input"
-                                            value={playerForm.year}
-                                            onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
-                                        >
-                                            <option value="1st">1st Year</option>
-                                            <option value="2nd">2nd Year</option>
-                                            <option value="3rd">3rd Year</option>
-                                            <option value="4th">4th Year</option>
-                                            <option value="Intern">Intern</option>
-                                        </select>
+                                        />
+                                        <p className="text-secondary text-xs mt-1">Leave empty to keep current logo (if editing)</p>
                                     </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Stats / Role (JSON or text)</label>
-                                    <textarea
-                                        className="input"
-                                        value={playerForm.stats}
-                                        onChange={e => setPlayerForm({ ...playerForm, stats: e.target.value })}
-                                        rows="3"
-                                        placeholder='{"role": "Batsman", "matches": 10}'
-                                    ></textarea>
-                                </div>
-                                <div className="form-group">
-                                    <label>Base Price</label>
-                                    <input
-                                        type="number"
-                                        className="input"
-                                        value={playerForm.base_price}
-                                        onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Photo</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })}
-                                        className="input"
-                                    />
-                                </div>
-                                <div className="modal-actions">
-                                    <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary">Cancel</button>
-                                    <button type="submit" className="btn btn-primary">Save Player</button>
-                                </div>
-                            </form>
+                                    <div className="modal-actions">
+                                        <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary">Cancel</button>
+                                        <button type="submit" className="btn btn-primary">Save Team</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )
+                }
+
+                {/* Player Modal */}
+                {
+                    showPlayerModal && (
+                        <div className="modal-overlay">
+                            <div className="modal-content card">
+                                <h2>{editingPlayer ? 'Edit Player' : 'Create Player'}</h2>
+                                <form onSubmit={handleSavePlayerExtended}>
+                                    <div className="form-group">
+                                        <label>Full Name</label>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            value={playerForm.name}
+                                            onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="row gap-2">
+                                        <div className="form-group flex-1">
+                                            <label>Sport</label>
+                                            <select
+                                                className="input"
+                                                value={playerForm.sport}
+                                                onChange={e => setPlayerForm({ ...playerForm, sport: e.target.value })}
+                                            >
+                                                <option value="cricket">Cricket</option>
+                                                <option value="futsal">Futsal</option>
+                                                <option value="volleyball">Volleyball</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group flex-1">
+                                            <label>Year</label>
+                                            <select
+                                                className="input"
+                                                value={playerForm.year}
+                                                onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
+                                            >
+                                                <option value="1st">1st Year</option>
+                                                <option value="2nd">2nd Year</option>
+                                                <option value="3rd">3rd Year</option>
+                                                <option value="4th">4th Year</option>
+                                                <option value="Intern">Intern</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Stats / Role (JSON or text)</label>
+                                        <textarea
+                                            className="input"
+                                            value={playerForm.stats}
+                                            onChange={e => setPlayerForm({ ...playerForm, stats: e.target.value })}
+                                            rows="3"
+                                            placeholder='{"role": "Batsman", "matches": 10}'
+                                        ></textarea>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Base Price</label>
+                                        <input
+                                            type="number"
+                                            className="input"
+                                            value={playerForm.base_price}
+                                            onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Photo</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })}
+                                            className="input"
+                                        />
+                                    </div>
+                                    <div className="modal-actions">
+                                        <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary">Cancel</button>
+                                        <button type="submit" className="btn btn-primary">Save Player</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )
+                }
+            </div >
         </div >
     );
 }

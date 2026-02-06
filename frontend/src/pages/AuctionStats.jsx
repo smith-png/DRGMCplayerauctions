@@ -476,14 +476,15 @@ export default function AuctionStats() {
                                                                 }
                                                             }}
                                                             style={{
-                                                                marginLeft: '10px',
+                                                                marginTop: '8px',
                                                                 backgroundColor: '#ef4444',
                                                                 color: 'white',
                                                                 border: 'none',
-                                                                borderRadius: '4px',
-                                                                padding: '4px 8px',
+                                                                borderRadius: '8px',
+                                                                padding: '6px 12px',
                                                                 cursor: 'pointer',
-                                                                fontSize: '0.8rem'
+                                                                fontSize: '0.8rem',
+                                                                fontWeight: '600'
                                                             }}
                                                         >
                                                             Release
