@@ -61,7 +61,7 @@ export default function Teams() {
         const tableData = teamPlayers.map(player => [
             player.name,
             player.year,
-            player.stats || 'Player',
+            (typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')),
             `${player.final_price || player.base_price} Pts`
         ]);
 
@@ -198,7 +198,9 @@ export default function Teams() {
                                                     <div className="player-info">
                                                         <h4 className="player-name">{player.name}</h4>
                                                         <div className="player-details">
-                                                            <span className="player-role">{player.stats || 'Player'}</span>
+                                                            <span className="player-role">{
+                                                                typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')
+                                                            }</span>
                                                             <span className="player-divider">•</span>
                                                             <span className="player-year">{player.year}</span>
                                                         </div>

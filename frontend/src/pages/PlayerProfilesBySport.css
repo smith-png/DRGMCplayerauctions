@@ -492,3 +492,6 @@
         flex-wrap: wrap;
     }
 }
+.empty-state { text-align: center; padding: 4rem 2rem; color: #4a5568; }
+.empty-state h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.empty-state p { font-size: 1.1rem; }

@@ -65,7 +65,7 @@ export default function Home() {
                                 <span className="fc-price">12,000 Points</span>
                             </div>
                             <div className="fc-body">
-                                <div className="fc-avatar"></div>
+                                <div className="fc-avatar">🏏</div>
                                 <div className="fc-info">
                                     <h4>Star Batsman</h4>
                                     <p>Cricket • 3rd Year</p>
@@ -91,7 +91,7 @@ export default function Home() {
                                 <span className="fc-price">15,000 Points</span>
                             </div>
                             <div className="fc-body">
-                                <div className="fc-avatar"></div>
+                                <div className="fc-avatar">🏐</div>
                                 <div className="fc-info">
                                     <h4>Ace Spiker</h4>
                                     <p>Volleyball • 4th Year</p>
@@ -108,7 +108,7 @@ export default function Home() {
                 <h2 className="section-title">Roster of Sports</h2>
                 <div className="sports-grid">
                     <Link to="/players/cricket" className="sport-card">
-                        <div className="sport-icon"></div>
+                        <div className="sport-icon">🏏</div>
                         <h3>Cricket</h3>
                         <p>Click here to view all participating player profiles!</p>
                     </Link>
@@ -118,7 +118,7 @@ export default function Home() {
                         <p>Click here to view all participating player profiles!</p>
                     </Link>
                     <Link to="/players/volleyball" className="sport-card">
-                        <div className="sport-icon"></div>
+                        <div className="sport-icon">🏐</div>
                         <h3>Volleyball</h3>
                         <p>Click here to view all participating player profiles!</p>
                     </Link>

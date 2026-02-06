@@ -455,7 +455,7 @@ export default function AdminDashboard() {
                         className="tab-btn testgrounds-tab"
                         onClick={() => navigate('/testgrounds')}
                     >
-                        ⚗️ Testgrounds
+                        Testgrounds
                     </button>
                 </div>
 
