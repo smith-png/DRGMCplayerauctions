@@ -92,13 +92,13 @@
 }
 
 .team-logo {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 1rem;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .team-name {
@@ -113,7 +113,7 @@
 
 .team-owner {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: #4a5568;
     margin-bottom: 0.8rem;
     font-weight: 500;
 }
@@ -127,7 +127,7 @@
 
 .budget-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: #4a5568;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 500;
