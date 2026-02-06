@@ -8,8 +8,8 @@ export default function Navbar() {
     const { user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [showUserOverlay, setShowUserOverlay] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     const [userTeam, setUserTeam] = useState(null);
+    const [loadingTeam, setLoadingTeam] = useState(false);
     const overlayRef = useRef(null);
 
     useEffect(() => {
@@ -35,6 +35,7 @@ export default function Navbar() {
     }, [showUserOverlay, user]);
 
     const fetchUserTeam = async () => {
+        setLoadingTeam(true);
         try {
             const response = await teamsAPI.getAllTeams();
             // Find team where this user is the owner
@@ -42,6 +43,8 @@ export default function Navbar() {
             setUserTeam(team);
         } catch (error) {
             console.error('Error fetching user team:', error);
+        } finally {
+            setLoadingTeam(false);
         }
     };
 
@@ -124,26 +127,10 @@ export default function Navbar() {
                                                 <div className="overlay-item">
                                                     <span className="overlay-label">Team:</span>
                                                     <span className="overlay-value">
-                                                        {userTeam ? userTeam.name : 'Loading...'}
+                                                        {loadingTeam ? 'Loading...' : (userTeam ? userTeam.name : 'No Team Assigned')}
                                                     </span>
                                                 </div>
                                             )}
-                                            <div className="overlay-item">
-                                                <span className="overlay-label">Password:</span>
-                                                <div className="password-container">
-                                                    <span className="overlay-value password-value">
-                                                        {showPassword ? '********' : '••••••••'}
-                                                    </span>
-                                                    <button
-                                                        className="password-toggle-btn"
-                                                        onClick={() => setShowPassword(!showPassword)}
-                                                        title={showPassword ? 'Hide password' : 'Show password'}
-                                                    >
-                                                        {showPassword ? '👁️' : '👁️‍🗨️'}
-                                                    </button>
-                                                </div>
-                                                <span className="overlay-hint">Contact admin to reset</span>
-                                            </div>
                                         </div>
                                     </div>
                                 )}

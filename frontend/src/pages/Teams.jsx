@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
 import { playerAPI, teamsAPI } from '../services/api';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; // Import as default or named
-// For v3.5+, autoTable automatically attaches to jsPDF if available globally, but in modules:
-// It might need manual assignment or usage.
-// Standard fix for React/Vite:
-// autoTable(jsPDF.API);
 import './Teams.css';
 
 export default function Teams() {
@@ -41,71 +35,6 @@ export default function Teams() {
 
     const getTeamPlayers = (teamId) => {
         return players.filter(p => p.team_id === teamId && p.status === 'sold');
-    };
-
-    const downloadTeamPDF = (team) => {
-        const doc = new jsPDF();
-
-        // Initialize autoTable
-        autoTable(doc, {
-            startY: team.owner_name ? 48 : 42,
-            head: [['Player Name', 'Year', 'Role', 'Price']],
-            body: teamPlayers.map(player => [
-                player.name,
-                player.year,
-                (typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')),
-                `${player.final_price || player.base_price} Pts`
-            ]),
-            theme: 'striped',
-            headStyles: {
-                fillColor: [102, 126, 234],
-                textColor: 255,
-                fontStyle: 'bold'
-            },
-            styles: {
-                fontSize: 10,
-                cellPadding: 3
-            },
-            alternateRowStyles: {
-                fillColor: [245, 245, 245]
-            }
-        });
-
-        // Add header info manually after table config
-        // Add team name as title
-        doc.setFontSize(20);
-        doc.setFont('helvetica', 'bold');
-        doc.text(team.name, 14, 20);
-
-        // Add team info
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Sport: ${team.sport.charAt(0).toUpperCase() + team.sport.slice(1)}`, 14, 30);
-        doc.text(`Remaining Budget: ${team.remaining_budget || team.budget} Pts`, 14, 36);
-        if (team.owner_name) {
-            doc.text(`Owner: ${team.owner_name}`, 14, 42);
-        }
-
-        // Add footer
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'italic');
-            doc.text(
-                `Generated on ${new Date().toLocaleDateString()}`,
-                14,
-                doc.internal.pageSize.height - 10
-            );
-            doc.text(
-                `Page ${i} of ${pageCount}`,
-                doc.internal.pageSize.width - 30,
-                doc.internal.pageSize.height - 10
-            );
-        }
-
-        // Download
-        doc.save(`${team.name.replace(/\s+/g, '_')}_Roster.pdf`);
     };
 
     return (
@@ -171,13 +100,7 @@ export default function Teams() {
                                     </div>
 
                                     {/* Download PDF Button */}
-                                    <button
-                                        className="btn-download-pdf"
-                                        onClick={() => downloadTeamPDF(team)}
-                                        title="Download Team Roster PDF"
-                                    >
-                                        Download PDF
-                                    </button>
+
                                 </div>
 
                                 <div className="team-players">
