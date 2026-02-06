@@ -282,6 +282,20 @@
     }
 }
 
+
+/* Sage Green Hollow Tag for Team Dashboard */
+.sage-pill {
+    padding: 0.5rem 1.5rem;
+    background: transparent !important;
+    border: 2px solid #749F82 !important;
+    color: #556B2F !important;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    box-shadow: none !important;
+}
+
 /* Team Owner Dashboard Styles */
 .team-owner-dashboard .team-header-large {
     padding: var(--spacing-lg);
@@ -295,16 +309,56 @@
     box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .team-header-content {
     display: flex;
-    flex-direction: row;
-    /* Row instead of column */
     align-items: center;
-    gap: var(--spacing-md);
-    position: relative;
-    z-index: 1;
+    gap: 1rem;
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Override for Team Owner Dashboard Title (removed center align) */
+.team-owner-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1A3C26;
+    margin: 0;
+}
+
+/* Specific sage pill override for the sport tag in this view */
+.team-owner-dashboard .sport-tag-large {
+    border: 2px solid #749F82;
+    color: #556B2F;
+    background: transparent;
+    box-shadow: none;
+    font-weight: 700;
+}
+
+/* Player Price badge in Squad List - Sage Hollow */
+.player-price-badge {
+    position: absolute;
+    bottom: 10px;
+    background: transparent;
+    color: #556B2F;
+    border: 2px solid #749F82;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+display: flex;
+flex-direction: row;
+/* Row instead of column */
+align-items: center;
+gap: var(--spacing-md);
+position: relative;
+z-index: 1;
 }
 
 .team-owner-title {

@@ -216,8 +216,8 @@ export default function AuctionStats() {
                 <div className="container">
                     <div className="team-header-large card animate-fadeIn">
                         <div className="team-header-content">
-                            <h1 className="team-owner-title">🏆 {myTeam.name}</h1>
-                            <span className="badge badge-primary sport-tag-large">
+                            <h1 className="team-owner-title">{myTeam.name}</h1>
+                            <span className="badge sport-tag-large sage-pill">
                                 {myTeam.sport}
                             </span>
                         </div>

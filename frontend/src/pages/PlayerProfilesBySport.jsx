@@ -142,10 +142,12 @@ export default function PlayerProfilesBySport() {
                                 )}
                                 <div className="profile-card-info">
                                     <h3 className="profile-name">{player.name}</h3>
-                                    <p className="profile-year">{player.year}</p>
-                                    <p className="profile-role">{
-                                        typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')
-                                    }</p>
+                                    <div className="profile-tags-container">
+                                        <span className="profile-tag">{player.year} MBBS</span>
+                                        <span className="profile-tag">{
+                                            typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')
+                                        }</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
