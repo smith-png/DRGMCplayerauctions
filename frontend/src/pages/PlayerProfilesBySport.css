@@ -242,12 +242,16 @@
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 20px;
-    max-width: 800px;
-    width: 100%;
+    max-width: 900px;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
     animation: slideUp 0.3s ease;
+    background: #F0F4F0;
+    /* Sage Green Tint */
+    border: 1px solid rgba(26, 60, 38, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes slideUp {
@@ -285,9 +289,10 @@
 
 .modal-content {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 2rem;
-    padding: 2rem;
+    grid-template-columns: 1fr 1.5fr;
+    /* Wider column for info, but balanced */
+    gap: 3rem;
+    padding: 3rem;
 }
 
 .modal-photo-section {
@@ -298,18 +303,23 @@
 
 .modal-photo {
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
+    /* Increased max-width */
     height: auto;
-    border-radius: 15px;
-    border: 3px solid rgba(102, 126, 234, 0.2);
+    aspect-ratio: 1/1;
+    /* Ensure square or consistent shape */
+    object-fit: cover;
+    border-radius: 20px;
+    border: 4px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .modal-photo-placeholder {
     width: 100%;
-    max-width: 300px;
-    height: 300px;
-    border-radius: 15px;
+    max-width: 400px;
+    height: 400px;
+    /* Match max-width roughly */
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,9 +355,10 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
