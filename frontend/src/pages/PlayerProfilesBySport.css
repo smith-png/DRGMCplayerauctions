@@ -288,17 +288,18 @@
 }
 
 .modal-content {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    /* Wider column for info, but balanced */
-    gap: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
     padding: 3rem;
 }
 
 .modal-photo-section {
+    width: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
+    margin-bottom: 1rem;
 }
 
 .modal-photo {
@@ -331,9 +332,11 @@
 }
 
 .modal-info-section {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    align-items: center;
 }
 
 .modal-name {
@@ -347,8 +350,9 @@
 
 .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
+    width: 100%;
 }
 
 .info-item {

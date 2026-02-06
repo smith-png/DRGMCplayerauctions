@@ -313,7 +313,6 @@ export default function Testgrounds() {
                                         <option value="FE">FE</option>
                                         <option value="SE">SE</option>
                                         <option value="TE">TE</option>
-                                        <option value="BE">BE</option>
                                     </select>
                                     <input
                                         type="number"

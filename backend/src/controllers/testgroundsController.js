@@ -63,7 +63,7 @@ export async function createTestPlayer(req, res) {
         });
     } catch (error) {
         console.error('Create test player error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 }
 

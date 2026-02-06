@@ -166,6 +166,16 @@
     gap: 1rem;
 }
 
+/* ===== SECTIONS ===== */
+.test-players-section,
+.test-teams-section,
+.pseudo-owners-section,
+.test-queue-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
 /* ===== GRIDS ===== */
 .test-players-grid,
 .test-teams-grid {
@@ -231,6 +241,7 @@
 
 .owners-table thead {
     background: rgba(102, 126, 234, 0.1);
+    color: #2d3748;
 }
 
 .owners-table th,
@@ -248,7 +259,8 @@
 }
 
 .owners-table td {
-    color: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .owners-table tbody tr:hover {
