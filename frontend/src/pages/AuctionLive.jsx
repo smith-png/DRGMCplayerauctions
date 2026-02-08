@@ -177,6 +177,16 @@ export default function AuctionLive() {
         }
         try {
             await auctionAPI.placeBid(auction.current_player_id, selectedTeam, amount);
+
+            // Optimistic Update: Immediately update UI without waiting for socket
+            const team = teams.find(t => t.id === parseInt(selectedTeam));
+            setAuction(prev => ({
+                ...prev,
+                current_bid: amount,
+                current_team_id: parseInt(selectedTeam),
+                current_team_name: team ? team.name : 'Unknown'
+            }));
+
             // socketService.emitNewBid(...) removed to prevent double broadcasting.
             // Server response will trigger 'bid-update' event which updates the UI.
             setBidAmount('');
