@@ -317,6 +317,7 @@ export default function AuctionLive() {
                 return {
                     ...prev,
                     current_bid: data.amount,
+                    current_team_id: data.teamId,
                     current_team_name: data.teamName
                 };
             });
