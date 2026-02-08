@@ -348,7 +348,7 @@ export default function AuctionLive() {
 
                 setTimeout(() => {
                     loadAuction();
-                    loadEligiblePlayers();
+                    if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
                     loadSoldPlayers();
                 }, 2000);
             }
@@ -357,7 +357,7 @@ export default function AuctionLive() {
         // Listen for generic refresh (e.g. min bid update, wallet reset)
         socketService.socket.on('refresh-data', () => {
             loadAuction();
-            loadEligiblePlayers();
+            if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
             loadSoldPlayers();
         });
 
