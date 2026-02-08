@@ -100,7 +100,7 @@ export default function Teams() {
                                     </div>
                                     <div className="team-budget">
                                         <span className="budget-label">Remaining Budget</span>
-                                        <span className="budget-value">{team.remaining_budget || team.budget} Pts</span>
+                                        <span className="budget-value">{(team.remaining_budget !== undefined && team.remaining_budget !== null) ? team.remaining_budget : team.budget} Pts</span>
                                     </div>
                                 </div>
 
