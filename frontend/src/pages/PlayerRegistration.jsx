@@ -201,27 +201,49 @@ export default function PlayerRegistration() {
                                         </select>
                                     </div>
 
-                                    <div className="input-group role-field">
-                                        <label className="input-label">Playing Role *</label>
-                                        <select
-                                            value={formData.stats.playingRole || ''}
-                                            onChange={(e) => {
-                                                const newRole = e.target.value;
-                                                handleStatChange('playingRole', newRole);
-                                                if (newRole === 'Wicketkeeper Batsman') {
-                                                    handleStatChange('bowlingStyle', 'None');
-                                                }
-                                            }}
-                                            className="input"
-                                            required
-                                        >
-                                            <option value="">Select Role</option>
-                                            <option value="Batsman">Batsman</option>
-                                            <option value="Wicketkeeper Batsman">Wicketkeeper Batsman</option>
-                                            <option value="Bowler">Bowler</option>
-                                            <option value="All Rounder">All Rounder</option>
-                                        </select>
-                                    </div>
+                                    {formData.sport !== 'volleyball' && (
+                                        <div className="input-group role-field">
+                                            <label className="input-label">Playing Role *</label>
+                                            <select
+                                                value={formData.stats.playingRole || ''}
+                                                onChange={(e) => {
+                                                    const newRole = e.target.value;
+                                                    handleStatChange('playingRole', newRole);
+                                                    if (newRole === 'Wicketkeeper Batsman') {
+                                                        handleStatChange('bowlingStyle', 'None');
+                                                    }
+                                                }}
+                                                className="input"
+                                                required
+                                            >
+                                                <option value="">Select Role</option>
+                                                <option value="Batsman">Batsman</option>
+                                                <option value="Wicketkeeper Batsman">Wicketkeeper Batsman</option>
+                                                <option value="Bowler">Bowler</option>
+                                                <option value="All Rounder">All Rounder</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {formData.sport === 'volleyball' && (
+                                        <div className="input-group role-field">
+                                            <label className="input-label">Preference *</label>
+                                            <select
+                                                value={formData.stats.playingRole || ''}
+                                                onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                                className="input"
+                                                required
+                                            >
+                                                <option value="">Select Preference</option>
+                                                <option value="Setter">Setter</option>
+                                                <option value="Centre">Centre</option>
+                                                <option value="Striker (Right)">Striker (Right)</option>
+                                                <option value="Striker (Left)">Striker (Left)</option>
+                                                <option value="Defence (Right)">Defence (Right)</option>
+                                                <option value="Defence (Left)">Defence (Left)</option>
+                                            </select>
+                                        </div>
+                                    )}
 
                                     {formData.sport === 'cricket' && (
                                         <>
