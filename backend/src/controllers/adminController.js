@@ -711,3 +711,74 @@ export async function releasePlayer(req, res) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+// Export players to CSV
+export async function exportPlayersToCSV(req, res) {
+    try {
+        const { sport } = req.query;
+
+        let query = 'SELECT * FROM players';
+        const params = [];
+        if (sport) {
+            query += ' WHERE sport = $1';
+            params.push(sport);
+        }
+        query += ' ORDER BY id ASC';
+
+        const result = await pool.query(query, params);
+        const players = result.rows;
+
+        if (players.length === 0) {
+            return res.status(404).json({ error: 'No players found to export' });
+        }
+
+        // Define CSV Headers
+        const headers = [
+            'ID', 'Name', 'Sport', 'Year', 'Status', 'Base Price', 'Sold Price', 'Team ID',
+            'Role', 'Batting Style', 'Bowling Style', 'Photo URL'
+        ];
+
+        // Create CSV Content
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        for (const player of players) {
+            let stats = {};
+            if (typeof player.stats === 'string') {
+                try {
+                    stats = JSON.parse(player.stats);
+                } catch (e) {
+                    stats = {};
+                }
+            } else if (typeof player.stats === 'object') {
+                stats = player.stats || {};
+            }
+
+            const row = [
+                player.id,
+                `"${player.name.replace(/"/g, '""')}"`, // Escape quotes
+                player.sport,
+                player.year,
+                player.status,
+                player.base_price,
+                player.sold_price || '',
+                player.team_id || '',
+                stats.role || stats.playingRole || '', // Handle varied key names if any
+                stats.battingStyle || '',
+                stats.bowlingStyle || '',
+                player.photo_url || ''
+            ];
+
+            csvRows.push(row.join(','));
+        }
+
+        const csvContent = csvRows.join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename=players_export_${sport || 'all'}_${Date.now()}.csv`);
+        res.status(200).send(csvContent);
+
+    } catch (error) {
+        console.error('Export CSV error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}

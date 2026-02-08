@@ -18,7 +18,8 @@ import {
     addToQueueById,
     releasePlayer,
     resetTeamWallet,
-    resetAllWallets
+    resetAllWallets,
+    exportPlayersToCSV
 } from '../controllers/adminController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -44,6 +45,7 @@ router.post('/teams/:id/reset', resetTeamWallet);
 router.post('/teams/reset-all', resetAllWallets);
 
 // Player management (Admin Crud)
+router.get('/players/export', exportPlayersToCSV);
 router.post('/players', upload.single('photo'), createPlayer);
 router.put('/players/:id', upload.single('photo'), updatePlayer);
 router.post('/players/:id/remove-queue', removeFromQueue);

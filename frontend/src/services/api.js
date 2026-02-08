@@ -88,8 +88,10 @@ export const adminAPI = {
     bulkUpdateMinBid: (sport, minBid) => api.post('/admin/bulk/min-bid', { sport, minBid }),
     bulkResetReleasedBids: () => api.post('/admin/bulk/reset-released'),
     resetAllWallets: () => api.post('/admin/teams/reset-all'),
+    resetAllWallets: () => api.post('/admin/teams/reset-all'),
     updateAnimationDuration: (duration) => api.put('/auction/animation-duration', { duration }),
-    updateAnimationType: (type) => api.put('/auction/animation-type', { type })
+    updateAnimationType: (type) => api.put('/auction/animation-type', { type }),
+    exportPlayers: (sport) => api.get('/admin/players/export', { params: { sport }, responseType: 'blob' })
 };
 
 // Teams API

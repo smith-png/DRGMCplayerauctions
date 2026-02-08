@@ -419,6 +419,36 @@ export default function AdminDashboard() {
         }
     }
 
+    const handleExportCSV = async () => {
+        try {
+            const response = await adminAPI.exportPlayers(); // Export all by default
+
+            // Create blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+
+            // Extract filename from header if possible, or generate default
+            // const contentDisposition = response.headers['content-disposition'];
+            // let fileName = 'players_export.csv';
+            // if (contentDisposition) {
+            //     const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+            //     if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+            // }
+            const fileName = `players_export_${Date.now()}.csv`;
+
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setMessage('Players exported successfully');
+        } catch (err) {
+            console.error(err);
+            setMessage('Failed to export players');
+        }
+    };
+
     // Derived state for filtered players
     const pendingPlayers = players.filter(p => p.status === 'pending');
     const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
@@ -870,6 +900,9 @@ export default function AdminDashboard() {
                                                 />
                                                 <button type="submit" className="btn btn-sm btn-warning">Queue ID</button>
                                             </form>
+                                            <button onClick={handleExportCSV} className="btn btn-secondary" title="Download all players as CSV">
+                                                📄 Export CSV
+                                            </button>
                                             <button onClick={() => handleOpenPlayerModal()} className="btn btn-primary">+ Create & Queue</button>
                                         </div>
                                     </div>

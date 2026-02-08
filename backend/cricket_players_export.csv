@@ -1,0 +1,5 @@
+ID,Name,Sport,Year,Status,Base Price,Sold Price,Team ID,Role,Batting Style,Bowling Style,Photo URL
+24,"test",cricket,1st,sold,50.00,100.00,5,,,,
+25,"test",cricket,1st,sold,50.00,100.00,5,,,,
+26,"test",cricket,1st,sold,50.00,100.00,5,,,,
+27,"testb 2",cricket,1st,sold,50.00,55.00,5,,,,
