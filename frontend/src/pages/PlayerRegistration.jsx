@@ -201,7 +201,7 @@ export default function PlayerRegistration() {
                                         </select>
                                     </div>
 
-                                    {formData.sport !== 'volleyball' && (
+                                    {formData.sport === 'cricket' && (
                                         <div className="input-group role-field">
                                             <label className="input-label">Playing Role *</label>
                                             <select
@@ -241,6 +241,24 @@ export default function PlayerRegistration() {
                                                 <option value="Striker (Left)">Striker (Left)</option>
                                                 <option value="Defence (Right)">Defence (Right)</option>
                                                 <option value="Defence (Left)">Defence (Left)</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {formData.sport === 'futsal' && (
+                                        <div className="input-group role-field">
+                                            <label className="input-label">Position *</label>
+                                            <select
+                                                value={formData.stats.playingRole || ''}
+                                                onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                                className="input"
+                                                required
+                                            >
+                                                <option value="">Select Position</option>
+                                                <option value="Goalkeeper">Goalkeeper</option>
+                                                <option value="Defender">Defender</option>
+                                                <option value="Mid-fielder">Mid-fielder</option>
+                                                <option value="Attacker">Attacker</option>
                                             </select>
                                         </div>
                                     )}
