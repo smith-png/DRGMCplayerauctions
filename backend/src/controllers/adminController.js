@@ -241,24 +241,7 @@ export async function getAllTeams(req, res) {
     }
 }
 
-if (result.rows.length === 0) {
-    return res.status(404).json({ error: 'Team not found' });
-}
 
-        // Check if budget was updated, if so, update remaining_budget by the difference
-        // We need to fetch the OLD budget first, but we already did the update.
-        // Actually, the previous implementation approach confirms we need to fetch old data OR do a relative update in SQL.
-        // Better approach:
-        // 1. Fetch current team data
-        // 2. Calculate new remaining
-        // 3. Update both.
-
-        // Let's revert and do it cleanly.
-    } catch (error) {
-    console.error('Update team error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-}
-}
 
 // Re-implementing updateTeam with correct logic
 export async function updateTeam(req, res) {
@@ -339,220 +322,136 @@ export async function updateTeam(req, res) {
     } finally {
         client.release();
     }
+}
 
-    export async function deleteTeam(req, res) {
-        const { id } = req.params;
+export async function deleteTeam(req, res) {
+    const { id } = req.params;
 
-        try {
-            const result = await pool.query('DELETE FROM teams WHERE id = $1 RETURNING *', [id]);
+    try {
+        const result = await pool.query('DELETE FROM teams WHERE id = $1 RETURNING *', [id]);
 
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: 'Team not found' });
-            }
-
-            res.json({ message: 'Team deleted successfully' });
-        } catch (error) {
-            console.error('Delete team error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Team not found' });
         }
+
+        res.json({ message: 'Team deleted successfully' });
+    } catch (error) {
+        console.error('Delete team error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    export async function resetTeamWallet(req, res) {
-        const { id } = req.params;
-        try {
-            // 1. Unsell all players belonging to this team
-            await pool.query(
-                "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE team_id = $1",
-                [id]
-            );
+export async function resetTeamWallet(req, res) {
+    const { id } = req.params;
+    try {
+        // 1. Unsell all players belonging to this team
+        await pool.query(
+            "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE team_id = $1",
+            [id]
+        );
 
-            // 2. Clear any bids by this team (optional but cleaner)
-            await pool.query('DELETE FROM bids WHERE team_id = $1', [id]);
+        // 2. Clear any bids by this team (optional but cleaner)
+        await pool.query('DELETE FROM bids WHERE team_id = $1', [id]);
 
-            // 3. Reset team budget to default 2000
-            const result = await pool.query(
-                'UPDATE teams SET budget = 2000, remaining_budget = 2000 WHERE id = $1 RETURNING *',
-                [id]
-            );
+        // 3. Reset team budget to default 2000
+        const result = await pool.query(
+            'UPDATE teams SET budget = 2000, remaining_budget = 2000 WHERE id = $1 RETURNING *',
+            [id]
+        );
 
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: 'Team not found' });
-            }
-
-            if (req.io) {
-                req.io.emit('refresh-leaderboard');
-                req.io.emit('refresh-data');
-                console.log('📡 Socket event emitted: refresh-data (wallet reset)');
-            }
-
-            res.json({ message: 'Team wallet and stats reset successfully', team: result.rows[0] });
-        } catch (error) {
-            console.error('Reset team wallet error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Team not found' });
         }
-    }
 
-    export async function resetAllWallets(req, res) {
-        try {
-            // 1. Unsold ALL players
-            await pool.query("UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL");
-
-            // 2. Clear ALL bids
-            await pool.query('DELETE FROM bids');
-
-            // 3. Reset ALL teams budget
-            await pool.query('UPDATE teams SET budget = 2000, remaining_budget = 2000');
-
-            if (req.io) {
-                req.io.emit('refresh-leaderboard');
-                req.io.emit('refresh-data');
-            }
-
-            res.json({ message: 'Global wallet and stats reset successfully.' });
-        } catch (error) {
-            console.error('Global reset error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+        if (req.io) {
+            req.io.emit('refresh-leaderboard');
+            req.io.emit('refresh-data');
+            console.log('📡 Socket event emitted: refresh-data (wallet reset)');
         }
+
+        res.json({ message: 'Team wallet and stats reset successfully', team: result.rows[0] });
+    } catch (error) {
+        console.error('Reset team wallet error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    export async function getDashboardStats(req, res) {
-        try {
-            const stats = {};
+export async function resetAllWallets(req, res) {
+    try {
+        // 1. Unsold ALL players
+        await pool.query("UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL");
 
-            // Total users
-            const usersResult = await pool.query('SELECT COUNT(*) as count FROM users');
-            stats.totalUsers = parseInt(usersResult.rows[0].count);
+        // 2. Clear ALL bids
+        await pool.query('DELETE FROM bids');
 
-            // Total players by status
-            const playersResult = await pool.query(`
+        // 3. Reset ALL teams budget
+        await pool.query('UPDATE teams SET budget = 2000, remaining_budget = 2000');
+
+        if (req.io) {
+            req.io.emit('refresh-leaderboard');
+            req.io.emit('refresh-data');
+        }
+
+        res.json({ message: 'Global wallet and stats reset successfully.' });
+    } catch (error) {
+        console.error('Global reset error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export async function getDashboardStats(req, res) {
+    try {
+        const stats = {};
+
+        // Total users
+        const usersResult = await pool.query('SELECT COUNT(*) as count FROM users');
+        stats.totalUsers = parseInt(usersResult.rows[0].count);
+
+        // Total players by status
+        const playersResult = await pool.query(`
       SELECT status, COUNT(*) as count 
       FROM players 
       GROUP BY status
     `);
-            stats.players = playersResult.rows.reduce((acc, row) => {
-                acc[row.status] = parseInt(row.count);
-                return acc;
-            }, {});
+        stats.players = playersResult.rows.reduce((acc, row) => {
+            acc[row.status] = parseInt(row.count);
+            return acc;
+        }, {});
 
-            // Total teams
-            const teamsResult = await pool.query('SELECT COUNT(*) as count FROM teams');
-            stats.totalTeams = parseInt(teamsResult.rows[0].count);
+        // Total teams
+        const teamsResult = await pool.query('SELECT COUNT(*) as count FROM teams');
+        stats.totalTeams = parseInt(teamsResult.rows[0].count);
 
-            // Total bids
-            const bidsResult = await pool.query('SELECT COUNT(*) as count FROM bids');
-            stats.totalBids = parseInt(bidsResult.rows[0].count);
+        // Total bids
+        const bidsResult = await pool.query('SELECT COUNT(*) as count FROM bids');
+        stats.totalBids = parseInt(bidsResult.rows[0].count);
 
-            res.json({ stats });
-        } catch (error) {
-            console.error('Get stats error:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
+        res.json({ stats });
+    } catch (error) {
+        console.error('Get stats error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    // --- Player Management (Admin) ---
+// --- Player Management (Admin) ---
 
-    export async function createPlayer(req, res) {
-        const { name, sport, year, stats, base_price } = req.body;
+export async function createPlayer(req, res) {
+    const { name, sport, year, stats, base_price } = req.body;
 
-        try {
-            if (!name || !sport || !year) {
-                return res.status(400).json({ error: 'Name, sport, and year are required' });
-            }
-
-            // Upload photo to Cloudinary
-            let photoUrl = null;
-            if (req.file) {
-                try {
-                    // Re-use the existing helper which uploads to 'auction-teams', might want to change folder or make it generic
-                    // For now, let's use a new helper or modify the existing one. 
-                    // Since uploadToCloudinary is locally defined here for teams, let's copy it or use a generic one.
-                    // Actually, the existing one is tied to 'auction-teams'. 
-                    // Let's create a specific one for players or make the helper accept a folder.
-                    const result = await new Promise((resolve, reject) => {
-                        const uploadStream = cloudinary.uploader.upload_stream(
-                            { folder: 'auction-players' },
-                            (error, result) => {
-                                if (error) return reject(error);
-                                resolve(result);
-                            }
-                        );
-                        uploadStream.end(req.file.buffer);
-                    });
-                    photoUrl = result.secure_url;
-                } catch (uploadError) {
-                    console.error('Cloudinary upload error:', uploadError);
-                    return res.status(500).json({ error: 'Failed to upload photo' });
-                }
-            }
-
-            let parsedStats = stats;
-            if (typeof stats === 'string') {
-                try {
-                    parsedStats = JSON.parse(stats);
-                } catch (e) {
-                    parsedStats = {};
-                }
-            }
-
-            // Admin creates player, user_id is null or a placeholder? 
-            // Logic check: Players table has user_id foreign key NOT NULL? 
-            // Let's check schema.
-            // Schema: user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
-            // It doesn't say NOT NULL explicitly in the CREATE TABLE usually implies nullable unless specified.
-            // But usually we want to link a player to a user. 
-            // If Admin creates a player, is it a "dummy" player or linked to a real user?
-            // User request: "add new players... maintain consistency".
-            // If we create a player without a user account, they can't login.
-            // Maybe we just link it to the Admin for now, or null if allowed.
-            // Let's assume nullable for now or use the Admin's ID.
-            // Using Admin's ID (req.user.id) seems safest for "System Created" players.
-
-            const userId = req.user.id;
-
-            const result = await pool.query(
-                `INSERT INTO players (user_id, name, sport, year, photo_url, stats, base_price, status) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'eligible') 
-             RETURNING *`,
-                [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats), base_price || 50]
-            );
-
-            res.status(201).json({
-                message: 'Player created successfully',
-                player: result.rows[0]
-            });
-
-        } catch (error) {
-            console.error('Admin create player error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+    try {
+        if (!name || !sport || !year) {
+            return res.status(400).json({ error: 'Name, sport, and year are required' });
         }
-    }
 
-    export async function updatePlayer(req, res) {
-        const { id } = req.params;
-        const { name, sport, year, stats, base_price, status } = req.body;
-
-        try {
-            const updates = [];
-            const params = [];
-            let paramCount = 1;
-
-            if (name) { updates.push(`name = $${paramCount}`); params.push(name); paramCount++; }
-            if (sport) { updates.push(`sport = $${paramCount}`); params.push(sport); paramCount++; }
-            if (year) { updates.push(`year = $${paramCount}`); params.push(year); paramCount++; }
-            if (base_price) { updates.push(`base_price = $${paramCount}`); params.push(base_price); paramCount++; }
-            if (status) { updates.push(`status = $${paramCount}`); params.push(status); paramCount++; }
-
-            if (stats) {
-                let parsedStats = stats;
-                if (typeof stats === 'string') {
-                    try { parsedStats = JSON.parse(stats); } catch (e) { }
-                }
-                updates.push(`stats = $${paramCount}`);
-                params.push(JSON.stringify(parsedStats));
-                paramCount++;
-            }
-
-            if (req.file) {
+        // Upload photo to Cloudinary
+        let photoUrl = null;
+        if (req.file) {
+            try {
+                // Re-use the existing helper which uploads to 'auction-teams', might want to change folder or make it generic
+                // For now, let's use a new helper or modify the existing one. 
+                // Since uploadToCloudinary is locally defined here for teams, let's copy it or use a generic one.
+                // Actually, the existing one is tied to 'auction-teams'. 
+                // Let's create a specific one for players or make the helper accept a folder.
                 const result = await new Promise((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
                         { folder: 'auction-players' },
@@ -563,167 +462,252 @@ export async function updateTeam(req, res) {
                     );
                     uploadStream.end(req.file.buffer);
                 });
-                updates.push(`photo_url = $${paramCount}`);
-                params.push(result.secure_url);
-                paramCount++;
+                photoUrl = result.secure_url;
+            } catch (uploadError) {
+                console.error('Cloudinary upload error:', uploadError);
+                return res.status(500).json({ error: 'Failed to upload photo' });
             }
-
-            if (updates.length === 0) {
-                return res.status(400).json({ error: 'No fields to update' });
-            }
-
-            params.push(id);
-            const query = `UPDATE players SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
-
-            const result = await pool.query(query, params);
-
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: 'Player not found' });
-            }
-
-            res.json({ message: 'Player updated successfully', player: result.rows[0] });
-        } catch (error) {
-            console.error('Admin update player error:', error);
-            res.status(500).json({ error: 'Internal server error' });
         }
-    }
 
-    export async function removeFromQueue(req, res) {
-        const { id } = req.params;
-        try {
-            // Logically remove from queue by setting status to 'unsold' or 'pending'
-            // 'unsold' keeps them visible but out of "Upcoming" list usually.
-            // 'pending' puts them back in approval queue.
-            // Let's use 'unsold' so we know they were processed/removed.
-            const result = await pool.query(
-                "UPDATE players SET status = 'approved' WHERE id = $1 RETURNING *",
-                [id]
-            );
-            if (result.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
-            res.json({ message: 'Player removed from queue and sent back to Approved list', player: result.rows[0] });
-        } catch (error) {
-            console.error('Remove from queue error:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    }
-
-    // Bulk update minimum bid for a sport
-    export async function bulkUpdateMinBid(req, res) {
-        const { sport, minBid } = req.body;
-        try {
-            if (!sport || minBid === undefined) {
-                return res.status(400).json({ error: 'Sport and min bid value are required' });
+        let parsedStats = stats;
+        if (typeof stats === 'string') {
+            try {
+                parsedStats = JSON.parse(stats);
+            } catch (e) {
+                parsedStats = {};
             }
-
-            const value = parseFloat(minBid);
-
-            // 1. Update all non-sold players of that sport
-            await pool.query(
-                "UPDATE players SET base_price = $1 WHERE sport = $2 AND status != 'sold'",
-                [value, sport]
-            );
-
-            // 2. Update auction_state sport_min_bids
-            const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
-            const sportMinBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
-            // Force lowercase key
-            sportMinBids[sport.toLowerCase()] = value;
-
-            await pool.query(
-                'UPDATE auction_state SET sport_min_bids = $1',
-                [JSON.stringify(sportMinBids)]
-            );
-
-            if (req.io) {
-                req.io.emit('refresh-data'); // Notify all clients of config change
-            }
-
-            res.json({ message: `Updated minimum bid for ${sport} to ${value}`, sportMinBids });
-        } catch (error) {
-            console.error('Bulk update min bid error:', error);
-            res.status(500).json({ error: 'Internal server error' });
         }
+
+        // Admin creates player, user_id is null or a placeholder? 
+        // Logic check: Players table has user_id foreign key NOT NULL? 
+        // Let's check schema.
+        // Schema: user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
+        // It doesn't say NOT NULL explicitly in the CREATE TABLE usually implies nullable unless specified.
+        // But usually we want to link a player to a user. 
+        // If Admin creates a player, is it a "dummy" player or linked to a real user?
+        // User request: "add new players... maintain consistency".
+        // If we create a player without a user account, they can't login.
+        // Maybe we just link it to the Admin for now, or null if allowed.
+        // Let's assume nullable for now or use the Admin's ID.
+        // Using Admin's ID (req.user.id) seems safest for "System Created" players.
+
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            `INSERT INTO players (user_id, name, sport, year, photo_url, stats, base_price, status) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'eligible') 
+             RETURNING *`,
+            [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats), base_price || 50]
+        );
+
+        res.status(201).json({
+            message: 'Player created successfully',
+            player: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Admin create player error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    // Bulk reset bids for released players
-    export async function bulkResetReleasedBids(req, res) {
-        try {
-            // Reset sold_price, team_id and status for 'unsold' players (released)
-            // Actually, if they are 'unsold', they are released.
-            // We might want to reset their base_price to current min_bid too.
+export async function updatePlayer(req, res) {
+    const { id } = req.params;
+    const { name, sport, year, stats, base_price, status } = req.body;
 
-            const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
-            const minBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+    try {
+        const updates = [];
+        const params = [];
+        let paramCount = 1;
 
-            // Need to loop per sport or do complex case-when
-            const sports = ['cricket', 'futsal', 'volleyball'];
-            for (const sport of sports) {
-                const val = minBids[sport] || 50;
-                await pool.query(
-                    "UPDATE players SET status = 'approved', base_price = $1, sold_price = NULL, team_id = NULL WHERE status = 'unsold' AND sport = $2",
-                    [val, sport]
+        if (name) { updates.push(`name = $${paramCount}`); params.push(name); paramCount++; }
+        if (sport) { updates.push(`sport = $${paramCount}`); params.push(sport); paramCount++; }
+        if (year) { updates.push(`year = $${paramCount}`); params.push(year); paramCount++; }
+        if (base_price) { updates.push(`base_price = $${paramCount}`); params.push(base_price); paramCount++; }
+        if (status) { updates.push(`status = $${paramCount}`); params.push(status); paramCount++; }
+
+        if (stats) {
+            let parsedStats = stats;
+            if (typeof stats === 'string') {
+                try { parsedStats = JSON.parse(stats); } catch (e) { }
+            }
+            updates.push(`stats = $${paramCount}`);
+            params.push(JSON.stringify(parsedStats));
+            paramCount++;
+        }
+
+        if (req.file) {
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: 'auction-players' },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
                 );
-            }
-
-            // Also delete bids for any players who were just reset
-            // This is optional but cleaner.
-            // DELETE FROM bids WHERE player_id IN (SELECT id FROM players WHERE status = 'approved' AND ...)
-
-            res.json({ message: 'Resetted all released players to approved with minimum bids' });
-        } catch (error) {
-            console.error('Bulk reset released bids error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+                uploadStream.end(req.file.buffer);
+            });
+            updates.push(`photo_url = $${paramCount}`);
+            params.push(result.secure_url);
+            paramCount++;
         }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update' });
+        }
+
+        params.push(id);
+        const query = `UPDATE players SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+
+        const result = await pool.query(query, params);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        res.json({ message: 'Player updated successfully', player: result.rows[0] });
+    } catch (error) {
+        console.error('Admin update player error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    // Add player to queue by ID
-    export async function addToQueueById(req, res) {
-        const { id } = req.params;
-        try {
-            // Check player status first
-            const playerRes = await pool.query('SELECT status FROM players WHERE id = $1', [id]);
-            if (playerRes.rows.length === 0) {
-                return res.status(404).json({ error: 'Player not found' });
-            }
+export async function removeFromQueue(req, res) {
+    const { id } = req.params;
+    try {
+        // Logically remove from queue by setting status to 'unsold' or 'pending'
+        // 'unsold' keeps them visible but out of "Upcoming" list usually.
+        // 'pending' puts them back in approval queue.
+        // Let's use 'unsold' so we know they were processed/removed.
+        const result = await pool.query(
+            "UPDATE players SET status = 'approved' WHERE id = $1 RETURNING *",
+            [id]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
+        res.json({ message: 'Player removed from queue and sent back to Approved list', player: result.rows[0] });
+    } catch (error) {
+        console.error('Remove from queue error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
-            const player = playerRes.rows[0];
-            if (player.status === 'sold') {
-                return res.status(400).json({ error: 'Player is already sold. Release them first.' });
-            }
+// Bulk update minimum bid for a sport
+export async function bulkUpdateMinBid(req, res) {
+    const { sport, minBid } = req.body;
+    try {
+        if (!sport || minBid === undefined) {
+            return res.status(400).json({ error: 'Sport and min bid value are required' });
+        }
 
-            if (player.status === 'eligible') {
-                return res.status(400).json({ error: 'Player is already in the queue.' });
-            }
+        const value = parseFloat(minBid);
 
-            // Update status to eligible
-            const result = await pool.query(
-                "UPDATE players SET status = 'eligible' WHERE id = $1 RETURNING *",
-                [id]
+        // 1. Update all non-sold players of that sport
+        await pool.query(
+            "UPDATE players SET base_price = $1 WHERE sport = $2 AND status != 'sold'",
+            [value, sport]
+        );
+
+        // 2. Update auction_state sport_min_bids
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const sportMinBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+        // Force lowercase key
+        sportMinBids[sport.toLowerCase()] = value;
+
+        await pool.query(
+            'UPDATE auction_state SET sport_min_bids = $1',
+            [JSON.stringify(sportMinBids)]
+        );
+
+        if (req.io) {
+            req.io.emit('refresh-data'); // Notify all clients of config change
+        }
+
+        res.json({ message: `Updated minimum bid for ${sport} to ${value}`, sportMinBids });
+    } catch (error) {
+        console.error('Bulk update min bid error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Bulk reset bids for released players
+export async function bulkResetReleasedBids(req, res) {
+    try {
+        // Reset sold_price, team_id and status for 'unsold' players (released)
+        // Actually, if they are 'unsold', they are released.
+        // We might want to reset their base_price to current min_bid too.
+
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const minBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+
+        // Need to loop per sport or do complex case-when
+        const sports = ['cricket', 'futsal', 'volleyball'];
+        for (const sport of sports) {
+            const val = minBids[sport] || 50;
+            await pool.query(
+                "UPDATE players SET status = 'approved', base_price = $1, sold_price = NULL, team_id = NULL WHERE status = 'unsold' AND sport = $2",
+                [val, sport]
             );
-
-            res.json({ message: 'Player added to auction queue', player: result.rows[0] });
-        } catch (error) {
-            console.error('Add to queue error:', error);
-            res.status(500).json({ error: 'Internal server error' });
         }
+
+        // Also delete bids for any players who were just reset
+        // This is optional but cleaner.
+        // DELETE FROM bids WHERE player_id IN (SELECT id FROM players WHERE status = 'approved' AND ...)
+
+        res.json({ message: 'Resetted all released players to approved with minimum bids' });
+    } catch (error) {
+        console.error('Bulk reset released bids error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
 
-    // Release player (make unsold) and refund budget
-    export async function releasePlayer(req, res) {
-        const { id } = req.params;
-        try {
-            const result = await pool.query(
-                "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE id = $1 RETURNING *",
-                [id]
-            );
-
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: 'Player not found' });
-            }
-
-            res.json({ message: 'Player released successfully', player: result.rows[0] });
-        } catch (error) {
-            console.error('Release player error:', error);
-            res.status(500).json({ error: 'Internal server error' });
+// Add player to queue by ID
+export async function addToQueueById(req, res) {
+    const { id } = req.params;
+    try {
+        // Check player status first
+        const playerRes = await pool.query('SELECT status FROM players WHERE id = $1', [id]);
+        if (playerRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Player not found' });
         }
+
+        const player = playerRes.rows[0];
+        if (player.status === 'sold') {
+            return res.status(400).json({ error: 'Player is already sold. Release them first.' });
+        }
+
+        if (player.status === 'eligible') {
+            return res.status(400).json({ error: 'Player is already in the queue.' });
+        }
+
+        // Update status to eligible
+        const result = await pool.query(
+            "UPDATE players SET status = 'eligible' WHERE id = $1 RETURNING *",
+            [id]
+        );
+
+        res.json({ message: 'Player added to auction queue', player: result.rows[0] });
+    } catch (error) {
+        console.error('Add to queue error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
+}
+
+// Release player (make unsold) and refund budget
+export async function releasePlayer(req, res) {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE id = $1 RETURNING *",
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        res.json({ message: 'Player released successfully', player: result.rows[0] });
+    } catch (error) {
+        console.error('Release player error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
