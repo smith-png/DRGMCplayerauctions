@@ -199,7 +199,7 @@ export default function PlayerProfilesBySport() {
                             ✕
                         </button>
 
-                        <div className="modal-content">
+                        <div className="player-modal-content">
                             <div className="modal-photo-section">
                                 {selectedPlayer.photo_url ? (
                                     <img

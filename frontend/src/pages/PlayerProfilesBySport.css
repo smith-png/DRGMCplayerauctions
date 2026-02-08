@@ -310,7 +310,7 @@
     transform: rotate(90deg);
 }
 
-.modal-content {
+.player-modal-content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -481,7 +481,7 @@
 /* ===== RESPONSIVE ===== */
 /* Desktop Layout Revision for Modal - COMPLETE REBUILD */
 @media (min-width: 900px) {
-    .modal-content {
+    .player-modal-content {
         display: grid;
         grid-template-columns: 350px 1fr;
         /* Fixed Left, Fluid Right */
@@ -584,7 +584,7 @@
         gap: 1.5rem;
     }
 
-    .modal-content {
+    .player-modal-content {
         flex-direction: column;
         padding: 2rem;
         gap: 2rem;
