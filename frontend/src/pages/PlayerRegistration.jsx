@@ -196,8 +196,6 @@ export default function PlayerRegistration() {
                                             <option value="1st">1st MBBS</option>
                                             <option value="2nd">2nd MBBS</option>
                                             <option value="3rd">3rd MBBS</option>
-                                            <option value="4th">4th MBBS</option>
-                                            <option value="Intern">Intern</option>
                                         </select>
                                     </div>
 
