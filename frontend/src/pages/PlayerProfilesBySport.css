@@ -489,7 +489,7 @@
         /* Remove gap, handle via padding */
         padding: 0;
         /* Reset padding to handle internally */
-        overflow: visible;
+        overflow-y: auto;
         /* Allow content to determine size, remove hidden overflow */
         height: auto;
         /* Auto height */
@@ -510,6 +510,7 @@
         justify-content: center;
         gap: 1.5rem;
         border-right: 1px solid rgba(0, 0, 0, 0.05);
+        margin: 0;
     }
 
     .modal-photo,
