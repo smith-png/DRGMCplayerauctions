@@ -17,15 +17,12 @@ export async function getMyTeam(req, res) {
 
         const teamId = userResult.rows[0].team_id;
 
-        // Get team details with calculated remaining_budget
+        // Get team details with stored remaining_budget
         const teamResult = await pool.query(
             `SELECT t.*, 
-                    COALESCE(t.budget - SUM(p.sold_price), t.budget) as remaining_budget,
-                    COALESCE(SUM(p.sold_price), 0) as total_spent
+                    (t.budget - t.remaining_budget) as total_spent
              FROM teams t
-             LEFT JOIN players p ON p.team_id = t.id AND p.status = 'sold'
-             WHERE t.id = $1
-             GROUP BY t.id`,
+             WHERE t.id = $1`,
             [teamId]
         );
 

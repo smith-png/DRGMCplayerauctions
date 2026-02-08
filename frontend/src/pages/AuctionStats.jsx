@@ -209,7 +209,7 @@ export default function AuctionStats() {
             );
         }
 
-        const totalSpent = myPlayers.reduce((sum, p) => sum + parseFloat(p.sold_price || 0), 0);
+        const totalSpent = parseFloat(myTeam.total_spent || 0);
 
         return (
             <div className="leaderboard-page team-owner-dashboard">
@@ -234,7 +234,7 @@ export default function AuctionStats() {
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.3s' }}>
                             <div className="stat-label">Remaining Budget</div>
-                            <div className="stat-value remaining">{(myTeam.budget - totalSpent).toLocaleString()} Pts</div>
+                            <div className="stat-value remaining">{myTeam.remaining_budget.toLocaleString()} Pts</div>
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                             <div className="stat-label">Players Acquired</div>
