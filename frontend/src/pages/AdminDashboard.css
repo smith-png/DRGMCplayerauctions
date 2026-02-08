@@ -706,7 +706,7 @@ input:checked+.slider:before {
     backdrop-filter: blur(4px);
 }
 
-.modal-content {
+.admin-modal-content {
     background: var(--bg-secondary);
     padding: 2rem;
     border-radius: 1rem;

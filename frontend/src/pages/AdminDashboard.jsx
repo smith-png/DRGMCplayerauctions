@@ -1059,7 +1059,7 @@ export default function AdminDashboard() {
                 {
                     showUserModal && (
                         <div className="modal-overlay">
-                            <div className="modal-content card">
+                            <div className="admin-modal-content card">
                                 <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
                                 <form onSubmit={handleSaveUser}>
                                     <div className="form-group">
@@ -1140,7 +1140,7 @@ export default function AdminDashboard() {
                 {
                     showTeamModal && (
                         <div className="modal-overlay">
-                            <div className="modal-content card">
+                            <div className="admin-modal-content card">
                                 <h2>{editingTeam ? 'Edit Team' : 'Create Team'}</h2>
                                 <form onSubmit={handleSaveTeamExtended}>
                                     <div className="form-group">
@@ -1201,7 +1201,7 @@ export default function AdminDashboard() {
                 {
                     showPlayerModal && (
                         <div className="modal-overlay">
-                            <div className="modal-content card">
+                            <div className="admin-modal-content card">
                                 <h2>{editingPlayer ? 'Edit Player' : 'Create Player'}</h2>
                                 <form onSubmit={handleSavePlayerExtended}>
                                     <div className="form-group">
