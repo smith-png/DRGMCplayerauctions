@@ -48,11 +48,13 @@ export default function AuctionStats() {
             setIsConnected(true);
         }
 
-        socketService.socket.on('connect', () => {
-            setIsConnected(true);
-            socketService.joinAuction();
-        });
-        socketService.socket.on('disconnect', () => setIsConnected(false));
+        if (socketService.socket) {
+            socketService.socket.on('connect', () => {
+                setIsConnected(true);
+                socketService.joinAuction();
+            });
+            socketService.socket.on('disconnect', () => setIsConnected(false));
+        }
 
         // Listen for leaderboard refresh
         socketService.onRefreshLeaderboard(() => {
@@ -101,6 +103,7 @@ export default function AuctionStats() {
             socketService.socket.off('connect');
             socketService.socket.off('disconnect');
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.role, myTeam?.id]); // Re-bind if user role or team changes
 
     const loadAuctionStateAndCurrent = async () => {
