@@ -10,11 +10,8 @@ export function setupAuctionSocket(io) {
             console.log('Client joined auction room:', socket.id);
         });
 
-    }
+        socket.on('disconnect', () => {
+            console.log('❌ Client disconnected:', socket.id);
         });
-
-socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
-});
     });
 }
