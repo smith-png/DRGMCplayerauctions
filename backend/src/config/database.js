@@ -189,39 +189,21 @@ export async function initializeDatabase() {
 
     // Add testgrounds_locked column to auction_state (Migration)
     await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='testgrounds_locked') THEN
-          ALTER TABLE auction_state ADD COLUMN testgrounds_locked BOOLEAN DEFAULT FALSE;
-        END IF;
-      END
-      $$;
+      ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS testgrounds_locked BOOLEAN DEFAULT FALSE;
     `);
 
     // Add animation_type column to auction_state (Migration)
     await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='animation_type') THEN
-          ALTER TABLE auction_state ADD COLUMN animation_type VARCHAR(50) DEFAULT 'confetti';
-        END IF;
-      END
-      $$;
+      ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS animation_type VARCHAR(50) DEFAULT 'confetti';
     `);
 
     // Add bid_increment_rules column to auction_state (Migration)
     await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='bid_increment_rules') THEN
-          ALTER TABLE auction_state ADD COLUMN bid_increment_rules JSONB DEFAULT '[
-            {"threshold": 0, "increment": 10},
-            {"threshold": 200, "increment": 50},
-            {"threshold": 500, "increment": 100}
-          ]'::jsonb;
-        END IF;
-      END
-      $$;
+      ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS bid_increment_rules JSONB DEFAULT '[
+        {"threshold": 0, "increment": 10},
+        {"threshold": 200, "increment": 50},
+        {"threshold": 500, "increment": 100}
+      ]'::jsonb;
     `);
 
     // Create performance indexes

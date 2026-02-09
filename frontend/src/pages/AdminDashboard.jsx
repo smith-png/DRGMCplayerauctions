@@ -1088,6 +1088,108 @@ export default function AdminDashboard() {
                             )}
                         </>
                     )}
+
+                    {activeTab === 'settings' && (
+                        <div className="settings-section animate-fadeIn">
+                            <h2>⚙️ Auction Settings</h2>
+
+                            <div className="card mb-4">
+                                <h3>Bid Increment Rules</h3>
+                                <p className="text-secondary subtitle-sm">Configure how much the bid increases based on the current bid amount.</p>
+
+                                <div className="table-responsive">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Threshold (Points)</th>
+                                                <th>Increment (Points)</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {bidIncrementRules.map((rule, index) => (
+                                                <tr key={index}>
+                                                    <td>
+                                                        {index === 0 ? (
+                                                            <span>0 (Base)</span>
+                                                        ) : (
+                                                            <input
+                                                                type="number"
+                                                                className="input input-sm"
+                                                                value={rule.threshold}
+                                                                onChange={(e) => {
+                                                                    const newRules = [...bidIncrementRules];
+                                                                    newRules[index].threshold = parseInt(e.target.value);
+                                                                    setBidIncrementRules(newRules);
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            className="input input-sm"
+                                                            value={rule.increment}
+                                                            onChange={(e) => {
+                                                                const newRules = [...bidIncrementRules];
+                                                                newRules[index].increment = parseInt(e.target.value);
+                                                                setBidIncrementRules(newRules);
+                                                            }}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        {index > 0 && (
+                                                            <button
+                                                                className="btn btn-sm btn-danger"
+                                                                onClick={() => {
+                                                                    const newRules = bidIncrementRules.filter((_, i) => i !== index);
+                                                                    setBidIncrementRules(newRules);
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => setBidIncrementRules([...bidIncrementRules, { threshold: 0, increment: 10 }])}
+                                        >
+                                            + Add Rule
+                                        </button>
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={async () => {
+                                                try {
+                                                    const cleanRules = bidIncrementRules
+                                                        .map(r => ({ threshold: parseInt(r.threshold), increment: parseInt(r.increment) }))
+                                                        .sort((a, b) => a.threshold - b.threshold);
+
+                                                    // Ensure base 0 rule exists
+                                                    if (cleanRules.length === 0 || cleanRules[0].threshold !== 0) {
+                                                        alert("Must have a rule starting at 0 threshold");
+                                                        return;
+                                                    }
+
+                                                    await adminAPI.updateBidRules(cleanRules);
+                                                    setMessage('Bid rules updated successfully');
+                                                } catch (err) {
+                                                    console.error(err);
+                                                    setMessage('Failed to update bid rules');
+                                                }
+                                            }}
+                                        >
+                                            Save Rules
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* User Modal */}
