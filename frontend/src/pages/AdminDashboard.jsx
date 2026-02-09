@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminAPI, playerAPI, auctionAPI } from '../services/api';
-// import socketService from '../services/socket';
+import { adminAPI, playerAPI, auctionAPI } from '../services/api.js';
 import './AdminDashboard.css';
 
 export default function AdminDashboard() {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api';
-import socketService from '../services/socket';
+import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api.js';
+import socketService from '../services/socket.js';
 import './AuctionLive.css';
 import './SoldPlayers.css';
 import './AuctionAnimation.css';

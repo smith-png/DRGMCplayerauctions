@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { auctionAPI, teamOwnerAPI, authAPI, playerAPI, adminAPI } from '../services/api';
-import socketService from '../services/socket';
+import { auctionAPI, teamOwnerAPI, authAPI, playerAPI, adminAPI } from '../services/api.js';
+import socketService from '../services/socket.js';
 import './AuctionStats.css';
 
 export default function AuctionStats() {
