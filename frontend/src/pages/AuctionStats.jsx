@@ -495,14 +495,14 @@ export default function AuctionStats() {
             <div className="container">
                 <div className="leaderboard-header animate-fadeIn">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h1 className="main-title" style={{ margin: 0 }}>🏆 Auction Stats {user?.role === 'admin' ? '(Admin)' : ''}</h1>
+                        <h1 className="main-title" style={{ margin: 0 }}>Auction Stats</h1>
                         {user?.role === 'admin' && (
                             <button
                                 onClick={handleShowLogs}
                                 className="btn btn-secondary btn-sm"
                                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                             >
-                                📜 Bid Logs
+                                Bid Logs
                             </button>
                         )}
                     </div>
@@ -715,7 +715,7 @@ export default function AuctionStats() {
                     alignItems: 'center',
                     background: 'var(--bg-secondary)'
                 }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>📜 Bid Logs</h2>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Bid Logs</h2>
                     <button
                         onClick={() => setShowLogsModal(false)}
                         style={{
