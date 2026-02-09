@@ -1097,7 +1097,7 @@ export default function AdminDashboard() {
 
                     {activeTab === 'settings' && (
                         <div className="settings-section animate-fadeIn">
-                            <h2>⚙️ Auction Settings</h2>
+                            <h2>Auction Settings</h2>
 
                             <div className="card mb-4">
                                 <h3>Bid Increment Rules</h3>

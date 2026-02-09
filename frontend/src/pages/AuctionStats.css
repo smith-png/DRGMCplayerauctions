@@ -341,12 +341,10 @@
 
 /* Player Price badge in Squad List - Sage Hollow */
 .player-price-badge {
-    position: absolute;
-    bottom: 10px;
     background: transparent;
     color: #556B2F;
     border: 2px solid #749F82;
-    padding: 4px 12px;
+    padding: 2px 10px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 700;
@@ -444,6 +442,7 @@ z-index: 1;
     text-align: center;
     gap: var(--spacing-sm);
     transition: transform var(--transition-base);
+    position: relative;
 }
 
 .player-card-small:hover {
@@ -480,12 +479,13 @@ z-index: 1;
 }
 
 .player-price-badge {
-    background: var(--accent-gradient);
-    color: white;
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--radius-full);
+    background: transparent;
+    color: #556B2F;
+    border: 2px solid #749F82;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     font-weight: 700;
-    font-size: 0.875rem;
 }
 
 .bids-list {
