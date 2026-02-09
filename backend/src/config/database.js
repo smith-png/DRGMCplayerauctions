@@ -104,7 +104,11 @@ export async function initializeDatabase() {
         sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb,
         started_at TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        is_registration_open BOOLEAN DEFAULT true
+        is_registration_open BOOLEAN DEFAULT true,
+        animation_duration INTEGER DEFAULT 25,
+        animation_type VARCHAR(50) DEFAULT 'confetti',
+        bid_increment_rules JSONB DEFAULT '[{"threshold": 0, "increment": 10}, {"threshold": 200, "increment": 50}, {"threshold": 500, "increment": 100}]'::jsonb,
+        testgrounds_locked BOOLEAN DEFAULT FALSE
       )
     `);
 
@@ -189,6 +193,32 @@ export async function initializeDatabase() {
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='testgrounds_locked') THEN
           ALTER TABLE auction_state ADD COLUMN testgrounds_locked BOOLEAN DEFAULT FALSE;
+        END IF;
+      END
+      $$;
+    `);
+
+    // Add animation_type column to auction_state (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='animation_type') THEN
+          ALTER TABLE auction_state ADD COLUMN animation_type VARCHAR(50) DEFAULT 'confetti';
+        END IF;
+      END
+      $$;
+    `);
+
+    // Add bid_increment_rules column to auction_state (Migration)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='bid_increment_rules') THEN
+          ALTER TABLE auction_state ADD COLUMN bid_increment_rules JSONB DEFAULT '[
+            {"threshold": 0, "increment": 10},
+            {"threshold": 200, "increment": 50},
+            {"threshold": 500, "increment": 100}
+          ]'::jsonb;
         END IF;
       END
       $$;
