@@ -625,8 +625,11 @@ export default function AuctionLive() {
             <div className="auction-page">
                 <div className="container">
                     <div className="no-auction card text-center" style={{ marginBottom: '3rem' }}>
-                        <h2>No Active Auction</h2>
-                        <p>Waiting for auctioneer to start the next player auction...</p>
+                        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>👀</div>
+                        <h2>Stay tuned for next player</h2>
+                        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
+                            Waiting for admin to start the next player auction...
+                        </p>
                     </div>
                 </div>
             </div>
