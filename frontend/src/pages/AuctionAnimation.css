@@ -33,6 +33,7 @@
     line-height: 1;
     margin-bottom: 2rem;
     background: linear-gradient(to right, #fbbf24, #f59e0b, #d97706);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.5));
@@ -146,14 +147,22 @@
 
 /* Team Section */
 .sold-team-logo-container {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* background: rgba(255, 255, 255, 0.05); */
-    /* border-radius: 20px; */
-    padding: 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 6px solid #4ade80;
+    /* Match player border */
+    box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+    /* Match player shadow */
+    background: #f1f5f9;
+    /* Match player background */
+    position: relative;
+    padding: 1.5rem;
+    /* Padding to ensure logo fits nicely within circle */
 }
 
 .sold-team-logo {
@@ -455,6 +464,7 @@
 
 .anim-gold .sold-header-text {
     background: linear-gradient(to bottom, #cfc09f 22%, #634f2c 24%, #cfc09f 26%, #cfc09f 27%, #ffecb3 40%, #3a2c0f 78%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
@@ -512,7 +522,7 @@
     }
 
     .sold-team-logo-container {
-        width: 100px;
-        height: 100px;
+        width: 140px;
+        height: 140px;
     }
 }
