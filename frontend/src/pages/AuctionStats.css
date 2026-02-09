@@ -763,3 +763,30 @@ z-index: 1;
     background: rgba(185, 28, 28, 0.1);
     color: var(--error);
 }
+
+/* Spinner for buttons */
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin-loading 0.8s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes spin-loading {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pulsate-btn {
+    animation: pulsate 2s infinite ease-in-out;
+}

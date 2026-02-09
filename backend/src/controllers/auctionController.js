@@ -76,6 +76,8 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        const roundedBid = Math.round(parseFloat(bidAmount));
+
         await client.query('BEGIN');
 
         // Check budget & Lock Row
@@ -100,13 +102,13 @@ export const placeBid = async (req, res) => {
         // Insert Bid into active bids
         const result = await client.query(
             'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3) RETURNING *',
-            [playerId, teamId, bidAmount]
+            [playerId, teamId, roundedBid]
         );
 
         // Insert into persistent bid logs
         await client.query(
             'INSERT INTO bid_logs (player_id, team_id, amount) VALUES ($1, $2, $3)',
-            [playerId, teamId, bidAmount]
+            [playerId, teamId, roundedBid]
         );
 
         // Fetch Player Name (using SAME client) to ensure atomicity and correctness
@@ -123,7 +125,7 @@ export const placeBid = async (req, res) => {
             req.io.to('auction-room').emit('bid-update', {
                 teamId,
                 teamName,
-                amount: bidAmount,
+                amount: roundedBid,
                 playerId,
                 playerName,
                 timestamp: new Date()
@@ -353,16 +355,18 @@ export const markPlayerSold = async (req, res) => {
             return res.status(400).json({ error: 'Player ID, team ID, and final price are required' });
         }
 
+        const roundedPrice = Math.round(parseFloat(finalPrice));
+
         // Update player status to sold
         await pool.query(
             'UPDATE players SET status = $1, team_id = $2, sold_price = $3 WHERE id = $4',
-            ['sold', teamId, finalPrice, playerId]
+            ['sold', teamId, roundedPrice, playerId]
         );
 
         // Update team's remaining budget in database (for other parts of app that use the column)
         await pool.query(
             'UPDATE teams SET remaining_budget = remaining_budget - $1 WHERE id = $2',
-            [finalPrice, teamId]
+            [roundedPrice, teamId]
         );
 
         // Get names for broadcast
@@ -375,7 +379,7 @@ export const markPlayerSold = async (req, res) => {
                 playerName: playerRes.rows[0]?.name,
                 photoUrl: playerRes.rows[0]?.photo_url,
                 teamName: teamRes.rows[0]?.name,
-                amount: finalPrice,
+                amount: roundedPrice,
                 timestamp: new Date()
             });
             // Also refresh leaderboard and general data

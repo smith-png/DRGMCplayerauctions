@@ -19,6 +19,7 @@ export default function AuctionStats() {
     const [myPlayers, setMyPlayers] = useState([]);
     const [myBids, setMyBids] = useState([]);
     const [eligiblePlayers, setEligiblePlayers] = useState([]);
+    const [isBidding, setIsBidding] = useState(false);
 
     // Admin Logs State
     const [showLogsModal, setShowLogsModal] = useState(false);
@@ -110,9 +111,11 @@ export default function AuctionStats() {
             if (data) {
                 setCurrentAuction({
                     ...data.player,
-                    current_bid: data.highestBid ? parseFloat(data.highestBid.amount) : parseFloat(data.player.base_price || 0),
+                    current_bid: data.highestBid ? Math.round(data.highestBid.amount) : Math.round(data.player.base_price || 0),
                     current_team_id: data.highestBid ? data.highestBid.team_id : null,
                 });
+                // Reset bidding state if a new bid comes in (might be from us or someone else)
+                setIsBidding(false);
             } else {
                 setCurrentAuction(null);
             }
@@ -139,8 +142,9 @@ export default function AuctionStats() {
     };
 
     const handleTeamOwnerBid = async () => {
-        if (!currentAuction || !myTeam) return;
+        if (!currentAuction || !myTeam || isBidding) return;
 
+        setIsBidding(true);
         const nextBid = calculateNextBid(currentAuction.current_bid || 0);
 
         // Optimistic update (optional, but safer to wait for ack or just fire and forget)
@@ -151,6 +155,11 @@ export default function AuctionStats() {
         } catch (err) {
             console.error("Bid failed", err);
             alert(err.response?.data?.error || "Failed to place bid");
+        } finally {
+            // Add a small delay to ensure the loading state is visible and enforce a min cooldown
+            setTimeout(() => {
+                setIsBidding(false);
+            }, 500);
         }
     };
 
@@ -318,7 +327,7 @@ export default function AuctionStats() {
             );
         }
 
-        const totalSpent = parseFloat(myTeam.total_spent || 0);
+        const totalSpent = Math.round(myTeam.total_spent || 0);
 
         return (
             <div className="leaderboard-page team-owner-dashboard">
@@ -332,18 +341,22 @@ export default function AuctionStats() {
                                 </span>
                                 {currentAuction && (
                                     <button
-                                        className="btn btn-success btn-lg pulsate-btn"
+                                        className={`btn btn-success btn-lg pulsate-btn ${isBidding ? 'btn-loading' : ''}`}
                                         onClick={handleTeamOwnerBid}
-                                        disabled={!isConnected || myTeam.remaining_budget < calculateNextBid(currentAuction.current_bid || 0)}
+                                        disabled={!isConnected || isBidding || myTeam.remaining_budget < calculateNextBid(currentAuction.current_bid || 0)}
                                         style={{
                                             marginLeft: '1rem',
                                             fontWeight: 'bold',
                                             boxShadow: '0 4px 14px 0 rgba(72, 187, 120, 0.39)',
                                             fontSize: '1.1rem',
-                                            padding: '0.75rem 1.5rem'
+                                            padding: '0.75rem 1.5rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px'
                                         }}
                                     >
-                                        Bid {calculateNextBid(currentAuction.current_bid || 0)} Pts on {currentAuction.name}
+                                        {isBidding && <span className="spinner-small"></span>}
+                                        {isBidding ? 'Placing Bid...' : `Bid ${calculateNextBid(currentAuction.current_bid || 0)} Pts on ${currentAuction.name}`}
                                     </button>
                                 )}
                             </div>
@@ -353,7 +366,7 @@ export default function AuctionStats() {
                     <div className="team-stats-grid">
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.1s' }}>
                             <div className="stat-label">Total Budget</div>
-                            <div className="stat-value">{myTeam.budget.toLocaleString()} Pts</div>
+                            <div className="stat-value">{Math.round(myTeam.budget).toLocaleString()} Pts</div>
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                             <div className="stat-label">Total Spent</div>
@@ -361,7 +374,7 @@ export default function AuctionStats() {
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.3s' }}>
                             <div className="stat-label">Remaining Budget</div>
-                            <div className="stat-value remaining">{myTeam.remaining_budget.toLocaleString()} Pts</div>
+                            <div className="stat-value remaining">{Math.round(myTeam.remaining_budget).toLocaleString()} Pts</div>
                         </div>
                         <div className="stat-card card animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                             <div className="stat-label">Players Acquired</div>
@@ -390,7 +403,7 @@ export default function AuctionStats() {
                                                 <div className="player-year-small">{player.year} MBBS</div>
                                                 <div className="player-role-small">{player.stats?.role || 'Player'}</div>
                                             </div>
-                                            <div className="player-price-badge">{parseFloat(player.sold_price).toLocaleString()} Pts</div>
+                                            <div className="player-price-badge">{Math.round(player.sold_price).toLocaleString()} Pts</div>
                                         </div>
                                     ))}
                                 </div>
@@ -567,15 +580,15 @@ export default function AuctionStats() {
                                 <div className="team-stats">
                                     <div className="stat-box">
                                         <span className="stat-label">Budget</span>
-                                        <span className="stat-value">{team.budget.toLocaleString()} Pts</span>
+                                        <span className="stat-value">{Math.round(team.budget).toLocaleString()} Pts</span>
                                     </div>
                                     <div className="stat-box">
                                         <span className="stat-label">Spent</span>
-                                        <span className="stat-value spent">{parseFloat(team.total_spent).toLocaleString()} Pts</span>
+                                        <span className="stat-value spent">{Math.round(team.total_spent).toLocaleString()} Pts</span>
                                     </div>
                                     <div className="stat-box">
                                         <span className="stat-label">Remaining</span>
-                                        <span className="stat-value remaining">{team.remaining_budget.toLocaleString()} Pts</span>
+                                        <span className="stat-value remaining">{Math.round(team.remaining_budget).toLocaleString()} Pts</span>
                                     </div>
                                     <div className="stat-box">
                                         <span className="stat-label">Players</span>

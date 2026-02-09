@@ -599,7 +599,7 @@ export async function bulkUpdateMinBid(req, res) {
             return res.status(400).json({ error: 'Sport and min bid value are required' });
         }
 
-        const value = parseFloat(minBid);
+        const value = Math.round(parseFloat(minBid));
 
         // 1. Update all non-sold players of that sport
         await pool.query(

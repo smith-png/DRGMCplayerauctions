@@ -46,8 +46,8 @@ export async function initializeDatabase() {
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         sport VARCHAR(50) NOT NULL CHECK (sport IN ('cricket', 'futsal', 'volleyball')),
-        budget DECIMAL(10, 2) DEFAULT 2000,
-        remaining_budget DECIMAL(10, 2) DEFAULT 2000,
+        budget INTEGER DEFAULT 2000,
+        remaining_budget INTEGER DEFAULT 2000,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -62,10 +62,10 @@ export async function initializeDatabase() {
         year VARCHAR(10) NOT NULL CHECK (year IN ('1st', '2nd', '3rd')),
         photo_url VARCHAR(500),
         stats JSONB,
-        base_price DECIMAL(10, 2) DEFAULT 50,
+        base_price INTEGER DEFAULT 50,
         status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'sold', 'unsold', 'eligible', 'auctioning')),
         team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
-        sold_price DECIMAL(10, 2),
+        sold_price INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -76,7 +76,7 @@ export async function initializeDatabase() {
         id SERIAL PRIMARY KEY,
         player_id INTEGER REFERENCES players(id) ON DELETE CASCADE,
         team_id INTEGER REFERENCES teams(id) ON DELETE CASCADE,
-        amount DECIMAL(10, 2) NOT NULL,
+        amount INTEGER NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -98,7 +98,7 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS auction_state (
         id SERIAL PRIMARY KEY,
         current_player_id INTEGER REFERENCES players(id) ON DELETE SET NULL,
-        current_bid DECIMAL(10, 2),
+        current_bid INTEGER,
         current_team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
         is_active BOOLEAN DEFAULT false,
         sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb,
@@ -204,6 +204,17 @@ export async function initializeDatabase() {
         {"threshold": 200, "increment": 50},
         {"threshold": 500, "increment": 100}
       ]'::jsonb;
+    `);
+
+    // Migration: Convert DECIMAL to INTEGER (Rounding)
+    console.log('Migrating financial columns to INTEGER...');
+    await client.query(`
+      ALTER TABLE teams ALTER COLUMN budget TYPE INTEGER USING ROUND(budget)::INTEGER;
+      ALTER TABLE teams ALTER COLUMN remaining_budget TYPE INTEGER USING ROUND(remaining_budget)::INTEGER;
+      ALTER TABLE players ALTER COLUMN base_price TYPE INTEGER USING ROUND(base_price)::INTEGER;
+      ALTER TABLE players ALTER COLUMN sold_price TYPE INTEGER USING ROUND(sold_price)::INTEGER;
+      ALTER TABLE bids ALTER COLUMN amount TYPE INTEGER USING ROUND(amount)::INTEGER;
+      ALTER TABLE auction_state ALTER COLUMN current_bid TYPE INTEGER USING ROUND(current_bid)::INTEGER;
     `);
 
     // Create performance indexes

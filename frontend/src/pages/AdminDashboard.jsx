@@ -36,9 +36,10 @@ export default function AdminDashboard() {
     const loadData = async () => {
         setLoading(true);
         try {
-            if (activeTab === 'overview') {
+            if (activeTab === 'overview' || activeTab === 'settings') {
                 const response = await adminAPI.getStats();
-                setStats(response.data.stats);
+                if (activeTab === 'overview') setStats(response.data.stats);
+
                 const stateResponse = await auctionAPI.getAuctionState();
                 setIsAuctionActive(stateResponse.data.isActive);
                 setIsRegistrationOpen(stateResponse.data.isRegistrationOpen ?? true);
@@ -622,90 +623,6 @@ export default function AdminDashboard() {
                                         </div>
                                     )}
 
-                                    {/* Bulk Operations Section */}
-                                    {/* Compact Auction Controls Section */}
-                                    <div className="card mt-4" style={{ gridColumn: '1 / -1', padding: '1rem' }}>
-                                        <h3 className="mb-3" style={{ fontSize: '1.1rem' }}>Auction Controls & Settings</h3>
-                                        <div className="auction-controls-grid">
-                                            {/* Sold Overlay Duration */}
-                                            <div className="control-item">
-                                                <label className="text-xs font-bold text-secondary uppercase mb-1 block">Sold Overlay Duration</label>
-                                                <div className="flex bg-dark-input rounded-lg overflow-hidden border border-white/10">
-                                                    <input
-                                                        type="number"
-                                                        value={animationDuration}
-                                                        onChange={(e) => handleUpdateAnimationDuration(parseInt(e.target.value) || 0)}
-                                                        className="input input-sm flex-1 text-center bg-transparent border-none focus:ring-0"
-                                                        min="5"
-                                                        max="120"
-                                                    />
-                                                    <span className="px-3 flex items-center bg-white/5 text-xs font-bold text-secondary border-l border-white/10">SEC</span>
-                                                </div>
-                                                <button onClick={handleUpdateAnimationDuration} className="btn btn-sm btn-primary h-auto ml-2">Set</button>
-                                            </div>
-
-                                            {/* Min Bid Control */}
-                                            <div className="control-item">
-                                                <label className="text-xs font-bold text-secondary uppercase mb-1 block">Min Bids ({sportMinBids[bulkSport] || 50})</label>
-                                                <div className="flex gap-2 items-center">
-                                                    <select
-                                                        className="input input-sm"
-                                                        value={bulkSport}
-                                                        onChange={(e) => {
-                                                            setBulkSport(e.target.value);
-                                                            setBulkMinBid(sportMinBids[e.target.value] || 50);
-                                                        }}
-                                                        style={{ width: 'auto' }}
-                                                    >
-                                                        <option value="cricket">Cricket</option>
-                                                        <option value="futsal">Futsal</option>
-                                                        <option value="volleyball">Volley</option>
-                                                    </select>
-                                                    <input
-                                                        type="number"
-                                                        className="input input-sm"
-                                                        value={bulkMinBid}
-                                                        onChange={(e) => setBulkMinBid(e.target.value)}
-                                                        style={{ width: '60px' }}
-                                                    />
-                                                    <button
-                                                        onClick={handleBulkMinBidUpdate}
-                                                        className="btn btn-sm btn-primary"
-                                                    >
-                                                        Update
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {/* Reset Released Control */}
-                                            <div className="control-item flex items-end gap-2">
-                                                <button
-                                                    onClick={handleBulkResetReleased}
-                                                    className="btn btn-sm btn-warning"
-                                                    title="Moves 'Unsold' players back to 'Approved' and resets history"
-                                                >
-                                                    Reset Unsold
-                                                </button>
-                                                <button
-                                                    onClick={async () => {
-                                                        if (!confirm('DANGER: RESET ALL WALLETS? This will unsold ALL players, clear ALL bids, and set ALL team budgets to 2000. This cannot be undone.')) return;
-                                                        try {
-                                                            await adminAPI.resetAllWallets();
-                                                            setMessage('GLOBAL RESET SUCCESSFUL');
-                                                            loadData();
-                                                        } catch (e) {
-                                                            console.error(e);
-                                                            setMessage('Global reset failed');
-                                                        }
-                                                    }}
-                                                    className="btn btn-sm btn-danger"
-                                                    title="Reset ALL teams to 2000 budget and clear all sales"
-                                                >
-                                                    GLOBAL RESET
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             )}
 
@@ -1098,6 +1015,90 @@ export default function AdminDashboard() {
                     {activeTab === 'settings' && (
                         <div className="settings-section animate-fadeIn">
                             <h2>Auction Settings</h2>
+
+                            {/* Auction Controls & Settings Table Moved from Overview */}
+                            <div className="card mb-4" style={{ padding: '1rem' }}>
+                                <h3 className="mb-3" style={{ fontSize: '1.25rem' }}>Auction Controls & Settings</h3>
+                                <div className="auction-controls-grid">
+                                    {/* Sold Overlay Duration */}
+                                    <div className="control-item">
+                                        <label className="text-xs font-bold text-secondary uppercase mb-1 block">Sold Overlay Duration</label>
+                                        <div className="flex bg-dark-input rounded-lg overflow-hidden border border-white/10">
+                                            <input
+                                                type="number"
+                                                value={animationDuration}
+                                                onChange={(e) => setAnimationDuration(parseInt(e.target.value) || 0)}
+                                                className="input input-sm flex-1 text-center bg-transparent border-none focus:ring-0"
+                                                min="5"
+                                                max="120"
+                                            />
+                                            <span className="px-3 flex items-center bg-white/5 text-xs font-bold text-secondary border-l border-white/10">SEC</span>
+                                        </div>
+                                        <button onClick={handleUpdateAnimationDuration} className="btn btn-sm btn-primary h-auto ml-2">Set</button>
+                                    </div>
+
+                                    {/* Min Bid Control */}
+                                    <div className="control-item">
+                                        <label className="text-xs font-bold text-secondary uppercase mb-1 block">Min Bids ({sportMinBids[bulkSport] || 50})</label>
+                                        <div className="flex gap-2 items-center">
+                                            <select
+                                                className="input input-sm"
+                                                value={bulkSport}
+                                                onChange={(e) => {
+                                                    setBulkSport(e.target.value);
+                                                    setBulkMinBid(sportMinBids[e.target.value] || 50);
+                                                }}
+                                                style={{ width: 'auto' }}
+                                            >
+                                                <option value="cricket">Cricket</option>
+                                                <option value="futsal">Futsal</option>
+                                                <option value="volleyball">Volley</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                className="input input-sm"
+                                                value={bulkMinBid}
+                                                onChange={(e) => setBulkMinBid(e.target.value)}
+                                                style={{ width: '60px' }}
+                                            />
+                                            <button
+                                                onClick={handleBulkMinBidUpdate}
+                                                className="btn btn-sm btn-primary"
+                                            >
+                                                Update
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Reset Released Control */}
+                                    <div className="control-item flex items-end gap-2">
+                                        <button
+                                            onClick={handleBulkResetReleased}
+                                            className="btn btn-sm btn-warning"
+                                            title="Moves 'Unsold' players back to 'Approved' and resets history"
+                                        >
+                                            Reset Unsold
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm('DANGER: RESET ALL WALLETS? This will unsold ALL players, clear ALL bids, and set ALL team budgets to 2000. This cannot be undone.')) return;
+                                                try {
+                                                    await adminAPI.resetAllWallets();
+                                                    setMessage('GLOBAL RESET SUCCESSFUL');
+                                                    loadData();
+                                                } catch (e) {
+                                                    console.error(e);
+                                                    setMessage('Global reset failed');
+                                                }
+                                            }}
+                                            className="btn btn-sm btn-danger"
+                                            title="Reset ALL teams to 2000 budget and clear all sales"
+                                        >
+                                            GLOBAL RESET
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className="card mb-4">
                                 <h3>Bid Increment Rules</h3>
