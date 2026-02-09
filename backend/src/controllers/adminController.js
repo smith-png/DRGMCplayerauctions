@@ -378,13 +378,10 @@ export async function resetTeamWallet(req, res) {
 
 export async function resetAllWallets(req, res) {
     try {
-        // 1. Unsold ALL players
-        await pool.query("UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL");
-
-        // 2. Clear ALL bids
+        // 1. Clear ALL bids
         await pool.query('DELETE FROM bids');
 
-        // 3. Reset ALL teams budget
+        // 2. Reset ALL teams budget
         await pool.query('UPDATE teams SET budget = 2000, remaining_budget = 2000');
 
         if (req.io) {
