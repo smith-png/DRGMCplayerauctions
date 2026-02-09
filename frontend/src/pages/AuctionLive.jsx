@@ -785,7 +785,7 @@ export default function AuctionLive() {
                                                         value={bidAmount}
                                                         onChange={(e) => setBidAmount(e.target.value)}
                                                         className="input input-dark"
-                                                        min={minBid}
+                                                        min={isAdmin ? 0 : minBid}
                                                         required
                                                     />
                                                 </div>

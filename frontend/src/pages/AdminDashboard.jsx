@@ -497,6 +497,12 @@ export default function AdminDashboard() {
                         Teams
                     </button>
                     <button
+                        className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('settings')}
+                    >
+                        Settings
+                    </button>
+                    <button
                         className="tab-btn testgrounds-tab"
                         onClick={() => navigate('/testgrounds')}
                     >
