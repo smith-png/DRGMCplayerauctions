@@ -145,7 +145,7 @@ export default function PlayerProfilesBySport() {
                                     <div className="profile-tags-container">
                                         <span className="profile-tag">{player.year} MBBS</span>
                                         <span className="profile-tag">{
-                                            typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')
+                                            typeof player.stats === 'object' ? ((player.stats.playingRole && player.stats.playingRole !== 'None') ? player.stats.playingRole : player.stats.preference) : (player.stats || 'Player')
                                         }</span>
                                     </div>
                                 </div>
@@ -233,7 +233,7 @@ export default function PlayerProfilesBySport() {
                                     <div className="info-item">
                                         <span className="info-label">Playing Role</span>
                                         <span className="info-value">{
-                                            typeof selectedPlayer.stats === 'object' ? selectedPlayer.stats.playingRole : (selectedPlayer.stats || 'All-Rounder')
+                                            typeof selectedPlayer.stats === 'object' ? ((selectedPlayer.stats.playingRole && selectedPlayer.stats.playingRole !== 'None') ? selectedPlayer.stats.playingRole : selectedPlayer.stats.preference) : (selectedPlayer.stats || 'All-Rounder')
                                         }</span>
                                     </div>
 

@@ -128,7 +128,7 @@ export default function Teams() {
                                                         <h4 className="player-name">{player.name}</h4>
                                                         <div className="player-details">
                                                             <span className="player-role">{
-                                                                typeof player.stats === 'object' ? player.stats.playingRole : (player.stats || 'Player')
+                                                                typeof player.stats === 'object' ? ((player.stats.playingRole && player.stats.playingRole !== 'None') ? player.stats.playingRole : player.stats.preference) : (player.stats || 'Player')
                                                             }</span>
                                                             <span className="player-divider">•</span>
                                                             <span className="player-year">{player.year}</span>

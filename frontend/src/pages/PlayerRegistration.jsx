@@ -224,23 +224,36 @@ export default function PlayerRegistration() {
                                     )}
 
                                     {formData.sport === 'volleyball' && (
-                                        <div className="input-group role-field">
-                                            <label className="input-label">Preference *</label>
-                                            <select
-                                                value={formData.stats.playingRole || ''}
-                                                onChange={(e) => handleStatChange('playingRole', e.target.value)}
-                                                className="input"
-                                                required
-                                            >
-                                                <option value="">Select Preference</option>
-                                                <option value="Setter">Setter</option>
-                                                <option value="Centre">Centre</option>
-                                                <option value="Striker (Right)">Striker (Right)</option>
-                                                <option value="Striker (Left)">Striker (Left)</option>
-                                                <option value="Defence (Right)">Defence (Right)</option>
-                                                <option value="Defence (Left)">Defence (Left)</option>
-                                            </select>
-                                        </div>
+                                        <>
+                                            <div className="input-group role-field">
+                                                <label className="input-label">Playing Role *</label>
+                                                <select
+                                                    value={formData.stats.playingRole || ''}
+                                                    onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                                    className="input"
+                                                    required
+                                                >
+                                                    <option value="">Select Role</option>
+                                                    <option value="All Rounder">All Rounder</option>
+                                                    <option value="None">None</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="input-group role-field">
+                                                <label className="input-label">Preference *</label>
+                                                <select
+                                                    value={formData.stats.preference || ''}
+                                                    onChange={(e) => handleStatChange('preference', e.target.value)}
+                                                    className="input"
+                                                    required
+                                                >
+                                                    <option value="">Select Preference</option>
+                                                    <option value="Attacker">Attacker</option>
+                                                    <option value="Setter">Setter</option>
+                                                    <option value="Defence">Defence</option>
+                                                </select>
+                                            </div>
+                                        </>
                                     )}
 
                                     {formData.sport === 'futsal' && (
