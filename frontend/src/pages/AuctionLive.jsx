@@ -200,31 +200,59 @@ export default function AuctionLive() {
 
     const handleMarkSold = async () => {
         if (!auction || isSubmitting) return;
+
+        // 1. Snapshot values for API and optimistic update
+        const playerId = auction.current_player_id || auction.id;
+        const teamId = auction.current_team_id;
+        const finalPrice = auction.current_bid;
+        const playerName = auction.player_name;
+        const photoUrl = auction.photo_url;
+        const teamName = auction.current_team_name;
+
+        if (!teamId) {
+            setError("Cannot sell player without a valid bid/team.");
+            return;
+        }
+
         setIsSubmitting(true);
+
+        // 2. Optimistic UI Update
+        // Immediate "Sold" overlay
+        setSoldAnimationData({
+            playerName: playerName,
+            teamName: teamName,
+            price: finalPrice,
+            playerId: playerId,
+            photoUrl: photoUrl
+        });
+
+        // Clear current auction view immediately to prevent further interaction
+        setAuction(null);
+
         try {
-            const playerId = auction.current_player_id || auction.id;
-            const teamId = auction.current_team_id;
-            const finalPrice = auction.current_bid;
-
-            if (!teamId) {
-                setError("Cannot sell player without a valid bid/team.");
-                setIsSubmitting(false);
-                return;
-            }
-
+            // 3. API Call (Background)
             await auctionAPI.markPlayerSold(playerId, teamId, finalPrice);
-            // socketService.emitPlayerSold removed - Backend handles broadcast
 
-            // Immediate UI update to clear view, but effective data reload comes from socket
-            setAuction(null);
+            // Success: state is already updated. 
+            // The socket 'sold' event will come in later, which might re-set soldAnimationData.
+            // React state updates are generally safe, but if we want to avoid double animation re-trigger,
+            // we could check if it's the same player. But usually it's fine.
+
+            // We can reload lists in background
+            if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
+            loadSoldPlayers();
+
         } catch (err) {
             console.error('Mark sold error:', err);
-            setError(err.response?.data?.error || 'Failed to mark player as sold');
+            // 4. Revert UI on Failure
+            setSoldAnimationData(null); // Hide overlay
+            // We can't easily "restore" the auction state exactly as it was without fetching, 
+            // but reloading current auction should work.
+            setError(err.response?.data?.error || 'Failed to mark player as sold. Please try again.');
+            loadAuction();
+        } finally {
             setIsSubmitting(false);
         }
-        // Note: isSubmitting stays true until socket update or component refresh to prevent double clicks
-        // But we should reset it in case of error or if we want to allow immediate subsequent actions if something goes wrong
-        setTimeout(() => setIsSubmitting(false), 2000);
     };
 
     const handleMarkUnsold = async () => {
@@ -338,12 +366,18 @@ export default function AuctionLive() {
             if (data.type === 'started') {
                 loadAuction();
             } else if (data.type === 'sold') {
-                setSoldAnimationData({
-                    playerName: data.playerName,
-                    teamName: data.teamName,
-                    price: data.amount,
-                    playerId: data.player?.id,
-                    photoUrl: data.photoUrl
+                // Prevent re-triggering animation if we already optimistically showed it for the same player
+                setSoldAnimationData(prev => {
+                    if (prev && prev.playerId === data.player?.id) {
+                        return prev;
+                    }
+                    return {
+                        playerName: data.playerName,
+                        teamName: data.teamName,
+                        price: data.amount,
+                        playerId: data.player?.id,
+                        photoUrl: data.photoUrl
+                    };
                 });
 
                 setTimeout(() => {
