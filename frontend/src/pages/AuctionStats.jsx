@@ -41,10 +41,17 @@ export default function AuctionStats() {
 
         // Connect to Socket.IO
         socketService.connect();
-        socketService.joinAuction(); // Join room to get updates
 
-        setIsConnected(socketService.connected);
-        socketService.socket.on('connect', () => setIsConnected(true));
+        // If already connected, join immediately
+        if (socketService.connected) {
+            socketService.joinAuction();
+            setIsConnected(true);
+        }
+
+        socketService.socket.on('connect', () => {
+            setIsConnected(true);
+            socketService.joinAuction();
+        });
         socketService.socket.on('disconnect', () => setIsConnected(false));
 
         // Listen for leaderboard refresh
