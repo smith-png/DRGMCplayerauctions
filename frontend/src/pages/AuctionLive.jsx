@@ -153,7 +153,7 @@ export default function AuctionLive() {
         try {
             setLoading(true);
             await auctionAPI.startAuction(playerId);
-            socketService.emitAuctionStarted({ playerId });
+            // Socket emission removed: Backend handles broadcasting
             await loadAuction();
             await loadEligiblePlayers();
         } catch (err) {
@@ -261,7 +261,7 @@ export default function AuctionLive() {
         try {
             const playerId = auction.current_player_id || auction.id;
             await auctionAPI.markPlayerUnsold(playerId);
-            socketService.emitPlayerSold({ playerId, teamId: null, amount: 0 });
+            // Socket emission removed: Backend handles broadcasting
             setAuction(null);
             await loadEligiblePlayers();
             await loadAuction();
@@ -269,6 +269,19 @@ export default function AuctionLive() {
             setError(err.response?.data?.error || 'Failed to mark player as unsold');
         }
     };
+
+    // Memoize stats parsing to prevent re-renders
+    const playerStats = useMemo(() => {
+        if (!auction?.stats) return [];
+        let statsObj = {};
+        try {
+            statsObj = typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats;
+        } catch (e) {
+            console.error("Error parsing stats:", e);
+            statsObj = {};
+        }
+        return Object.entries(statsObj || {}).filter(([key]) => key !== 'role');
+    }, [auction?.stats]);
 
     const handleSkipPlayer = async () => {
         if (!auction) return;

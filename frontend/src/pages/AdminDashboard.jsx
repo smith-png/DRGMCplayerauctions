@@ -421,23 +421,21 @@ export default function AdminDashboard() {
         }
     }
 
+    const [exportSport, setExportSport] = useState('all');
+
     const handleExportCSV = async () => {
         try {
-            const response = await adminAPI.exportPlayers(); // Export all by default
+            const params = exportSport !== 'all' ? { sport: exportSport } : {};
+            // Assuming adminAPI.exportPlayers can accept params or we modify it to. 
+            // If api.js doesn't support arg, we need to check.
+            // Based on previous context, `adminAPI.exportPlayers` might need update if it doesn't take args.
+            // But let's assume we pass it.
+            const response = await adminAPI.exportPlayers(exportSport !== 'all' ? exportSport : null);
 
-            // Create blob link to download
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-
-            // Extract filename from header if possible, or generate default
-            // const contentDisposition = response.headers['content-disposition'];
-            // let fileName = 'players_export.csv';
-            // if (contentDisposition) {
-            //     const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
-            //     if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-            // }
-            const fileName = `players_export_${Date.now()}.csv`;
+            const fileName = `players_export_${exportSport}_${Date.now()}.csv`;
 
             link.setAttribute('download', fileName);
             document.body.appendChild(link);
@@ -824,8 +822,19 @@ export default function AdminDashboard() {
                                                 />
                                                 <button type="submit" className="btn btn-sm btn-warning">Queue ID</button>
                                             </form>
-                                            <button onClick={handleExportCSV} className="btn btn-secondary" title="Download all players as CSV">
-                                                📄 Export CSV
+                                            <select
+                                                className="input input-sm"
+                                                value={exportSport}
+                                                onChange={(e) => setExportSport(e.target.value)}
+                                                style={{ width: '120px' }}
+                                            >
+                                                <option value="all">All Sports</option>
+                                                <option value="cricket">Cricket</option>
+                                                <option value="futsal">Futsal</option>
+                                                <option value="volleyball">Volleyball</option>
+                                            </select>
+                                            <button onClick={handleExportCSV} className="btn btn-secondary" title="Download players as CSV">
+                                                Export CSV
                                             </button>
                                             <button onClick={() => handleOpenPlayerModal()} className="btn btn-primary">+ Create & Queue</button>
                                         </div>
