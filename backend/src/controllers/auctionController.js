@@ -97,9 +97,15 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: `Not enough budget. Remaining: ${remainingBudget} Pts` });
         }
 
-        // Insert Bid
+        // Insert Bid into active bids
         const result = await client.query(
             'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3) RETURNING *',
+            [playerId, teamId, bidAmount]
+        );
+
+        // Insert into persistent bid logs
+        await client.query(
+            'INSERT INTO bid_logs (player_id, team_id, amount) VALUES ($1, $2, $3)',
             [playerId, teamId, bidAmount]
         );
 
@@ -205,13 +211,18 @@ export const toggleAuctionState = async (req, res) => {
 // Get global auction state
 export const getAuctionState = async (req, res) => {
     try {
-        const result = await pool.query('SELECT is_active, sport_min_bids, is_registration_open, animation_duration FROM auction_state LIMIT 1');
+        const result = await pool.query('SELECT is_active, sport_min_bids, is_registration_open, animation_duration, animation_type, bid_increment_rules FROM auction_state LIMIT 1');
         res.json({
             isActive: result.rows[0]?.is_active || false,
             sportMinBids: result.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 },
             isRegistrationOpen: result.rows[0]?.is_registration_open ?? true,
             animationDuration: result.rows[0]?.animation_duration || 25,
-            animationType: result.rows[0]?.animation_type || 'confetti'
+            animationType: result.rows[0]?.animation_type || 'confetti',
+            bidIncrementRules: result.rows[0]?.bid_increment_rules || [
+                { threshold: 0, increment: 10 },
+                { threshold: 200, increment: 50 },
+                { threshold: 500, increment: 100 }
+            ]
         });
     } catch (error) {
         console.error('Get auction state error:', error);
@@ -238,6 +249,56 @@ export const updateAnimationType = async (req, res) => {
     } catch (error) {
         console.error('Update animation type error:', error);
         res.status(500).json({ error: 'Failed to update animation type' });
+    }
+};
+
+export const updateBidRules = async (req, res) => {
+    try {
+        const { rules } = req.body;
+
+        if (!Array.isArray(rules) || rules.length === 0) {
+            return res.status(400).json({ error: 'Valid rules array is required' });
+        }
+
+        // Validate structure
+        for (const rule of rules) {
+            if (typeof rule.threshold !== 'number' || typeof rule.increment !== 'number') {
+                return res.status(400).json({ error: 'Each rule must have numeric threshold and increment' });
+            }
+        }
+
+        // Sort rules by threshold just in case
+        const sortedRules = [...rules].sort((a, b) => a.threshold - b.threshold);
+
+        await pool.query('UPDATE auction_state SET bid_increment_rules = $1', [JSON.stringify(sortedRules)]);
+
+        res.json({ message: 'Bid increment rules updated', rules: sortedRules });
+    } catch (error) {
+        console.error('Update bid rules error:', error);
+        res.status(500).json({ error: 'Failed to update bid rules' });
+    }
+};
+
+// Get recent bids for admin logs (Persistent)
+export const getRecentBids = async (req, res) => {
+    try {
+        // User requested "all the bid logs", so we default to a very high limit or no limit.
+        // Let's use a high limit for safety, e.g., 10000.
+        const limit = req.query.limit || 10000;
+
+        const result = await pool.query(
+            `SELECT b.id, b.amount, b.created_at, t.name as team_name, p.name as player_name 
+             FROM bid_logs b 
+             LEFT JOIN teams t ON b.team_id = t.id 
+             LEFT JOIN players p ON b.player_id = p.id 
+             ORDER BY b.created_at DESC 
+             LIMIT $1`,
+            [limit]
+        );
+        res.json({ bids: result.rows });
+    } catch (error) {
+        console.error('Get recent bids error:', error);
+        res.status(500).json({ error: 'Failed to get recent bids' });
     }
 };
 

@@ -171,7 +171,8 @@ export default function AuctionLive() {
             return;
         }
         const amount = parseFloat(bidAmount);
-        if (amount <= (auction?.current_bid || 0)) {
+        // Allow admins to correct bids (enter lower amount), but normal users must bid higher
+        if (!isAdmin && amount <= (auction?.current_bid || 0)) {
             setError('Bid must be higher than current bid');
             return;
         }

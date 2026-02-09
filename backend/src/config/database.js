@@ -81,6 +81,18 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Bid Logs table (Persistent History)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS bid_logs (
+        id SERIAL PRIMARY KEY,
+        player_id INTEGER REFERENCES players(id),
+        team_id INTEGER REFERENCES teams(id),
+        amount INTEGER NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        auction_context VARCHAR(50) DEFAULT 'main'
+      )
+    `);
+
     // Auction state table
     await client.query(`
       CREATE TABLE IF NOT EXISTS auction_state (

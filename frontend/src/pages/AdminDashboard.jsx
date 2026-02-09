@@ -21,6 +21,7 @@ export default function AdminDashboard() {
     const [sportMinBids, setSportMinBids] = useState({ cricket: 50, futsal: 50, volleyball: 50 });
     const [animationDuration, setAnimationDuration] = useState(25);
     const [animationType, setAnimationType] = useState('confetti');
+    const [bidIncrementRules, setBidIncrementRules] = useState([]);
 
     // User Modal State
     const [showUserModal, setShowUserModal] = useState(false);
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
                 setSportMinBids(stateResponse.data.sportMinBids || { cricket: 50, futsal: 50, volleyball: 50 });
                 setAnimationDuration(stateResponse.data.animationDuration || 25);
                 setAnimationType(stateResponse.data.animationType || 'confetti');
+                setBidIncrementRules(stateResponse.data.bidIncrementRules || []);
             } else if (activeTab === 'users') {
                 try {
                     const usersRes = await adminAPI.getAllUsers();

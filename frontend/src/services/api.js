@@ -91,7 +91,9 @@ export const adminAPI = {
     resetAllWallets: () => api.post('/admin/teams/reset-all'),
     updateAnimationDuration: (duration) => api.put('/auction/animation-duration', { duration }),
     updateAnimationType: (type) => api.put('/auction/animation-type', { type }),
-    exportPlayers: (sport) => api.get('/admin/players/export', { params: { sport }, responseType: 'blob' })
+    exportPlayers: (sport) => api.get('/admin/players/export', { params: { sport }, responseType: 'blob' }),
+    updateBidRules: (rules) => api.put('/auction/state/bid-rules', { rules }),
+    getRecentBids: () => api.get('/auction/bids/recent')
 };
 
 // Teams API

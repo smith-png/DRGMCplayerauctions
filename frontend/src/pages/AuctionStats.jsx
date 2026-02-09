@@ -9,11 +9,21 @@ export default function AuctionStats() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
 
+    // Live Auction State for Bidding
+    const [currentAuction, setCurrentAuction] = useState(null);
+    const [bidIncrementRules, setBidIncrementRules] = useState([]);
+    const [isConnected, setIsConnected] = useState(false);
+
     // Team owner specific state
     const [myTeam, setMyTeam] = useState(null);
     const [myPlayers, setMyPlayers] = useState([]);
     const [myBids, setMyBids] = useState([]);
     const [eligiblePlayers, setEligiblePlayers] = useState([]);
+
+    // Admin Logs State
+    const [showLogsModal, setShowLogsModal] = useState(false);
+    const [bidLogs, setBidLogs] = useState([]);
+    const [logsLoading, setLogsLoading] = useState(false);
 
     const getTeamColor = (sport) => {
         switch (sport?.toLowerCase()) {
@@ -26,37 +36,123 @@ export default function AuctionStats() {
 
     useEffect(() => {
         loadUserAndData();
+        loadAuctionStateAndCurrent();
 
         // Connect to Socket.IO
         socketService.connect();
+        socketService.joinAuction(); // Join room to get updates
+
+        setIsConnected(socketService.connected);
+        socketService.socket.on('connect', () => setIsConnected(true));
+        socketService.socket.on('disconnect', () => setIsConnected(false));
 
         // Listen for leaderboard refresh
         socketService.onRefreshLeaderboard(() => {
             loadUserAndData();
         });
 
-        // Listen for bid updates
-        socketService.on('bid-placed', (bidData) => {
-            if (user?.role === 'team_owner' && myTeam && bidData.team_id === myTeam.id) {
+        // Listen for bid updates (updates local state immediately)
+        socketService.on('bid-update', (data) => {
+            setCurrentAuction(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    current_bid: data.amount,
+                    current_team_id: data.teamId,
+                    current_team_name: data.teamName
+                };
+            });
+
+            // Also refresh owner data if it's my team
+            if (user?.role === 'team_owner' && myTeam && data.teamId === myTeam.id) {
                 loadTeamOwnerData();
             }
-            // For admins or general leaderboard, we also refresh
-            if (user?.role === 'admin') {
-                loadLeaderboard();
+        });
+
+        // Listen for auction updates (start, end, sold)
+        socketService.onAuctionUpdate((data) => {
+            if (data.type === 'started') {
+                loadAuctionStateAndCurrent();
+            } else if (data.type === 'sold' || data.type === 'unsold') {
+                setCurrentAuction(null);
+                loadUserAndData(); // Refresh budget/players
             }
         });
 
         // Listen for generic refresh data (wallet reset, sold player, etc.)
         socketService.on('refresh-data', () => {
             loadUserAndData();
+            loadAuctionStateAndCurrent();
         });
 
         return () => {
             socketService.off('refresh-leaderboard');
-            socketService.off('bid-placed');
+            socketService.off('bid-update');
+            socketService.off('auction-update');
             socketService.off('refresh-data');
+            socketService.socket.off('connect');
+            socketService.socket.off('disconnect');
         };
-    }, []); // Fetch once and filter locally
+    }, [user?.role, myTeam?.id]); // Re-bind if user role or team changes
+
+    const loadAuctionStateAndCurrent = async () => {
+        try {
+            const [stateRes, currentRes] = await Promise.all([
+                auctionAPI.getAuctionState(),
+                auctionAPI.getCurrentAuction()
+            ]);
+
+            if (stateRes.data.bidIncrementRules) {
+                setBidIncrementRules(stateRes.data.bidIncrementRules);
+            }
+
+            const data = currentRes.data.currentAuction;
+            if (data) {
+                setCurrentAuction({
+                    ...data.player,
+                    current_bid: data.highestBid ? parseFloat(data.highestBid.amount) : parseFloat(data.player.base_price || 0),
+                    current_team_id: data.highestBid ? data.highestBid.team_id : null,
+                });
+            } else {
+                setCurrentAuction(null);
+            }
+        } catch (err) {
+            console.error("Failed to load auction state/current", err);
+        }
+    };
+
+    const calculateNextBid = (currentBid) => {
+        // Default rules if none provided
+        const rules = bidIncrementRules.length > 0 ? bidIncrementRules : [
+            { threshold: 0, increment: 10 },
+            { threshold: 200, increment: 50 },
+            { threshold: 500, increment: 100 }
+        ];
+
+        // Find applicable rule: highest threshold <= currentBid
+        // We sort rules descending by threshold to find the first match easily
+        const sortedRules = [...rules].sort((a, b) => b.threshold - a.threshold);
+        const applicableRule = sortedRules.find(r => currentBid >= r.threshold);
+
+        const increment = applicableRule ? applicableRule.increment : 10;
+        return currentBid + increment;
+    };
+
+    const handleTeamOwnerBid = async () => {
+        if (!currentAuction || !myTeam) return;
+
+        const nextBid = calculateNextBid(currentAuction.current_bid || 0);
+
+        // Optimistic update (optional, but safer to wait for ack or just fire and forget)
+        // We will just fire request.
+        try {
+            await auctionAPI.placeBid(currentAuction.id, myTeam.id, nextBid);
+            // Success - socket will update UI
+        } catch (err) {
+            console.error("Bid failed", err);
+            alert(err.response?.data?.error || "Failed to place bid");
+        }
+    };
 
     const loadUserAndData = async () => {
         try {
@@ -159,6 +255,19 @@ export default function AuctionStats() {
         }
     };
 
+    const handleShowLogs = async () => {
+        setShowLogsModal(true);
+        setLogsLoading(true);
+        try {
+            const response = await adminAPI.getRecentBids();
+            setBidLogs(response.data.bids || []);
+        } catch (err) {
+            console.error("Failed to fetch logs", err);
+        } finally {
+            setLogsLoading(false);
+        }
+    };
+
     const loadLeaderboard = async () => {
         try {
             const response = await auctionAPI.getLeaderboard(); // Always get all data
@@ -217,9 +326,27 @@ export default function AuctionStats() {
                     <div className="team-header-large card animate-fadeIn">
                         <div className="team-header-content">
                             <h1 className="team-owner-title">{myTeam.name}</h1>
-                            <span className="badge sport-tag-large sage-pill">
-                                {myTeam.sport}
-                            </span>
+                            <div className="flex gap-2 items-center">
+                                <span className="badge sport-tag-large sage-pill">
+                                    {myTeam.sport}
+                                </span>
+                                {currentAuction && (
+                                    <button
+                                        className="btn btn-success btn-lg pulsate-btn"
+                                        onClick={handleTeamOwnerBid}
+                                        disabled={!isConnected || myTeam.remaining_budget < calculateNextBid(currentAuction.current_bid || 0)}
+                                        style={{
+                                            marginLeft: '1rem',
+                                            fontWeight: 'bold',
+                                            boxShadow: '0 4px 14px 0 rgba(72, 187, 120, 0.39)',
+                                            fontSize: '1.1rem',
+                                            padding: '0.75rem 1.5rem'
+                                        }}
+                                    >
+                                        Bid {calculateNextBid(currentAuction.current_bid || 0)} Pts on {currentAuction.name}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -367,7 +494,18 @@ export default function AuctionStats() {
         <div className="leaderboard-page">
             <div className="container">
                 <div className="leaderboard-header animate-fadeIn">
-                    <h1 className="main-title">🏆 Auction Stats {user?.role === 'admin' ? '(Admin)' : ''}</h1>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h1 className="main-title" style={{ margin: 0 }}>🏆 Auction Stats {user?.role === 'admin' ? '(Admin)' : ''}</h1>
+                        {user?.role === 'admin' && (
+                            <button
+                                onClick={handleShowLogs}
+                                className="btn btn-secondary btn-sm"
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            >
+                                📜 Bid Logs
+                            </button>
+                        )}
+                    </div>
 
                     <div className="sport-filter">
                         <button
@@ -553,6 +691,97 @@ export default function AuctionStats() {
                     </div>
                 )
             }
-        </div >
+            {/* Bid Logs Sidebar/Drawer */}
+            <div className={`bid-logs-sidebar ${showLogsModal ? 'open' : ''}`}
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    right: showLogsModal ? 0 : '-400px',
+                    width: '400px',
+                    height: '100%',
+                    background: 'var(--bg-card)',
+                    boxShadow: '-4px 0 15px rgba(0,0,0,0.3)',
+                    zIndex: 1000,
+                    transition: 'right 0.3s ease-in-out',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}
+            >
+                <div className="sidebar-header" style={{
+                    padding: '1.5rem',
+                    borderBottom: '1px solid var(--border-color)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: 'var(--bg-secondary)'
+                }}>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>📜 Bid Logs</h2>
+                    <button
+                        onClick={() => setShowLogsModal(false)}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '1.5rem',
+                            cursor: 'pointer',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div className="sidebar-content" style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    padding: '1rem'
+                }}>
+                    {logsLoading ? (
+                        <div className="text-center py-4">Loading entire history...</div>
+                    ) : bidLogs.length === 0 ? (
+                        <div className="text-center py-4 text-secondary">No bids found</div>
+                    ) : (
+                        <div className="logs-list">
+                            {bidLogs.map((log) => (
+                                <div key={log.id} className="log-item" style={{
+                                    padding: '1rem',
+                                    borderBottom: '1px solid var(--border-color)',
+                                    marginBottom: '0.5rem',
+                                    background: 'var(--bg-primary)',
+                                    borderRadius: '8px'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                        <span>{new Date(log.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <div style={{ fontSize: '0.95rem' }}>
+                                        <span className="font-bold text-accent">{log.team_name || 'Unknown Team'}</span>
+                                        {' '}bid{' '}
+                                        <span className="font-bold" style={{ color: 'var(--success)' }}>{log.amount}</span>
+                                        {' '}for{' '}
+                                        <span className="font-bold">{log.player_name || 'Unknown Player'}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Overlay for sidebar */}
+            {showLogsModal && (
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setShowLogsModal(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0,0,0,0.5)',
+                        zIndex: 999
+                    }}
+                />
+            )}
+        </div>
     );
 }
