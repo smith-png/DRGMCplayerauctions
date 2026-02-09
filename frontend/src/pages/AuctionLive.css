@@ -1,25 +1,6 @@
-/* Mobile Layout Optimization */
-@media (max-width: 900px) {
-    .auction-live-container {
-        grid-template-columns: 1fr !important;
-        /* Force single column */
-    }
+/* Mobile Layout Optimization - REMOVED per user request */
+/* @media (max-width: 900px) { ... } */
 
-    .player-showcase {
-        order: 1;
-        /* Player card on top */
-    }
-
-    .bidding-section {
-        order: 2;
-        /* Controls below */
-    }
-
-    .player-image-large {
-        height: 250px !important;
-        /* Smaller image on mobile */
-    }
-}
 
 /* ========================================
    AUCTION LIVE LAYOUT - REFACTORED
