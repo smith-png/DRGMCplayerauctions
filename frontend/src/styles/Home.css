@@ -93,19 +93,17 @@
     border-top: 1px solid #333;
     padding: 1rem 0;
     overflow: hidden;
-    white-space: nowrap;
+    display: flex;
+    justify-content: center;
 }
 
 .ticker-content {
-    display: inline-block;
-    animation: scroll 20s linear infinite;
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
     font-family: 'Space Grotesk', monospace;
     font-size: 0.9rem;
     color: #666;
-}
-
-.ticker-content span {
-    margin-right: 4rem;
 }
 
 /* SPORTS COLUMNS */

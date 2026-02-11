@@ -213,8 +213,8 @@ export async function getAllTeams(req, res) {
 
         // Filter by sport if provided
         if (sport) {
-            params.push(sport);
-            conditions.push(`sport = $${params.length}`);
+            params.push(sport.toLowerCase());
+            conditions.push(`LOWER(sport) = $${params.length}`);
         }
 
         // Handle Test Data Visibility

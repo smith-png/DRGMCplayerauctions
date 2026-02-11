@@ -23,8 +23,11 @@ export default function AuctionStats() {
 
     const fetchData = async () => {
         try {
+            // If Owner, fetch ALL teams to find their specific one, else filter by activeSport
+            const teamsFilter = user.role === 'team_owner' ? '' : activeSport.toLowerCase();
+
             const [teamsRes, playersRes, transRes] = await Promise.all([
-                teamsAPI.getAllTeams(),
+                teamsAPI.getAllTeams(teamsFilter),
                 playerAPI.getAllPlayers(),
                 auctionAPI.getTransactions()
             ]);
@@ -34,7 +37,7 @@ export default function AuctionStats() {
 
             // If Owner, find their specific team using team_id
             if (user?.role === 'team_owner' && user?.team_id) {
-                const foundTeam = teamsRes.data.teams.find(t => t.id === user.team_id);
+                const foundTeam = teamsRes.data.teams.find(t => t.id == user.team_id);
                 setMyTeam(foundTeam);
             }
         } catch (err) { console.error("Stats Load Failed", err); }
@@ -86,7 +89,7 @@ export default function AuctionStats() {
             </div>
         );
 
-        const myPlayers = players.filter(p => p.team_id === myTeam.id);
+        const myPlayers = players.filter(p => p.team_id == myTeam.id);
         const budgetUsed = (myTeam.budget || 2000) - (myTeam.remaining_budget || 0);
         const burnRate = myTeam.budget ? (budgetUsed / myTeam.budget) * 100 : 0;
 
@@ -158,7 +161,7 @@ export default function AuctionStats() {
         ).sort((a, b) => (b.sold_price || 0) - (a.sold_price || 0));
 
         const teamsWithRosters = teams.map(team => {
-            const teamRoster = players.filter(p => p.team_id === team.id && p.sport?.toLowerCase() === activeSport.toLowerCase() && p.status === 'sold');
+            const teamRoster = players.filter(p => p.team_id == team.id && p.sport?.toLowerCase() === activeSport.toLowerCase() && p.status === 'sold');
             return { ...team, roster: teamRoster };
         }).filter(t => t.sport?.toLowerCase() === activeSport.toLowerCase() || t.roster.length > 0);
 
