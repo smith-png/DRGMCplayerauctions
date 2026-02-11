@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
 import AuctionStats from './pages/AuctionStats';
-import AdminDashboard from './pages/AdminDashboard';
+import Admin from './pages/Admin';
 import Testgrounds from './pages/Testgrounds';
 import Teams from './pages/Teams';
 import PlayerProfilesBySport from './pages/PlayerProfilesBySport';
@@ -37,10 +37,13 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     return children;
 }
 
-function AppRoutes() {
+function Layout() {
+    const location = useLocation();
+    const showNavbar = location.pathname !== '/login' && location.pathname !== '/register';
+
     return (
-        <Router>
-            <Navbar />
+        <>
+            {showNavbar && <Navbar />}
             <main className="main-content">
                 <Routes>
                     <Route path="/" element={<Home />} />
@@ -56,12 +59,11 @@ function AppRoutes() {
                     />
                     <Route path="/auction" element={<AuctionLive />} />
                     <Route path="/auction-stats" element={<AuctionStats />} />
-                    <Route path="/auction-stats" element={<AuctionStats />} />
                     <Route
                         path="/admin"
                         element={
                             <ProtectedRoute requireAdmin={true}>
-                                <AdminDashboard />
+                                <Admin />
                             </ProtectedRoute>
                         }
                     />
@@ -80,14 +82,16 @@ function AppRoutes() {
                     {/* <Route path="/player-profiles" element={<PlayerProfiles />} /> */}
                 </Routes>
             </main>
-        </Router>
+        </>
     );
 }
 
 export default function App() {
     return (
         <AuthProvider>
-            <AppRoutes />
+            <Router>
+                <Layout />
+            </Router>
             <Analytics />
             <SpeedInsights />
         </AuthProvider>

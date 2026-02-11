@@ -1,165 +1,147 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { auctionAPI } from '../services/api';
+import { useNavigate, useLocation } from 'react-router-dom';
+import socketService from '../services/socket';
 import './Login.css';
 
 export default function Login() {
     const [isLogin, setIsLogin] = useState(true);
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        name: ''
-    });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'player' });
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isRegistrationClosed, setIsRegistrationClosed] = useState(false);
+
+    const { login, register, user } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => { setIsLogin(location.pathname === '/login'); }, [location]);
+    useEffect(() => { if (user) navigate('/'); }, [user, navigate]);
 
     useEffect(() => {
-        const checkStatus = async () => {
+        const fetchInitialState = async () => {
             try {
-                const response = await auctionAPI.getAuctionState();
-                setIsRegistrationOpen(response.data.isRegistrationOpen ?? true);
-            } catch (err) {
-                console.error('Failed to check registration status:', err);
-            }
+                const res = await auctionAPI.getAuctionState();
+                setIsRegistrationClosed(!res.data.isRegistrationOpen);
+            } catch (err) { console.error('Failed to fetch auction state'); }
         };
-        checkStatus();
+        fetchInitialState();
+
+        socketService.connect();
+        socketService.on('registration-state-change', (data) => {
+            setIsRegistrationClosed(!data.isOpen);
+        });
+
+        return () => {
+            socketService.off('registration-state-change');
+        };
     }, []);
 
-    const { login, register } = useAuth();
-    const navigate = useNavigate();
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-
         try {
             if (isLogin) {
-                const user = await login(formData.email, formData.password);
-                if (user.role === 'team_owner') {
-                    navigate('/auction-stats');
-                } else if (user.role === 'admin') {
-                    navigate('/admin');
-                } else {
-                    navigate('/');
-                }
+                await login(formData.email, formData.password);
             } else {
-                await register(formData.email, formData.password, formData.name, formData.role);
-                navigate('/');
+                await register(formData.name, formData.email, formData.password, formData.role);
             }
+            navigate('/');
         } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred');
+            // Check for specific backend "Lockout" code
+            if (err.response?.data?.code === 'REGISTRATION_CLOSED') {
+                setIsRegistrationClosed(true);
+            } else {
+                setError(err.response?.data?.error || 'Authentication failed.');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="auth-page">
-            <div className="auth-container">
-                <div className="auth-card card-glass">
-                    <div className="auth-header">
-                        <h1 className="auth-title">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-                        <p className="auth-subtitle">
-                            {isLogin ? 'Login to access the auction system' : 'Register to participate in auctions'}
-                        </p>
-                    </div>
-
-                    {error && (
-                        <div className="alert alert-error">
-                            {error}
+        <div className="login-viewport">
+            <div className="login-visual-side">
+                <div className="visual-overlay">
+                    <h1 className="visual-brand">DRGMC<br />ARCHIVE</h1>
+                    <div className="visual-meta"><span>EST. 2026</span><span>OFFICIAL AUCTION TERMINAL</span></div>
+                </div>
+            </div>
+            <div className="login-form-side">
+                <div className="form-container">
+                    {(isRegistrationClosed && !isLogin) ? (
+                        <div className="lockout-container">
+                            <div className="lockout-icon">✕</div>
+                            <h3 className="lockout-title">SYSTEM LOCKED</h3>
+                            <p className="lockout-message">NEW USER REGISTRATION IS CURRENTLY DISABLED BY ADMINISTRATION.</p>
+                            <button onClick={() => navigate('/login')} className="lockout-btn">
+                                RETURN TO LOGIN
+                            </button>
                         </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="auth-form">
-                        {!isLogin && !isRegistrationOpen ? (
-                            <div className="registration-closed-msg text-center p-4">
-                                <h3 className="mb-3">Registration Closed</h3>
-                                <p className="mb-3">
-                                    We are currently not accepting any new user registrations, please head over to the <Link to="/auction-live" className="text-secondary font-bold" style={{ textDecoration: 'underline' }}>Live Auction page</Link> to watch the auction.
-                                </p>
+                    ) : (
+                        <>
+                            <div className="form-header">
+                                <span className="form-subtitle">WELCOME BACK</span>
+                                <h2 className="form-title">{isLogin ? 'MEMBER ACCESS' : 'NEW REGISTRATION'}</h2>
                             </div>
-                        ) : (
-                            <>
+                            {error && <div className="error-message">{error}</div>}
+                            <form onSubmit={handleSubmit} className="editorial-form">
                                 {!isLogin && (
                                     <div className="input-group">
-                                        <label className="input-label">Full Name</label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            className="input"
-                                            placeholder="Enter your full name"
-                                            required={!isLogin}
-                                        />
+                                        <input type="text" name="name" placeholder="FULL NAME" value={formData.name} onChange={handleChange} required className="editorial-input" />
+                                        <div className="input-underline"></div>
                                     </div>
                                 )}
-
                                 <div className="input-group">
-                                    <label className="input-label">Email</label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className="input"
-                                        placeholder="Enter your email"
-                                        required
-                                    />
+                                    <input type="email" name="email" placeholder="EMAIL ADDRESS" value={formData.email} onChange={handleChange} required className="editorial-input" />
+                                    <div className="input-underline"></div>
                                 </div>
-
                                 <div className="input-group">
-                                    <label className="input-label">Password</label>
-                                    <div className="password-input-wrapper">
+                                    <div className="input-wrapper">
                                         <input
                                             type={showPassword ? "text" : "password"}
                                             name="password"
+                                            placeholder="PASSWORD"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            className="input"
-                                            placeholder="Enter your password"
                                             required
+                                            className="editorial-input"
                                         />
                                         <button
                                             type="button"
+                                            className="password-seek-btn"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="password-toggle-btn"
-                                            title={showPassword ? "Hide password" : "Show password"}
                                         >
-                                            {showPassword ? '👁️' : '👁️‍🗨️'}
+                                            {showPassword ? "HIDE" : "SHOW"}
                                         </button>
                                     </div>
+                                    <div className="input-underline"></div>
                                 </div>
-                                <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                                    {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
+                                {!isLogin && (
+                                    <div className="role-selector">
+                                        <span className="role-label">I AM REGISTERING AS:</span>
+                                        <div className="role-options">
+                                            {['player', 'viewer'].map((role) => (
+                                                <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} onClick={() => setFormData({ ...formData, role })}>
+                                                    {role}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <button type="submit" className="submit-btn" disabled={loading}>
+                                    {loading ? 'PROCESSING...' : (isLogin ? 'ENTER TERMINAL' : 'SUBMIT APPLICATION')}
                                 </button>
-                            </>
-                        )}
-                    </form>
-
-                    <div className="auth-footer">
-                        <p>
-                            {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                            <button
-                                type="button"
-                                onClick={() => setIsLogin(!isLogin)}
-                                className="auth-toggle"
-                            >
-                                {isLogin ? 'Register' : 'Login'}
-                            </button>
-                        </p>
-                    </div>
+                            </form>
+                            <div className="form-footer">
+                                {isLogin ? <p>New User? <span onClick={() => navigate('/register')} className="link-text">Sign UP</span></p> : <p>Already a Member? <span onClick={() => navigate('/login')} className="link-text">Access Terminal</span></p>}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

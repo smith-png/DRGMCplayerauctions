@@ -1,75 +1,49 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api.js';
-import socketService from '../services/socket.js';
+import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api';
+import socketService from '../services/socket';
+import Confetti from 'react-confetti';
+import useSound from 'use-sound';
 import './AuctionLive.css';
 import './SoldPlayers.css';
-import './AuctionAnimation.css';
 
-
+const BID_SFX = 'https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-click-900.mp3';
+const SOLD_SFX = 'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3';
 
 export default function AuctionLive() {
+    const { user, isAuctioneer, isTeamOwner, isAdmin } = useAuth();
+
+    // --- State from Source (Design) ---
     const [auction, setAuction] = useState(null);
     const [teams, setTeams] = useState([]);
     const [bidAmount, setBidAmount] = useState('');
-    const [selectedTeam, setSelectedTeam] = useState('');
+    const [selectedTeam, setSelectedTeam] = useState(''); // For Admin Dropdown
     const [error, setError] = useState('');
     const [isAuctionActive, setIsAuctionActive] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
 
-    const [eligiblePlayers, setEligiblePlayers] = useState([]);
+    const [eligiblePlayers, setEligiblePlayers] = useState([]); // Queue
     const [soldPlayers, setSoldPlayers] = useState([]);
-    const [queuePlayerId, setQueuePlayerId] = useState('');
-    const [queueSortBy, setQueueSortBy] = useState('none'); // none, name, year
+    const [showSoldPlayers, setShowSoldPlayers] = useState(false);
+    const [bidHistory, setBidHistory] = useState([]);
 
-    // Animation State
-    const [soldAnimationData, setSoldAnimationData] = useState(null);
-    const [animationDuration, setAnimationDuration] = useState(25);
-    const [animationType, setAnimationType] = useState('confetti');
-    const [sportMinBids, setSportMinBids] = useState({ cricket: 50, futsal: 50, volleyball: 50 });
+    // --- State from Destination (Functionality) ---
+    const [soldAnimation, setSoldAnimation] = useState(null);
+    const [isBidding, setIsBidding] = useState(false);
+    const [customBid, setCustomBid] = useState(''); // For Team Owner input if needed
 
-    const { user, isAuctioneer, isTeamOwner, isAdmin } = useAuth();
+    // --- Refs and Sounds ---
+    const soldTimeoutRef = useRef(null);
+    const [playBid] = useSound(BID_SFX, { volume: 0.5 });
+    const [playSold] = useSound(SOLD_SFX, { volume: 0.5 });
 
-    const [bidPulse, setBidPulse] = useState(false);
-
-    // Auto-dismiss animation
-    useEffect(() => {
-        let timer;
-        if (soldAnimationData) {
-            timer = setTimeout(() => {
-                setSoldAnimationData(null);
-            }, animationDuration * 1000);
-        }
-        return () => clearTimeout(timer);
-    }, [soldAnimationData, animationDuration]);
-
-    useEffect(() => {
-        if (bidPulse) {
-            const timer = setTimeout(() => setBidPulse(false), 400);
-            return () => clearTimeout(timer);
-        }
-    }, [bidPulse]);
-
-    // Helper functions
-    // Helper functions
+    // --- LOADERS (Source Structure) ---
     const loadAuction = async () => {
-        console.log('loadAuction: Starting...');
         try {
             const response = await auctionAPI.getCurrentAuction();
             const data = response.data.currentAuction;
-
-            // Fetch global state for animation duration and min bids
-            const stateRes = await auctionAPI.getAuctionState();
-            if (stateRes.data.animationDuration) {
-                setAnimationDuration(stateRes.data.animationDuration);
-            }
-            if (stateRes.data.animationType) {
-                setAnimationType(stateRes.data.animationType);
-            }
-            if (stateRes.data.sportMinBids) {
-                setSportMinBids(stateRes.data.sportMinBids);
-            }
+            const stateRes = await auctionAPI.getAuctionState(); // Get state from API to be sure
 
             if (data) {
                 setAuction({
@@ -79,10 +53,15 @@ export default function AuctionLive() {
                     current_bid: data.highestBid ? parseFloat(data.highestBid.amount) : parseFloat(data.player.base_price || 0),
                     current_team_id: data.highestBid ? data.highestBid.team_id : null,
                     current_team_name: data.highestBid ? data.highestBid.team_name : 'None',
-                    photo_url: data.player.photo_url
+                    sport: data.player.sport,
+                    year: data.player.year,
+                    stats: data.player.stats,
+                    photo_url: data.player.photo_url,
+                    base_price: data.player.base_price
                 });
 
-                if (data.highestBid && teams.length > 0) {
+                // Update team name if missing
+                if (data.highestBid && !data.highestBid.team_name && teams.length > 0) {
                     const team = teams.find(t => t.id === data.highestBid.team_id);
                     if (team) {
                         setAuction(prev => ({ ...prev, current_team_name: team.name }));
@@ -91,7 +70,9 @@ export default function AuctionLive() {
             } else {
                 setAuction(null);
             }
-            setIsAuctionActive(response.data.isAuctionActive !== undefined ? response.data.isAuctionActive : true);
+
+            setIsAuctionActive(stateRes.data.isActive ?? response.data.isAuctionActive ?? true);
+
         } catch (err) {
             console.error('Failed to load auction:', err);
         } finally {
@@ -113,7 +94,6 @@ export default function AuctionLive() {
             const response = await playerAPI.getEligiblePlayers();
             setEligiblePlayers(response.data.players || []);
         } catch (err) {
-            console.error('Failed to load eligible players:', err);
             setEligiblePlayers([]);
         }
     };
@@ -138,219 +118,136 @@ export default function AuctionLive() {
         }
     };
 
-    const handleReleasePlayer = async (playerId) => {
-        if (!window.confirm('Are you sure you want to release this player back to the auction queue?')) return;
-        try {
-            await playerAPI.markEligible(playerId);
-            await loadSoldPlayers();
-            await loadEligiblePlayers();
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to release player');
-        }
-    };
+    // --- ACTIONS ---
 
+    // Admin: Start Auction
     const handleStartAuction = async (playerId) => {
         try {
             setLoading(true);
             await auctionAPI.startAuction(playerId);
-            // Socket emission removed: Backend handles broadcasting
+            socketService.emitAuctionStarted({ playerId });
             await loadAuction();
             await loadEligiblePlayers();
         } catch (err) {
-            console.error(err);
             setError('Failed to start auction');
             setLoading(false);
         }
     };
 
+    // Admin: Place Bid via Dropdown
     const handlePlaceBid = async (e) => {
         e.preventDefault();
         setError('');
-        if (!selectedTeam || !bidAmount) {
-            setError('Please select a team and enter bid amount');
-            return;
-        }
+        if (!selectedTeam || !bidAmount) return setError('Please select a team and enter bid amount');
+
         const amount = parseFloat(bidAmount);
-        // Allow admins to correct bids (enter lower amount), but normal users must bid higher
-        if (!isAdmin && amount <= (auction?.current_bid || 0)) {
-            setError('Bid must be higher than current bid');
-            return;
-        }
+        if (amount <= (auction?.current_bid || 0)) return setError('Bid must be higher than current bid');
+
         try {
             await auctionAPI.placeBid(auction.current_player_id, selectedTeam, amount);
-
-            // Optimistic Update: Immediately update UI without waiting for socket
-            const team = teams.find(t => t.id === parseInt(selectedTeam));
-            setAuction(prev => ({
-                ...prev,
-                current_bid: amount,
-                current_team_id: parseInt(selectedTeam),
-                current_team_name: team ? team.name : 'Unknown'
-            }));
-
-            // socketService.emitNewBid(...) removed to prevent double broadcasting.
-            // Server response will trigger 'bid-update' event which updates the UI.
+            socketService.emitNewBid({ teamId: selectedTeam, amount, playerId: auction.current_player_id });
             setBidAmount('');
             setSelectedTeam('');
+            await loadAuction();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to place bid');
         }
     };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Team Owner: Quick Bid (Logic from Destination)
+    const handleTeamOwnerBid = async (amount) => {
+        if (!auction || isBidding) return;
+        setIsBidding(true);
+        setError('');
 
-    const handleMarkSold = async () => {
-        if (!auction || isSubmitting) return;
+        // Find matches
+        let myTeam = teams.find(t => t.id == user.team_id);
+        if (!myTeam && user.name) {
+            myTeam = teams.find(t => t.owner_name?.toLowerCase() === user.name?.toLowerCase());
+        }
 
-        // 1. Snapshot values for API and optimistic update
-        const playerId = auction.current_player_id || auction.id;
-        const teamId = auction.current_team_id;
-        const finalPrice = auction.current_bid;
-        const playerName = auction.player_name;
-        const photoUrl = auction.photo_url;
-        const teamName = auction.current_team_name;
-
-        if (!teamId) {
-            setError("Cannot sell player without a valid bid/team.");
+        if (!myTeam) {
+            setError(`Team not linked to user: ${user.name}`);
+            setIsBidding(false);
             return;
         }
 
-        setIsSubmitting(true);
+        // Artificial delay for UX
+        setTimeout(async () => {
+            try {
+                await auctionAPI.placeBid(auction.current_player_id, myTeam.id, amount);
+                setCustomBid('');
+            } catch (err) {
+                setError(err.response?.data?.error || 'Bid Failed');
+            } finally {
+                setIsBidding(false);
+            }
+        }, 300);
+    };
 
-        // 2. Optimistic UI Update
-        // Immediate "Sold" overlay
-        setSoldAnimationData({
-            playerName: playerName,
-            teamName: teamName,
-            price: finalPrice,
-            playerId: playerId,
-            photoUrl: photoUrl
-        });
-
-        // Clear current auction view immediately to prevent further interaction
-        setAuction(null);
-
+    // Admin: Sold/Unsold/Reset
+    const handleMarkSold = async () => {
+        if (!auction || !auction.current_team_id) return setError("Cannot sell without a valid bid.");
         try {
-            // 3. API Call (Background)
-            await auctionAPI.markPlayerSold(playerId, teamId, finalPrice);
-
-            // Success: state is already updated. 
-            // The socket 'sold' event will come in later, which might re-set soldAnimationData.
-            // React state updates are generally safe, but if we want to avoid double animation re-trigger,
-            // we could check if it's the same player. But usually it's fine.
-
-            // We can reload lists in background
-            if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
-            loadSoldPlayers();
-
+            await auctionAPI.markPlayerSold(
+                auction.current_player_id,
+                auction.current_team_id,
+                auction.current_bid
+            );
+            socketService.emitPlayerSold({
+                playerId: auction.current_player_id,
+                teamId: auction.current_team_id,
+                amount: auction.current_bid
+            });
+            setAuction(null);
+            await loadEligiblePlayers();
+            await loadAuction();
+            await loadSoldPlayers();
         } catch (err) {
-            console.error('Mark sold error:', err);
-            // 4. Revert UI on Failure
-            setSoldAnimationData(null); // Hide overlay
-            // We can't easily "restore" the auction state exactly as it was without fetching, 
-            // but reloading current auction should work.
-            setError(err.response?.data?.error || 'Failed to mark player as sold. Please try again.');
-            loadAuction();
-        } finally {
-            setIsSubmitting(false);
+            setError(err.response?.data?.error || 'Failed to mark sold');
         }
     };
 
     const handleMarkUnsold = async () => {
         if (!auction) return;
         try {
-            const playerId = auction.current_player_id || auction.id;
-            await auctionAPI.markPlayerUnsold(playerId);
-            // Socket emission removed: Backend handles broadcasting
+            await auctionAPI.markPlayerUnsold(auction.current_player_id);
+            socketService.emitPlayerSold({ playerId: auction.current_player_id, teamId: null, amount: 0 }); // Use same event or unsold specific
             setAuction(null);
             await loadEligiblePlayers();
             await loadAuction();
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to mark player as unsold');
-        }
-    };
-
-    // Memoize stats parsing to prevent re-renders
-    const playerStats = useMemo(() => {
-        if (!auction?.stats) return [];
-        let statsObj = {};
-        try {
-            statsObj = typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats;
-        } catch (e) {
-            console.error("Error parsing stats:", e);
-            statsObj = {};
-        }
-        return Object.entries(statsObj || {}).filter(([key]) => key !== 'role');
-    }, [auction?.stats]);
-
-    const handleSkipPlayer = async () => {
-        if (!auction) return;
-        if (!window.confirm('Skip this player? They will be sent back to queue with minimum bid.')) return;
-        try {
-            const playerId = auction.current_player_id || auction.id;
-            await auctionAPI.skipPlayer(playerId);
-            setAuction(null);
-            await loadEligiblePlayers();
-            await loadAuction();
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to skip player');
+            setError('Failed to mark unsold');
         }
     };
 
     const handleResetBid = async () => {
-        if (!auction) return;
-        if (!window.confirm('Reset current bid to minimum value?')) return;
+        if (!auction || !confirm('Reset all bids for this player?')) return;
         try {
-            await auctionAPI.resetCurrentBid();
+            await auctionAPI.resetBid(auction.current_player_id);
+            await loadAuction();
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to reset bid');
+            setError('Failed to reset bid');
         }
     };
 
-    const handleRemoveFromQueue = async (playerId) => {
-        if (!window.confirm('Remove this player from the queue? They will be marked as unsold.')) return;
+    const handleReleasePlayer = async (playerId) => {
+        if (!confirm('Release player back to queue?')) return;
         try {
-            await adminAPI.removeFromQueue(playerId);
+            await playerAPI.markEligible(playerId);
+            await loadSoldPlayers();
             await loadEligiblePlayers();
         } catch (err) {
-            console.error(err);
-            setError('Failed to remove player from queue');
+            setError('Failed to release player');
         }
     };
 
-    const handleQueueById = async (e) => {
-        e.preventDefault();
-        if (!queuePlayerId) return;
-        try {
-            await adminAPI.addToQueueById(queuePlayerId);
-            setQueuePlayerId('');
-            await loadEligiblePlayers();
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to add to queue');
-            setTimeout(() => setError(''), 3000);
-        }
-    };
-
-    const getTeamLogo = (teamName) => {
-        const team = teams.find(t => t.name === teamName);
-        return team?.logo_url || null;
-    };
-
+    // --- EFFECTS ---
     useEffect(() => {
-        const safetyTimeout = setTimeout(() => {
-            setLoading(prev => {
-                if (prev) {
-                    console.warn('Safety timeout triggered: Loading took too long.');
-                    return false;
-                }
-                return prev;
-            });
-        }, 5000);
-
         loadAuction();
         loadTeams();
         loadSoldPlayers();
-        if (isAuctioneer) loadEligiblePlayers();
+        loadEligiblePlayers();
 
         socketService.connect();
         socketService.joinAuction();
@@ -363,61 +260,61 @@ export default function AuctionLive() {
         });
         socketService.socket.on('disconnect', () => setIsConnected(false));
 
+        // Listeners
         socketService.onBidUpdate((data) => {
-            setAuction(prev => {
-                if (!prev) return null;
-                return {
-                    ...prev,
-                    current_bid: data.amount,
-                    current_team_id: data.teamId,
-                    current_team_name: data.teamName
-                };
-            });
-            setBidPulse(true);
+            if (data.type === 'reset') {
+                setBidHistory([]);
+                loadAuction();
+            } else {
+                playBid(); // Sound
+                setBidHistory(prev => [data, ...prev].slice(0, 5));
+                setAuction(prev => {
+                    if (!prev) return null;
+                    return {
+                        ...prev,
+                        current_bid: data.amount,
+                        current_team_name: data.teamName,
+                        current_team_id: data.teamId
+                    };
+                });
+            }
         });
 
         socketService.onAuctionUpdate((data) => {
             if (data.type === 'started') {
+                setBidHistory([]);
                 loadAuction();
+                loadEligiblePlayers();
             } else if (data.type === 'sold') {
-                // Prevent re-triggering animation if we already optimistically showed it for the same player
-                setSoldAnimationData(prev => {
-                    if (prev && prev.playerId === data.player?.id) {
-                        return prev;
-                    }
-                    return {
-                        playerName: data.playerName,
-                        teamName: data.teamName,
-                        price: data.amount,
-                        playerId: data.player?.id,
-                        photoUrl: data.photoUrl
-                    };
-                });
+                setSoldAnimation(data); // Trigger confetti
+                playSold(); // Sound
 
-                setTimeout(() => {
+                // Auto-refresh after delay
+                if (soldTimeoutRef.current) clearTimeout(soldTimeoutRef.current);
+                soldTimeoutRef.current = setTimeout(() => {
+                    setSoldAnimation(null);
+                    setAuction(null);
                     loadAuction();
-                    if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
                     loadSoldPlayers();
-                }, 2000);
+                }, 5000);
+            } else if (data.type === 'unsold' || data.type === 'state-change') {
+                loadAuction();
             }
-        });
-
-        // Listen for generic refresh (e.g. min bid update, wallet reset)
-        socketService.socket.on('refresh-data', () => {
-            loadAuction();
-            if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
-            loadSoldPlayers();
         });
 
         return () => {
             socketService.off('bid-update');
             socketService.off('auction-update');
-            socketService.off('refresh-data');
-            clearTimeout(safetyTimeout);
         };
-    }, [isAuctioneer]);
+    }, []);
 
+    // Calculate next bid
+    const currentPrice = auction?.current_bid || 0;
+    const nextBidAmount = currentPrice + (currentPrice < 100 ? 10 : currentPrice < 1000 ? 50 : 100); // Simple increment logic or fetch rules
+
+    // --- RENDER HELPERS ---
     const renderSoldPlayersList = () => {
+        // (Copied from Source)
         if (Object.keys(soldPlayers).length === 0) {
             return (
                 <div className="empty-state">
@@ -427,13 +324,11 @@ export default function AuctionLive() {
                 </div>
             );
         }
-
         return (
             <div className="teams-grid">
                 {Object.entries(soldPlayers).map(([teamId, players]) => {
                     const team = teams.find(t => t.id === parseInt(teamId));
                     const totalSpent = players.reduce((sum, p) => sum + (parseFloat(p.sold_price) || 0), 0);
-
                     return (
                         <div key={teamId} className="team-sold-group">
                             <div className="team-header">
@@ -445,36 +340,16 @@ export default function AuctionLive() {
                             </div>
                             <div className="players-list">
                                 {players.map((player, index) => (
-                                    <div key={player.id} className="sold-player-item card-glass-light p-3">
-                                        <div className="sold-player-card-content flex items-center gap-3">
-                                            <div className="player-rank">#{index + 1}</div>
-                                            <div className="player-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-700">
-                                                {player.photo_url ? (
-                                                    <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="avatar-placeholder flex items-center justify-center h-full text-lg">👤</div>
-                                                )}
-                                            </div>
-                                            <div className="player-info flex-1">
-                                                <h4 className="font-bold text-sm m-0">{player.name}</h4>
-                                                <div className="player-tags-row flex gap-2 mt-1">
-                                                    <span className="queue-tag">{player.year} MBBS</span>
-                                                    <span className="queue-tag tag-accent">{player.stats?.role || 'Player'}</span>
-                                                </div>
-                                            </div>
-                                            <div className="sold-price-badge">
-                                                <span className="price-val">{parseFloat(player.sold_price).toLocaleString()}</span>
-                                                <span className="price-unit">pts</span>
-                                            </div>
+                                    <div key={player.id} className="sold-player-item">
+                                        <div className="player-rank">#{index + 1}</div>
+                                        <div className="player-avatar">{player.photo_url ? <img src={player.photo_url} alt="" /> : '👤'}</div>
+                                        <div className="player-details">
+                                            <h4 className="player-name">{player.name}</h4>
+                                            <div className="player-meta"><span>{player.year}</span>•<span>{player.stats?.role || 'Player'}</span></div>
                                         </div>
-                                        {isAuctioneer && (
-                                            <button
-                                                onClick={() => handleReleasePlayer(player.id)}
-                                                className="release-btn mt-3 w-full"
-                                                title="Release player back to queue"
-                                            >
-                                                Release Player
-                                            </button>
+                                        <div className="player-price"><div className="price-value">{player.sold_price}</div></div>
+                                        {(isAuctioneer || isAdmin) && (
+                                            <button onClick={() => handleReleasePlayer(player.id)} className="release-btn" title="Release">×</button>
                                         )}
                                     </div>
                                 ))}
@@ -486,23 +361,9 @@ export default function AuctionLive() {
         );
     };
 
-    const sortedEligible = useMemo(() => {
-        let sorted = [...eligiblePlayers];
-        if (queueSortBy === 'name') {
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (queueSortBy === 'year') {
-            const order = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'intern': 5 };
-            sorted.sort((a, b) => {
-                const aVal = order[String(a.year).toLowerCase()] || 0;
-                const bVal = order[String(b.year).toLowerCase()] || 0;
-                return bVal - aVal;
-            });
-        }
-        return sorted;
-    }, [eligiblePlayers, queueSortBy]);
-
     const renderAuctioneerPanel = () => {
-        const playersBySport = (sortedEligible || []).reduce((acc, player) => {
+        // (Copied from Source and adapted)
+        const playersBySport = (eligiblePlayers || []).reduce((acc, player) => {
             const sport = player.sport || 'Other';
             if (!acc[sport]) acc[sport] = [];
             acc[sport].push(player);
@@ -512,44 +373,10 @@ export default function AuctionLive() {
         return (
             <div className="auctioneer-dashboard">
                 <div className="eligible-players-section">
-                    <div className="queue-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div>
-                            <h2>{auction ? "Next in Queue" : "Ready for Auction"}</h2>
-                            {auction && <p className="text-sm text-secondary-color" style={{ marginTop: '0.5rem' }}>Start these players after current auction completes</p>}
-                        </div>
-                        {isAdmin && (
-                            <div className="flex gap-2">
-                                <select
-                                    className="input input-sm"
-                                    value={queueSortBy}
-                                    onChange={(e) => setQueueSortBy(e.target.value)}
-                                    style={{ height: '34px' }}
-                                >
-                                    <option value="none">Default Sort</option>
-                                    <option value="name">Sort by Name</option>
-                                    <option value="year">Sort by Year</option>
-                                </select>
-                                <form onSubmit={handleQueueById} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                    <input
-                                        type="text"
-                                        placeholder="PID"
-                                        className="input input-sm"
-                                        value={queuePlayerId}
-                                        onChange={e => setQueuePlayerId(e.target.value)}
-                                        style={{ width: '80px', padding: '0.5rem' }}
-                                    />
-                                    <button type="submit" className="btn btn-sm btn-primary">Add</button>
-                                </form>
-                            </div>
-                        )}
+                    <div className="queue-section-header">
+                        <h2>{auction ? "Next in Queue" : "Ready for Auction"}</h2>
                     </div>
-
-                    {Object.keys(playersBySport).length === 0 ? (
-                        <div className="no-queue-msg">
-                            <p>No players in the auction queue.</p>
-                            <p className="text-sm">Go to Admin Dashboard → Players tab → Click "Queue for Auction" or use ID above</p>
-                        </div>
-                    ) : (
+                    {Object.keys(playersBySport).length === 0 ? <p className="no-queue-msg">No players in queue.</p> :
                         Object.entries(playersBySport).map(([sport, players]) => (
                             <div key={sport} className="sport-category mb-4">
                                 <h3 className="queue-sport-title capitalize">{sport}</h3>
@@ -558,286 +385,176 @@ export default function AuctionLive() {
                                         <div key={player.id} className="queue-card card-glass-light p-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="queue-card-image w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                                                    {player.photo_url ? (
-                                                        <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="flex items-center justify-center h-full text-lg">👤</div>
-                                                    )}
+                                                    {player.photo_url ? <img src={player.photo_url} className="w-full h-full object-cover" /> : '👤'}
                                                 </div>
                                                 <div className="queue-card-info flex-1">
-                                                    <h4 className="font-bold text-sm">{player.name} <span className="text-xs text-secondary">#{player.id}</span></h4>
+                                                    <h4 className="font-bold text-sm">{player.name}</h4>
                                                     <div className="queue-tags-row">
-                                                        <span className="queue-tag">{player.year} MBBS</span>
-                                                        {player.stats?.role && player.stats.role.toLowerCase() !== 'player' && (
-                                                            <span className="queue-tag tag-accent">{player.stats.role}</span>
-                                                        )}
+                                                        <span className="queue-tag">{player.year}</span>
+                                                        <span className="queue-tag tag-accent">{player.stats?.role}</span>
                                                     </div>
                                                 </div>
-                                                <div className="queue-card-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                                    {isAuctioneer && (
-                                                        <button
-                                                            onClick={() => handleStartAuction(player.id)}
-                                                            className="btn btn-primary btn-sm flex-1"
-                                                            disabled={loading || !!auction}
-                                                        >
-                                                            {auction ? 'Wait' : 'Start'}
-                                                        </button>
-                                                    )}
-                                                    {isAdmin && (
-                                                        <button
-                                                            onClick={() => handleRemoveFromQueue(player.id)}
-                                                            className="btn btn-outline-danger btn-sm"
-                                                            title="Remove from queue"
-                                                        >
-                                                            Remove
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                <button onClick={() => handleStartAuction(player.id)} className="btn btn-primary btn-sm" disabled={loading || !!auction}>
+                                                    Start
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         ))
-                    )}
+                    }
                 </div>
             </div>
         );
     };
 
-    if (loading) {
-        return (
-            <div className="auction-page">
-                <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
-                    <div className="spinner"></div>
-                    <h3 style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-primary)' }}>Loading Auction Data...</h3>
-                    <p style={{ marginTop: '0.5rem', opacity: 0.7 }}>Please wait while we connect to the server.</p>
-                </div>
-            </div>
-        );
+    // --- MAIN RENDER ---
+    if (loading) return <div className="auction-page"><div className="container"><div className="spinner"></div></div></div>;
+
+    if (!isAuctionActive && !isAuctioneer && !isAdmin) {
+        return <div className="auction-page"><div className="container"><div className="no-auction card-glass text-center"><h2>Auction Paused</h2></div></div></div>;
     }
 
-    if (!isAuctionActive && !isAuctioneer) {
+    if (!auction && !isAuctioneer && !isAdmin) {
         return (
             <div className="auction-page">
                 <div className="container">
-                    <div className="no-auction card-glass text-center" style={{ marginBottom: '3rem' }}>
-                        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏸️</div>
-                        <h2>Auction is currently paused</h2>
-                        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
-                            Please wait for the administrator to resume the live auction.
-                        </p>
-                    </div>
+                    <div className="no-auction card text-center"><h2>No Active Auction</h2><p>Waiting for auctioneer...</p></div>
+                    <div className="sold-players-section"><h2 className="section-title">Sold Players</h2>{renderSoldPlayersList()}</div>
                 </div>
             </div>
         );
     }
 
-    if (!auction && !isAuctioneer) {
-        return (
-            <div className="auction-page">
-                <div className="container">
-                    <div className="no-auction card text-center" style={{ marginBottom: '3rem' }}>
-                        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>👀</div>
-                        <h2>Stay tuned for next player</h2>
-                        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
-                            Waiting for admin to start the next player auction...
-                        </p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const currentBid = auction?.current_bid || 0;
-    const sportMin = auction?.sport ? (sportMinBids[auction.sport.toLowerCase()] || 50) : 50;
-    const minBid = Math.max(currentBid + 1, sportMin + 1);
+    // Determine min bid for Admin input
+    const minBid = Math.max(auction?.current_bid ? auction.current_bid + 1 : (auction?.base_price || 0) + 1, 1);
 
     return (
         <div className="auction-page">
-            {soldAnimationData && (
-                <div className="sold-animation-overlay">
-                    <div className="sold-content">
-                        <div className="sold-header-text">SOLD TO</div>
-
-                        <div className="sold-card-unified">
-                            <div className="sold-player-section">
-                                <div className="sold-player-img-container">
-                                    {soldAnimationData.photoUrl ? (
-                                        <img src={soldAnimationData.photoUrl} alt="Player" className="sold-player-img" />
-                                    ) : (
-                                        <div className="sold-placeholder">👤</div>
-                                    )}
-                                </div>
-                                <h2 className="sold-player-name-overlay">{soldAnimationData.playerName || "Unknown Player"}</h2>
-                            </div>
-
-                            <div className="sold-info-center">
-                                <div className="sold-price-badge-huge">
-                                    <span className="currency-symbol">₹</span>
-                                    {parseFloat(soldAnimationData.price).toLocaleString()}
-                                </div>
-                                <div className="sold-label">Final Bid</div>
-                            </div>
-
-                            <div className="sold-team-section">
-                                <div className="sold-team-logo-container">
-                                    {getTeamLogo(soldAnimationData.teamName) ? (
-                                        <img src={getTeamLogo(soldAnimationData.teamName)} alt="Team Logo" className="sold-team-logo" />
-                                    ) : (
-                                        <div className="sold-team-name-placeholder">{soldAnimationData.teamName?.charAt(0)}</div>
-                                    )}
-                                </div>
-                                <h3 className="sold-team-name-overlay">{soldAnimationData.teamName}</h3>
-                            </div>
-                        </div>
-
-                        {(isAdmin || isAuctioneer) && (
-                            <div className="admin-controls-overlay">
-                                <button className="btn-stop-anim" onClick={() => setSoldAnimationData(null)}>
-                                    Dismiss
-                                </button>
-                                <div style={{ color: '#475569', fontWeight: '600', alignSelf: 'center', marginTop: '0.5rem' }}>
-                                    (Auto-close in {animationDuration}s)
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+            {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#B8E0C0', '#ffffff', '#000000']} />}
 
             <div className="container">
                 <div className="auction-header">
-                    <h1>
-                        Live Auction
-                        <span className="live-flair-badge">LIVE</span>
-                    </h1>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+                        <h1>Live Auction <span className="live-flair-badge">LIVE</span></h1>
+                        <div className={`connection-pill ${isConnected ? 'connected' : 'disconnected'}`}>
+                            <span className="status-dot"></span>{isConnected ? 'Connected' : 'Offline'}
+                        </div>
+                    </div>
                 </div>
 
                 {auction ? (
                     <div className="active-auction-hero">
                         <div className="auction-split-layout">
+                            {/* Left: Player Card */}
                             <div className="player-main-card">
                                 <div className="player-card-image-wrapper">
-                                    {auction.photo_url ? (
-                                        <img src={auction.photo_url} alt={auction.player_name} className="player-full-photo" />
-                                    ) : (
-                                        <div className="player-placeholder-large">👤</div>
-                                    )}
+                                    {auction.photo_url ? <img src={auction.photo_url} className="player-full-photo" /> : <div className="player-placeholder-large">👤</div>}
                                     <div className="player-card-overlay">
                                         <h1 className="player-main-name">{auction.player_name}</h1>
                                         <p className="player-role-subtitle">{auction.stats?.role || 'Player'}</p>
                                     </div>
                                 </div>
                                 <div className="player-stats-grid">
-                                    <div className="player-badges-row" style={{ gridColumn: '1 / -1', marginBottom: '0.5rem' }}>
-                                        <span className="hero-badge badge-primary uppercase">{auction.sport}</span>
-                                        <span className="hero-badge badge-secondary">{auction.year} MBBS</span>
+                                    <div className="player-badges-row" style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+                                        <span className="hero-badge badge-primary">{auction.sport}</span>
+                                        <span className="hero-badge badge-secondary">{auction.year}</span>
                                     </div>
-                                    {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => {
-                                        if (key === 'role') return null;
-                                        const formattedKey = key
-                                            .replace(/([A-Z])/g, ' $1')
-                                            .replace(/^./, str => str.toUpperCase())
-                                            .trim();
-                                        return (
-                                            <div key={key} className="stat-box">
-                                                <span className="stat-label">{formattedKey}</span>
-                                                <span className="stat-value">{value}</span>
-                                            </div>
-                                        );
-                                    })}
+                                    {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
+                                        key !== 'role' && <div key={key} className="stat-box"><span className="stat-label">{key}</span><span className="stat-value">{value}</span></div>
+                                    ))}
                                 </div>
                             </div>
 
+                            {/* Right: Bidding Console */}
                             <div className="bidding-sidebar">
                                 <div className="bid-status-header">
                                     <span className="bid-label">Current Highest Bid</span>
-                                    <div className={`current-bid-huge ${bidPulse ? 'bid-updated-pulse' : ''}`}>
-                                        {currentBid.toLocaleString()}
-                                    </div>
+                                    <div className="current-bid-huge">{(auction.current_bid || 0).toLocaleString()}</div>
                                     {auction.current_team_name ? (
-                                        <div className="bid-leader-pill">
-                                            Held by <span className="team-highlight">{auction.current_team_name}</span>
-                                        </div>
+                                        <div className="bid-leader-pill">Held by <span className="team-highlight">{auction.current_team_name}</span></div>
                                     ) : (
-                                        <div className="bid-leader-pill" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', borderColor: 'var(--border-subtle)' }}>
-                                            No Bids Yet
-                                        </div>
+                                        <div className="bid-leader-pill" style={{ opacity: 0.7 }}>No Bids Yet</div>
                                     )}
-                                    <div className="viewer-status-message centered-message">
-                                        <span className="live-status-badge">LIVE</span>
-                                        <p>Live Bidding in Progress</p>
-                                    </div>
                                 </div>
 
+                                {bidHistory.length > 0 && (
+                                    <div className="bid-history-mini card-glass-dark mb-4 p-3">
+                                        <div className="bid-history-list">
+                                            {bidHistory.map((bid, idx) => (
+                                                <div key={idx} className="bid-history-item flex justify-between items-center py-1">
+                                                    <span className="text-sm font-semibold">{bid.teamName}</span>
+                                                    <span className="text-sm font-bold text-primary">₹{bid.amount.toLocaleString()}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="bid-actions-area">
-                                    {isAuctioneer ? (
+                                    {/* CONTROLS */}
+                                    {(isAuctioneer || isAdmin) ? (
+                                        // ADMIN Controls
                                         <div className="admin-bid-controls">
                                             {error && <div className="alert alert-error">{error}</div>}
                                             <form onSubmit={handlePlaceBid} className="bid-form-stacked">
                                                 <div className="form-group">
-                                                    <label className="text-sm text-secondary">Select Team</label>
-                                                    <select
-                                                        value={selectedTeam}
-                                                        onChange={(e) => setSelectedTeam(e.target.value)}
-                                                        className="input input-dark"
-                                                        required
-                                                    >
-                                                        <option value="">Choose Team...</option>
-                                                        {teams
-                                                            .filter(team => team.sport === auction.sport || team.sport === 'Other')
-                                                            .map(team => (
-                                                                <option key={team.id} value={team.id}>
-                                                                    {team.name}
-                                                                </option>
-                                                            ))}
+                                                    <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="input input-dark" required>
+                                                        <option value="">Select Team...</option>
+                                                        {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                                     </select>
                                                 </div>
                                                 <div className="form-group pb-4">
-                                                    <label className="text-sm text-secondary">Bid Amount</label>
-                                                    <input
-                                                        type="number"
-                                                        value={bidAmount}
-                                                        onChange={(e) => setBidAmount(e.target.value)}
-                                                        className="input input-dark"
-                                                        min={isAdmin ? 0 : minBid}
-                                                        required
-                                                    />
+                                                    <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="input input-dark" placeholder="Bid Amount" required />
                                                 </div>
                                                 <div className="auction-actions-row">
-                                                    <button type="submit" className="btn btn-warning btn-xl full-width">Update Bid</button>
-                                                    <div className="action-button-group">
-                                                        <button
-                                                            type="button"
-                                                            onClick={handleMarkSold}
-                                                            className="btn btn-success btn-xl"
-                                                            disabled={!auction.current_team_id || isSubmitting}
-                                                        >
-                                                            {isSubmitting ? '...' : 'Mark SOLD'}
-                                                        </button>
-                                                        <button type="button" onClick={handleMarkUnsold} className="btn btn-danger btn-xl" disabled={isSubmitting}>Mark UNSOLD</button>
-                                                        <button type="button" onClick={handleSkipPlayer} className="btn btn-secondary btn-xl" title="Skip and send back to queue" disabled={isSubmitting}>Skip</button>
-                                                        {isAdmin && <button type="button" onClick={handleResetBid} className="btn btn-outline-danger btn-xl" style={{ gridColumn: 'span 3', marginTop: '0.5rem' }}>Reset Bid to Min</button>}
-                                                    </div>
+                                                    <button type="submit" className="btn btn-warning btn-xl">Bid</button>
+                                                    <button type="button" onClick={handleMarkSold} className="btn btn-success btn-lg" disabled={!auction.current_team_id}>Sold</button>
+                                                    <button type="button" onClick={handleMarkUnsold} className="btn btn-danger btn-lg">Unsold</button>
                                                 </div>
+                                                <button type="button" onClick={handleResetBid} className="btn btn-outline-danger mt-2" style={{ width: '100%' }}>Reset All Bids</button>
                                             </form>
                                         </div>
+                                    ) : isTeamOwner && isAuctionActive ? (
+                                        // TEAM OWNER Controls
+                                        <div className="bidder-controls">
+                                            {error && <div className="alert alert-error">{error}</div>}
+                                            <button
+                                                className={`btn-bid-dynamic ${isBidding ? 'loading' : ''}`}
+                                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
+                                                disabled={isBidding}
+                                                style={{ width: '100%', padding: '2rem', fontSize: '1.5rem', fontWeight: 'bold', background: 'var(--accent-gradient)', border: 'none', borderRadius: '1rem', color: '#fff', cursor: 'pointer', transition: 'transform 0.1s' }}
+                                            >
+                                                {isBidding ? 'PROCESSING...' : `BID ₹${nextBidAmount}`}
+                                            </button>
+                                            <div style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                                Click to place next valid bid
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <div className="viewer-controls"></div>
+                                        // VIEWER Controls
+                                        <div className="viewer-controls">
+                                            <p className="text-secondary text-center">Spectator Mode</p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    (isAuctioneer) && renderAuctioneerPanel()
+                    // No active auction, show queue if admin
+                    (isAuctioneer || isAdmin) ? renderAuctioneerPanel() : null
                 )}
 
-                {(isAuctioneer) && auction && renderAuctioneerPanel()}
-
-                <div className="version-footer" style={{ textAlign: 'center', marginTop: '2rem', opacity: 0.7, fontSize: '0.8rem', color: isConnected ? '#4caf50' : '#f44336' }}>
-                    System v1.2 - {isConnected ? 'Connected 🟢' : 'Disconnected 🔴'}
+                {/* Sold Players Footer */}
+                <div className="sold-players-section">
+                    <button className="sold-players-toggle" onClick={() => setShowSoldPlayers(!showSoldPlayers)}>
+                        <h2 className="section-title">
+                            <span style={{ marginRight: '0.5rem' }}>{showSoldPlayers ? '▼' : '▶'}</span> Sold Players
+                        </h2>
+                    </button>
+                    {showSoldPlayers && <div className="sold-players-content">{renderSoldPlayersList()}</div>}
                 </div>
             </div>
         </div>
