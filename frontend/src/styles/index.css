@@ -57,9 +57,9 @@
   /* Subtle green tint shadow */
 
   /* Typography */
-  --font-heading: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  /* Clean Sans for headers */
+  --font-heading: 'Manrope', sans-serif;
   --font-body: 'Source Sans Pro', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
   /* Clean Sans for UI elements */
 
   /* Spacing */

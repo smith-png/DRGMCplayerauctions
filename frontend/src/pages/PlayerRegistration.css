@@ -31,7 +31,7 @@
 .registration-header h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-heading);
     color: #FFFFFF;
     margin-bottom: var(--spacing-xs);
     letter-spacing: -0.02em;
@@ -44,7 +44,7 @@
 .registration-header p {
     color: rgba(255, 255, 255, 0.5);
     font-size: 1.1rem;
-    font-family: var(--font-body);
+    font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -73,7 +73,7 @@
     margin-bottom: var(--spacing-xl);
     color: var(--accent-sage);
     font-size: 1.5rem;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-heading);
     font-weight: 700;
     border-left: 2px solid var(--accent-sage);
     padding-left: var(--spacing-md);
@@ -85,7 +85,7 @@
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.8rem;
-    text-transform: uppercase;
+    font-family: var(--font-mono);
     letter-spacing: 0.05em;
 }
 
@@ -216,7 +216,7 @@
 }
 
 .registration-closed-card h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-heading);
     font-size: 3rem;
     color: var(--accent-sage);
 }

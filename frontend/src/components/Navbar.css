@@ -42,8 +42,8 @@
     font-weight: 700;
     transition: transform 0.2s ease;
     letter-spacing: -0.01em;
-    font-family: 'Playfair Display', serif;
-    /* Editorial Serif */
+    font-family: var(--font-heading);
+    /* Editorial Sans */
 }
 
 .navbar-brand:hover {
@@ -87,7 +87,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     letter-spacing: 0.05em;
-    font-family: var(--font-body);
+    font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: 0.8rem;
 }
@@ -171,13 +171,12 @@
     font-weight: 700;
     color: #FFFFFF;
     font-size: 0.85rem;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-heading);
     letter-spacing: 0.02em;
 }
 
 .user-role {
-    font-size: 0.7rem;
-    color: var(--accent-sage);
+    font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 600;
@@ -308,7 +307,7 @@
 }
 
 .overlay-header h4 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-mono);
     color: var(--accent-sage);
     font-size: 1rem;
     text-transform: uppercase;
