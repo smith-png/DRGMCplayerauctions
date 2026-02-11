@@ -144,7 +144,7 @@ export default function PlayerRegistration() {
             <div className="container">
                 <div className="registration-container">
                     <div className="registration-header">
-                        <h1>Register as Player</h1>
+                        <h1>Register as <span>Player</span></h1>
                         <p>Fill in your details to participate in the auction</p>
                     </div>
 
