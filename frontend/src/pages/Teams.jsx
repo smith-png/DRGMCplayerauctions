@@ -1,151 +1,103 @@
 import { useState, useEffect } from 'react';
-import { playerAPI, teamsAPI } from '../services/api';
+import { teamsAPI } from '../services/api';
 import './Teams.css';
 
 export default function Teams() {
-    const [activeSport, setActiveSport] = useState('cricket');
     const [teams, setTeams] = useState([]);
-    const [players, setPlayers] = useState([]);
+    const [filteredTeams, setFilteredTeams] = useState([]);
+    const [activeSport, setActiveSport] = useState('Cricket'); // Default tab
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchData();
-    }, [activeSport]);
+        const fetchTeams = async () => {
+            try {
+                const response = await teamsAPI.getAllTeams();
+                setTeams(response.data.teams || []);
+            } catch (error) { console.error('Failed to fetch teams:', error); }
+            finally { setLoading(false); }
+        };
+        fetchTeams();
+    }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const [teamsRes, playersRes] = await Promise.all([
-                teamsAPI.getAllTeams(),
-                playerAPI.getAllPlayers()
-            ]);
-
-            // Filter teams by sport
-            const sportTeams = teamsRes.data.teams.filter(t => t.sport === activeSport);
-            setTeams(sportTeams);
-
-            // Get all players (we'll filter sold ones)
-            setPlayers(playersRes.data.players || []);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getTeamPlayers = (teamId) => {
-        return players.filter(p => p.team_id === teamId && p.status === 'sold');
-    };
+    useEffect(() => {
+        // Filter teams based on active sport
+        const filtered = teams.filter(team => team.sport?.toLowerCase() === activeSport.toLowerCase().replace('volleyball', 'volleyball')); // Normalized if needed, but usually match exact
+        // The API returns lowercase sports usually. The tab is Title Case. 
+        // Let's ensure robust matching.
+        if (!teams) return;
+        const targetSport = activeSport.toLowerCase();
+        const filteredList = teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
+        setFilteredTeams(filteredList);
+    }, [activeSport, teams]);
 
     return (
         <div className="teams-page">
             <div className="teams-header">
-                <h1 className="teams-title">Team Rosters</h1>
-                <p className="teams-subtitle">View all teams and their secured players</p>
+                <div className="header-meta">OFFICIAL LEAGUE PARTNERS</div>
+                <h1 className="header-title">TEAM<br />DIRECTORY</h1>
             </div>
 
+            {/* TAB NAV */}
             <div className="sport-tabs">
-                <button
-                    className={`sport-tab ${activeSport === 'cricket' ? 'active' : ''}`}
-                    onClick={() => setActiveSport('cricket')}
-                >
-                    Cricket
-                </button>
-                <button
-                    className={`sport-tab ${activeSport === 'futsal' ? 'active' : ''}`}
-                    onClick={() => setActiveSport('futsal')}
-                >
-                    Futsal
-                </button>
-                <button
-                    className={`sport-tab ${activeSport === 'volleyball' ? 'active' : ''}`}
-                    onClick={() => setActiveSport('volleyball')}
-                >
-                    Volleyball
-                </button>
+                {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
+                    <button
+                        key={sport}
+                        className={`tab-btn ${activeSport === sport ? 'active' : ''}`}
+                        onClick={() => setActiveSport(sport)}
+                    >
+                        {sport}
+                    </button>
+                ))}
             </div>
 
-            {loading ? (
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
-                </div>
-            ) : teams.length === 0 ? (
-                <div className="empty-state">
-                    <h3>No teams registered for {activeSport}</h3>
-                    <p>Teams will appear here once they are created</p>
-                </div>
-            ) : (
+            {/* GRID */}
+            {loading ? <div className="loading-state">LOADING DATA...</div> : (
                 <div className="teams-grid">
-                    {teams.map(team => {
-                        const teamPlayers = getTeamPlayers(team.id);
-
-                        return (
-                            <div key={team.id} className="team-card">
-                                <div className="team-header">
-                                    <div className="team-identity">
-                                        {team.logo_url && (
-                                            <img
-                                                src={team.logo_url}
-                                                alt={team.name}
-                                                className="team-logo"
-                                                loading="lazy"
-                                            />
-                                        )}
-                                        <div className="team-info-header">
-                                            <h2 className="team-name">{team.name}</h2>
-                                            {team.owner_name && (
-                                                <div className="team-owner">Owner: {team.owner_name}</div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="team-budget">
-                                        <span className="budget-label">Remaining Budget</span>
-                                        <span className="budget-value">{(team.remaining_budget !== undefined && team.remaining_budget !== null) ? team.remaining_budget : team.budget} Pts</span>
-                                    </div>
-                                </div>
-
-                                <div className="team-players">
-                                    <h3 className="players-section-title">
-                                        Squad ({teamPlayers.length} Players)
-                                    </h3>
-                                    {teamPlayers.length === 0 ? (
-                                        <div className="no-players">
-                                            <p>No players secured yet</p>
-                                        </div>
+                    {filteredTeams.map(team => (
+                        <div key={team.id} className="team-card-admin">
+                            <div className="card-header" style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
+                                <div className="team-logo-wrapper">
+                                    {team.logo_url ? (
+                                        <img src={team.logo_url} alt={team.name} className="team-logo-small" />
                                     ) : (
-                                        <div className="players-list">
-                                            {teamPlayers.map(player => (
-                                                <div key={player.id} className="player-mini-card">
-                                                    {player.photo_url && (
-                                                        <img
-                                                            src={player.photo_url}
-                                                            alt={player.name}
-                                                            className="player-photo"
-                                                            loading="lazy"
-                                                        />
-                                                    )}
-                                                    <div className="player-info">
-                                                        <h4 className="player-name">{player.name}</h4>
-                                                        <div className="player-details">
-                                                            <span className="player-role">{
-                                                                typeof player.stats === 'object' ? ((player.stats.playingRole && player.stats.playingRole !== 'None') ? player.stats.playingRole : player.stats.preference) : (player.stats || 'Player')
-                                                            }</span>
-                                                            <span className="player-divider">•</span>
-                                                            <span className="player-year">{player.year}</span>
-                                                        </div>
-                                                        <div className="player-price">
-                                                            {player.final_price || player.base_price} Pts
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <div className="team-logo-placeholder">{(team.name || '?').substring(0, 2).toUpperCase()}</div>
                                     )}
                                 </div>
+                                <div className="text-center text-secondary small">ID: #{String(team.id).padStart(4, '0')}</div>
                             </div>
-                        );
-                    })}
+
+                            <div className="card-body text-center">
+                                <h2 className="team-name" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{team.name}</h2>
+                                <div className="owner-name text-secondary" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>OWNER: {team.owner_name || 'N/A'}</div>
+                            </div>
+
+                            <div className="card-footer" style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-secondary small">CAP SPACE</span>
+                                    <span className="font-bold highlight">{team.purse_remaining?.toLocaleString() || team.budget?.toLocaleString() || 0} PTS</span>
+                                </div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-secondary small">ROSTER SIZE</span>
+                                    <span className="font-bold">{team.player_count || 0} ATHLETES</span>
+                                </div>
+                                <div className="cap-bar" style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div
+                                        className="cap-fill"
+                                        style={{
+                                            width: `${(Math.max(0, 5000 - (team.purse_remaining || 0)) / 5000) * 100}%`,
+                                            height: '100%',
+                                            background: 'var(--accent-gradient)'
+                                        }}
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
+            )}
+
+            {filteredTeams.length === 0 && !loading && (
+                <div className="empty-state">NO TEAMS REGISTERED FOR THIS SPORT.</div>
             )}
         </div>
     );

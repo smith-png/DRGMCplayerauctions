@@ -27,6 +27,46 @@ export default function AdminDashboard() {
     const [editingUser, setEditingUser] = useState(null);
     const [userData, setUserData] = useState({ name: '', email: '', password: '', role: 'viewer' });
 
+    const rolesBySport = {
+        Cricket: [
+            'Batsman',
+            'Bowler',
+            'All-Rounder',
+            'Wicket Keeper'
+        ],
+        Futsal: ['Striker', 'Midfielder', 'Defender', 'Goalkeeper'],
+        Volleyball: [
+            'Setter',
+            'Center',
+            'Striker (Right)',
+            'Striker (Left)',
+            'Defence (Right)',
+            'Defence (Left)'
+        ]
+    };
+
+    const battingStyles = ['Right Handed', 'Left Handed'];
+    const bowlingStyles = [
+        'None',
+        'Right Arm Pace',
+        'Right Arm Spin',
+        'Left Arm Pace',
+        'Left Arm Spin',
+        'Slow Left Arm Orthodox'
+    ];
+
+    const handlePlayerSportChange = (e) => {
+        const newSport = e.target.value;
+        const updates = { sport: newSport };
+
+        // If creating new player, auto-set base price to sport minimum
+        if (!editingPlayer) {
+            updates.base_price = sportMinBids[newSport.toLowerCase()] || 50;
+        }
+
+        setPlayerForm({ ...playerForm, ...updates });
+    };
+
     useEffect(() => {
         setCurrentPage(1); // Reset page on tab change
         loadData();
@@ -284,7 +324,14 @@ export default function AdminDashboard() {
     // --- Player Extensions ---
     const [showPlayerModal, setShowPlayerModal] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState(null);
-    const [playerForm, setPlayerForm] = useState({ name: '', sport: 'cricket', year: '1st', stats: '', base_price: 50, photo: null });
+    const [playerForm, setPlayerForm] = useState({
+        name: '',
+        sport: 'cricket',
+        year: '1st',
+        stats: {}, // Changed from string to object
+        base_price: 50,
+        photo: null
+    });
     const [queuePlayerId, setQueuePlayerId] = useState('');
 
     // Pagination State
@@ -351,24 +398,45 @@ export default function AdminDashboard() {
     const handleOpenPlayerModal = (player = null) => {
         if (player) {
             setEditingPlayer(player);
-            // safe safely parse stats
-            let statsStr = '';
-            try { statsStr = JSON.stringify(player.stats || {}); } catch (e) { }
+            // Parse stats safely or use as is if already object
+            let parsedStats = {};
+            if (typeof player.stats === 'string') {
+                try { parsedStats = JSON.parse(player.stats); } catch (e) { }
+            } else {
+                parsedStats = player.stats || {};
+            }
 
             setPlayerForm({
                 name: player.name,
                 sport: player.sport,
                 year: player.year,
-                stats: statsStr,
+                stats: parsedStats,
                 base_price: player.base_price,
                 photo: null
             });
         } else {
             setEditingPlayer(null);
-            setPlayerForm({ name: '', sport: 'cricket', year: '1st', stats: '', base_price: 50, photo: null });
+            setPlayerForm({
+                name: '',
+                sport: 'cricket',
+                year: '1st',
+                stats: {},
+                base_price: 50,
+                photo: null
+            });
         }
         setShowPlayerModal(true);
     }
+
+    const handlePlayerStatChange = (statName, value) => {
+        setPlayerForm(prev => ({
+            ...prev,
+            stats: {
+                ...prev.stats,
+                [statName]: value
+            }
+        }));
+    };
 
     const handleSavePlayerExtended = async (e) => {
         e.preventDefault();
@@ -378,7 +446,7 @@ export default function AdminDashboard() {
             formData.append('sport', playerForm.sport);
             formData.append('year', playerForm.year);
             formData.append('base_price', playerForm.base_price);
-            formData.append('stats', playerForm.stats); // API parses this string
+            formData.append('stats', JSON.stringify(playerForm.stats)); // Stringify for backend
             if (playerForm.photo) formData.append('photo', playerForm.photo);
 
             if (editingPlayer) {
@@ -450,6 +518,28 @@ export default function AdminDashboard() {
     };
 
     // Derived state for filtered players
+    const battingStyles = ['Right Handed', 'Left Handed'];
+    const bowlingStyles = [
+        'None',
+        'Right Arm Pace',
+        'Right Arm Spin',
+        'Left Arm Pace',
+        'Left Arm Spin',
+        'Slow Left Arm Orthodox'
+    ];
+
+    const handlePlayerSportChange = (e) => {
+        const newSport = e.target.value;
+        const updates = { sport: newSport };
+
+        // If creating new player, auto-set base price to sport minimum
+        if (!editingPlayer) {
+            updates.base_price = sportMinBids[newSport.toLowerCase()] || 50;
+        }
+
+        setPlayerForm({ ...playerForm, ...updates });
+    };
+
     const pendingPlayers = players.filter(p => p.status === 'pending');
     const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
     const activePlayers = players.filter(p => p.status !== 'pending');
@@ -1372,7 +1462,7 @@ export default function AdminDashboard() {
                                             <select
                                                 className="input"
                                                 value={playerForm.sport}
-                                                onChange={e => setPlayerForm({ ...playerForm, sport: e.target.value })}
+                                                onChange={handlePlayerSportChange}
                                             >
                                                 <option value="cricket">Cricket</option>
                                                 <option value="futsal">Futsal</option>
@@ -1394,14 +1484,134 @@ export default function AdminDashboard() {
                                             </select>
                                         </div>
                                     </div>
+
+
+
+
+                                    <div className="row gap-2">
+                                        <div className="form-group flex-1">
+                                            <label>Sport</label>
+                                            <select
+                                                className="input"
+                                                value={playerForm.sport}
+                                                onChange={handlePlayerSportChange}
+                                            >
+                                                <option value="Cricket">Cricket</option>
+                                                <option value="Futsal">Futsal</option>
+                                                <option value="Volleyball">Volleyball</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group flex-1">
+                                            <label>Year</label>
+                                            <select
+                                                className="input"
+                                                value={playerForm.year}
+                                                onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
+                                            >
+                                                <option value="1st">1st Year</option>
+                                                <option value="2nd">2nd Year</option>
+                                                <option value="3rd">3rd Year</option>
+                                                <option value="4th">4th Year</option>
+                                                <option value="Intern">Intern</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    {/* Conditional Stats Inputs */}
+                                    {playerForm.sport.toLowerCase() === 'cricket' && (
+                                        <div className="stats-inputs-group card-inner mb-3">
+                                            <h4 className="text-sm font-bold text-secondary mb-2">Cricket Details</h4>
+                                            <div className="grid grid-2 gap-2">
+                                                <div className="form-group">
+                                                    <label>Playing Role</label>
+                                                    <select
+                                                        className="input"
+                                                        value={playerForm.stats.role || ''}
+                                                        onChange={e => handlePlayerStatChange('role', e.target.value)}
+                                                    >
+                                                        <option value="">Select Role</option>
+                                                        {rolesBySport.Cricket.map(role => (
+                                                            <option key={role} value={role}>{role}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Batting Style</label>
+                                                    <select
+                                                        className="input"
+                                                        value={playerForm.stats.batting_style || ''}
+                                                        onChange={e => handlePlayerStatChange('batting_style', e.target.value)}
+                                                    >
+                                                        <option value="">Select Style</option>
+                                                        {battingStyles.map(style => (
+                                                            <option key={style} value={style}>{style}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="form-group full-width">
+                                                    <label>Bowling Style</label>
+                                                    <select
+                                                        className="input"
+                                                        value={playerForm.stats.bowling_style || ''}
+                                                        onChange={e => handlePlayerStatChange('bowling_style', e.target.value)}
+                                                    >
+                                                        <option value="">Select Style</option>
+                                                        {bowlingStyles.map(style => (
+                                                            <option key={style} value={style}>{style}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {playerForm.sport.toLowerCase() === 'futsal' && (
+                                        <div className="stats-inputs-group card-inner mb-3">
+                                            <h4 className="text-sm font-bold text-secondary mb-2">Futsal Details</h4>
+                                            <div className="form-group">
+                                                <label>Position</label>
+                                                <select
+                                                    className="input"
+                                                    value={playerForm.stats.role || ''}
+                                                    onChange={e => handlePlayerStatChange('role', e.target.value)}
+                                                >
+                                                    <option value="">Select Position</option>
+                                                    {rolesBySport.Futsal.map(role => (
+                                                        <option key={role} value={role}>{role}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {playerForm.sport.toLowerCase() === 'volleyball' && (
+                                        <div className="stats-inputs-group card-inner mb-3">
+                                            <h4 className="text-sm font-bold text-secondary mb-2">Volleyball Details</h4>
+                                            <div className="form-group">
+                                                <label>Preference</label>
+                                                <select
+                                                    className="input"
+                                                    value={playerForm.stats.role || ''}
+                                                    onChange={e => handlePlayerStatChange('role', e.target.value)}
+                                                >
+                                                    <option value="">Select Preference</option>
+                                                    {rolesBySport.Volleyball.map(role => (
+                                                        <option key={role} value={role}>{role}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="form-group">
-                                        <label>Stats / Role (JSON or text)</label>
+                                        <label>Additional Stats (JSON)</label>
                                         <textarea
                                             className="input"
-                                            value={playerForm.stats}
-                                            onChange={e => setPlayerForm({ ...playerForm, stats: e.target.value })}
-                                            rows="3"
-                                            placeholder='{"role": "Batsman", "matches": 10}'
+                                            value={JSON.stringify(playerForm.stats, null, 2)}
+                                            readOnly
+                                            style={{ opacity: 0.6, fontSize: '0.8rem' }}
+                                            rows="2"
                                         ></textarea>
                                     </div>
                                     <div className="form-group">
