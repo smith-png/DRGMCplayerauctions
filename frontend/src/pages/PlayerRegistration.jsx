@@ -4,6 +4,7 @@ import { playerAPI, auctionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './PlayerRegistration.css';
 
+// Design Migration Confirmed
 export default function PlayerRegistration() {
     const [formData, setFormData] = useState({
         name: '',

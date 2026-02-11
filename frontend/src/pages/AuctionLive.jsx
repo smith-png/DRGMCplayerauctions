@@ -313,250 +313,212 @@ export default function AuctionLive() {
     const nextBidAmount = currentPrice + (currentPrice < 100 ? 10 : currentPrice < 1000 ? 50 : 100); // Simple increment logic or fetch rules
 
     // --- RENDER HELPERS ---
-    const renderSoldPlayersList = () => {
-        // (Copied from Source)
-        if (Object.keys(soldPlayers).length === 0) {
-            return (
-                <div className="empty-state">
-                    <div className="empty-icon">🏏</div>
-                    <h3>No Players Sold Yet</h3>
-                    <p>Sold players will appear here once the auction begins</p>
-                </div>
-            );
-        }
+
+    // 1. Queue Dock (Visual Panel Bottom)
+    const renderQueueDock = () => {
+        if (!isAuctioneer && !isAdmin) return null;
         return (
-            <div className="teams-grid">
-                {Object.entries(soldPlayers).map(([teamId, players]) => {
-                    const team = teams.find(t => t.id === parseInt(teamId));
-                    const totalSpent = players.reduce((sum, p) => sum + (parseFloat(p.sold_price) || 0), 0);
-                    return (
-                        <div key={teamId} className="team-sold-group">
-                            <div className="team-header">
-                                <h3 className="team-name">{team?.name || `Team ${teamId}`}</h3>
-                                <div className="team-stats">
-                                    <span className="stat-badge">{players.length} Pls</span>
-                                    <span className="stat-badge stat-accent">{totalSpent} Pts</span>
+            <div className="queue-dock">
+                <div className="queue-label">UP NEXT IN QUEUE</div>
+                <div className="queue-list">
+                    {eligiblePlayers.length === 0 ? (
+                        <div className="text-secondary small" style={{ padding: '0 1rem' }}>Queue Empty</div>
+                    ) : (
+                        eligiblePlayers.map(player => (
+                            <div key={player.id} className="queue-card">
+                                {player.photo_url ? <img src={player.photo_url} className="queue-img" /> : <div className="queue-placeholder">{player.name[0]}</div>}
+                                <div className="queue-name">{player.name}</div>
+                                <div className="queue-actions">
+                                    <button onClick={() => handleStartAuction(player.id)} className="queue-btn start">START</button>
                                 </div>
                             </div>
-                            <div className="players-list">
-                                {players.map((player, index) => (
-                                    <div key={player.id} className="sold-player-item">
-                                        <div className="player-rank">#{index + 1}</div>
-                                        <div className="player-avatar">{player.photo_url ? <img src={player.photo_url} alt="" /> : '👤'}</div>
-                                        <div className="player-details">
-                                            <h4 className="player-name">{player.name}</h4>
-                                            <div className="player-meta"><span>{player.year}</span>•<span>{player.stats?.role || 'Player'}</span></div>
-                                        </div>
-                                        <div className="player-price"><div className="price-value">{player.sold_price}</div></div>
-                                        {(isAuctioneer || isAdmin) && (
-                                            <button onClick={() => handleReleasePlayer(player.id)} className="release-btn" title="Release">×</button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
+                        ))
+                    )}
+                </div>
             </div>
         );
     };
 
-    const renderAuctioneerPanel = () => {
-        // (Copied from Source and adapted)
-        const playersBySport = (eligiblePlayers || []).reduce((acc, player) => {
-            const sport = player.sport || 'Other';
-            if (!acc[sport]) acc[sport] = [];
-            acc[sport].push(player);
-            return acc;
-        }, {});
-
+    // 2. Sold Players Overlay
+    const renderSoldOverlay = () => {
+        if (!showSoldPlayers) return null;
         return (
-            <div className="auctioneer-dashboard">
-                <div className="eligible-players-section">
-                    <div className="queue-section-header">
-                        <h2>{auction ? "Next in Queue" : "Ready for Auction"}</h2>
-                    </div>
-                    {Object.keys(playersBySport).length === 0 ? <p className="no-queue-msg">No players in queue.</p> :
-                        Object.entries(playersBySport).map(([sport, players]) => (
-                            <div key={sport} className="sport-category mb-4">
-                                <h3 className="queue-sport-title capitalize">{sport}</h3>
-                                <div className="queue-grid">
-                                    {players.map(player => (
-                                        <div key={player.id} className="queue-card card-glass-light p-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="queue-card-image w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                                                    {player.photo_url ? <img src={player.photo_url} className="w-full h-full object-cover" /> : '👤'}
-                                                </div>
-                                                <div className="queue-card-info flex-1">
-                                                    <h4 className="font-bold text-sm">{player.name}</h4>
-                                                    <div className="queue-tags-row">
-                                                        <span className="queue-tag">{player.year}</span>
-                                                        <span className="queue-tag tag-accent">{player.stats?.role}</span>
-                                                    </div>
-                                                </div>
-                                                <button onClick={() => handleStartAuction(player.id)} className="btn btn-primary btn-sm" disabled={loading || !!auction}>
-                                                    Start
-                                                </button>
-                                            </div>
+            <div className="sold-overlay">
+                <button className="dismiss-sold" onClick={() => setShowSoldPlayers(false)}>×</button>
+                <div className="sold-list-container" style={{ width: '90%', maxWidth: '1200px', maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-secondary)', padding: '2rem', borderRadius: '1rem' }}>
+                    <h2 className="section-title text-center mb-4">SOLD PLAYERS</h2>
+                    <div className="teams-grid">
+                        {Object.entries(soldPlayers).map(([teamId, players]) => {
+                            const team = teams.find(t => t.id === parseInt(teamId));
+                            const totalSpent = players.reduce((sum, p) => sum + (parseFloat(p.sold_price) || 0), 0);
+                            return (
+                                <div key={teamId} className="team-sold-group">
+                                    <div className="team-header">
+                                        <h3 className="team-name">{team?.name || `Team ${teamId}`}</h3>
+                                        <div className="team-stats">
+                                            <span className="stat-badge">{players.length} Pls</span>
+                                            <span className="stat-badge stat-accent">{totalSpent.toLocaleString()} Pts</span>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="players-list">
+                                        {players.map((player, index) => (
+                                            <div key={player.id} className="sold-player-item">
+                                                <div className="player-rank">#{index + 1}</div>
+                                                <div className="player-avatar">{player.photo_url ? <img src={player.photo_url} /> : '👤'}</div>
+                                                <div className="player-details">
+                                                    <h4 className="player-name">{player.name}</h4>
+                                                    <div className="player-meta"><span>{player.year}</span>•<span>{player.stats?.role || 'Player'}</span></div>
+                                                </div>
+                                                <div className="player-price"><div className="price-value">{player.sold_price}</div></div>
+                                                {(isAuctioneer || isAdmin) && (
+                                                    <button onClick={() => handleReleasePlayer(player.id)} className="release-btn" title="Release">×</button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))
-                    }
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         );
     };
 
     // --- MAIN RENDER ---
-    if (loading) return <div className="auction-page"><div className="container"><div className="spinner"></div></div></div>;
-
-    if (!isAuctionActive && !isAuctioneer && !isAdmin) {
-        return <div className="auction-page"><div className="container"><div className="no-auction card-glass text-center"><h2>Auction Paused</h2></div></div></div>;
-    }
-
-    if (!auction && !isAuctioneer && !isAdmin) {
-        return (
-            <div className="auction-page">
-                <div className="container">
-                    <div className="no-auction card text-center"><h2>No Active Auction</h2><p>Waiting for auctioneer...</p></div>
-                    <div className="sold-players-section"><h2 className="section-title">Sold Players</h2>{renderSoldPlayersList()}</div>
-                </div>
+    if (loading) return (
+        <div className="auction-terminal">
+            <div className="visual-panel standby-mode">
+                <div className="spinner"></div>
             </div>
-        );
-    }
+        </div>
+    );
 
-    // Determine min bid for Admin input
-    const minBid = Math.max(auction?.current_bid ? auction.current_bid + 1 : (auction?.base_price || 0) + 1, 1);
-
+    // Terminal Layout
     return (
-        <div className="auction-page">
+        <div className="auction-terminal">
             {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#B8E0C0', '#ffffff', '#000000']} />}
 
-            <div className="container">
-                <div className="auction-header">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-                        <h1>Live Auction <span className="live-flair-badge">LIVE</span></h1>
-                        <div className={`connection-pill ${isConnected ? 'connected' : 'disconnected'}`}>
-                            <span className="status-dot"></span>{isConnected ? 'Connected' : 'Offline'}
-                        </div>
-                    </div>
-                </div>
-
+            {/* LEFT: VISUAL PANEL */}
+            <div className={`visual-panel ${!auction ? 'standby' : ''}`}>
+                {/* Visual Content */}
                 {auction ? (
-                    <div className="active-auction-hero">
-                        <div className="auction-split-layout">
-                            {/* Left: Player Card */}
-                            <div className="player-main-card">
-                                <div className="player-card-image-wrapper">
-                                    {auction.photo_url ? <img src={auction.photo_url} className="player-full-photo" /> : <div className="player-placeholder-large">👤</div>}
-                                    <div className="player-card-overlay">
-                                        <h1 className="player-main-name">{auction.player_name}</h1>
-                                        <p className="player-role-subtitle">{auction.stats?.role || 'Player'}</p>
-                                    </div>
-                                </div>
-                                <div className="player-stats-grid">
-                                    <div className="player-badges-row" style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-                                        <span className="hero-badge badge-primary">{auction.sport}</span>
-                                        <span className="hero-badge badge-secondary">{auction.year}</span>
-                                    </div>
-                                    {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
-                                        key !== 'role' && <div key={key} className="stat-box"><span className="stat-label">{key}</span><span className="stat-value">{value}</span></div>
-                                    ))}
-                                </div>
+                    <>
+                        {auction.photo_url ? <img src={auction.photo_url} className="hero-image" /> : <div className="hero-placeholder">{auction.player_name[0]}</div>}
+                        <div className="hero-overlay">
+                            <h1 className="hero-name">{auction.player_name}</h1>
+                            <div className="hero-meta">
+                                <span>{auction.sport}</span>
+                                <span>//</span>
+                                <span>{auction.year}</span>
+                                <span>//</span>
+                                <span>{auction.stats?.role || 'PLAYER'}</span>
                             </div>
-
-                            {/* Right: Bidding Console */}
-                            <div className="bidding-sidebar">
-                                <div className="bid-status-header">
-                                    <span className="bid-label">Current Highest Bid</span>
-                                    <div className="current-bid-huge">{(auction.current_bid || 0).toLocaleString()}</div>
-                                    {auction.current_team_name ? (
-                                        <div className="bid-leader-pill">Held by <span className="team-highlight">{auction.current_team_name}</span></div>
-                                    ) : (
-                                        <div className="bid-leader-pill" style={{ opacity: 0.7 }}>No Bids Yet</div>
-                                    )}
-                                </div>
-
-                                {bidHistory.length > 0 && (
-                                    <div className="bid-history-mini card-glass-dark mb-4 p-3">
-                                        <div className="bid-history-list">
-                                            {bidHistory.map((bid, idx) => (
-                                                <div key={idx} className="bid-history-item flex justify-between items-center py-1">
-                                                    <span className="text-sm font-semibold">{bid.teamName}</span>
-                                                    <span className="text-sm font-bold text-primary">₹{bid.amount.toLocaleString()}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="bid-actions-area">
-                                    {/* CONTROLS */}
-                                    {(isAuctioneer || isAdmin) ? (
-                                        // ADMIN Controls
-                                        <div className="admin-bid-controls">
-                                            {error && <div className="alert alert-error">{error}</div>}
-                                            <form onSubmit={handlePlaceBid} className="bid-form-stacked">
-                                                <div className="form-group">
-                                                    <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="input input-dark" required>
-                                                        <option value="">Select Team...</option>
-                                                        {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                                    </select>
-                                                </div>
-                                                <div className="form-group pb-4">
-                                                    <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="input input-dark" placeholder="Bid Amount" required />
-                                                </div>
-                                                <div className="auction-actions-row">
-                                                    <button type="submit" className="btn btn-warning btn-xl">Bid</button>
-                                                    <button type="button" onClick={handleMarkSold} className="btn btn-success btn-lg" disabled={!auction.current_team_id}>Sold</button>
-                                                    <button type="button" onClick={handleMarkUnsold} className="btn btn-danger btn-lg">Unsold</button>
-                                                </div>
-                                                <button type="button" onClick={handleResetBid} className="btn btn-outline-danger mt-2" style={{ width: '100%' }}>Reset All Bids</button>
-                                            </form>
-                                        </div>
-                                    ) : isTeamOwner && isAuctionActive ? (
-                                        // TEAM OWNER Controls
-                                        <div className="bidder-controls">
-                                            {error && <div className="alert alert-error">{error}</div>}
-                                            <button
-                                                className={`btn-bid-dynamic ${isBidding ? 'loading' : ''}`}
-                                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
-                                                disabled={isBidding}
-                                                style={{ width: '100%', padding: '2rem', fontSize: '1.5rem', fontWeight: 'bold', background: 'var(--accent-gradient)', border: 'none', borderRadius: '1rem', color: '#fff', cursor: 'pointer', transition: 'transform 0.1s' }}
-                                            >
-                                                {isBidding ? 'PROCESSING...' : `BID ₹${nextBidAmount}`}
-                                            </button>
-                                            <div style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                                Click to place next valid bid
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        // VIEWER Controls
-                                        <div className="viewer-controls">
-                                            <p className="text-secondary text-center">Spectator Mode</p>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="hero-stats">
+                                {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
+                                    key !== 'role' && <div key={key} className="stat-badge">{key}: {value}</div>
+                                ))}
                             </div>
                         </div>
-                    </div>
+                    </>
                 ) : (
-                    // No active auction, show queue if admin
-                    (isAuctioneer || isAdmin) ? renderAuctioneerPanel() : null
+                    // Standby / Empty State
+                    <div className="standby-content">
+                        <div className="standby-icon">🏏</div>
+                        <h1>AUCTION TERMINAL</h1>
+                        <p>WAITING FOR NEXT PLAYER...</p>
+                    </div>
                 )}
 
-                {/* Sold Players Footer */}
-                <div className="sold-players-section">
-                    <button className="sold-players-toggle" onClick={() => setShowSoldPlayers(!showSoldPlayers)}>
-                        <h2 className="section-title">
-                            <span style={{ marginRight: '0.5rem' }}>{showSoldPlayers ? '▼' : '▶'}</span> Sold Players
-                        </h2>
-                    </button>
-                    {showSoldPlayers && <div className="sold-players-content">{renderSoldPlayersList()}</div>}
+                {/* Live Indicator */}
+                <div className="live-indicator">
+                    <div className={`blink-dot ${isConnected ? 'connected' : ''}`} style={{ background: isConnected ? 'var(--cricket-green)' : 'red', boxShadow: isConnected ? '0 0 10px var(--cricket-green)' : '0 0 10px red' }}></div>
+                    {isAuctionActive ? 'LIVE SESSION' : 'SESSION PAUSED'}
+                </div>
+
+                {/* Queue Dock (Absolute Bottom) */}
+                {renderQueueDock()}
+            </div>
+
+            {/* RIGHT: CONTROL PANEL */}
+            <div className="control-panel">
+                <div className="panel-header">
+                    <span>DRGMC AUCTION SYSTEM // V.2.0</span>
+                    <span>{new Date().toLocaleDateString()}</span>
+                </div>
+
+                {/* Big Numbers */}
+                <div className="bid-display-huge">
+                    <div className="label">CURRENT BIDDING</div>
+                    <div className="huge-number">{auction ? (auction.current_bid || auction.base_price).toLocaleString() : '---'}</div>
+                    <div className="current-leader-box">
+                        <span className="leader-label">CURRENT LEADER</span>
+                        <div className="leader-name">
+                            {auction?.current_team_name ? auction.current_team_name : (auction ? 'NO BIDS' : '---')}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Zone */}
+                <div className="action-zone">
+                    {/* Error Display */}
+                    {error && <div className="alert alert-error mb-4">{error}</div>}
+
+                    {/* Controls based on Role */}
+                    {(isAuctioneer || isAdmin) ? (
+                        <div className="admin-command-deck">
+                            <div className="deck-header">ADMIN COMMANDS</div>
+                            {auction ? (
+                                <>
+                                    {/* Quick Actions Grid */}
+                                    <div className="deck-grid mb-4">
+                                        <button onClick={handleMarkSold} className="deck-btn btn-sold" disabled={!auction.current_team_id}>SOLD</button>
+                                        <button onClick={handleMarkUnsold} className="deck-btn btn-unsold">UNSOLD</button>
+                                        <button onClick={handleResetBid} className="deck-btn btn-reset">RESET BID</button>
+                                    </div>
+
+                                    {/* Manual Bid Form */}
+                                    <form onSubmit={handlePlaceBid} className="proxy-bid-row">
+                                        <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="admin-select-small" required>
+                                            <option value="">Team...</option>
+                                            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                        </select>
+                                        <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="admin-input-small" placeholder="Amt" required />
+                                        <button type="submit" className="btn-proxy">BID</button>
+                                    </form>
+                                </>
+                            ) : (
+                                <div className="text-secondary text-center small">Select a player from the Queue to start.</div>
+                            )}
+                        </div>
+                    ) : isTeamOwner && isAuctionActive && auction ? (
+                        // Team Owner Controls
+                        <div className="bidder-controls">
+                            <button
+                                className={`btn-bid-dynamic ${isBidding ? 'loading' : ''}`}
+                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
+                                disabled={isBidding}
+                            >
+                                {isBidding ? 'PROCESSING...' : `BID ₹${nextBidAmount.toLocaleString()}`}
+                                <span className="bid-label">CLICK TO PLACE BID</span>
+                            </button>
+                        </div>
+                    ) : (
+                        // Viewer / Resting State
+                        <div className="viewer-controls text-center text-secondary">
+                            {auction ? "SPECTATOR MODE" : "AUCTION PAUSED"}
+                        </div>
+                    )}
+
+                    {/* Universal Links/Toggles */}
+                    <div className="mt-4 flex justify-between">
+                        <button className="btn-outline" onClick={() => setShowSoldPlayers(true)}>VIEW SOLD PLAYERS ({Object.values(soldPlayers).flat().length})</button>
+                    </div>
                 </div>
             </div>
+
+            {/* Overlays */}
+            {renderSoldOverlay()}
         </div>
     );
 }

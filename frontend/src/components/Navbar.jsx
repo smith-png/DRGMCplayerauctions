@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { teamsAPI } from '../services/api';
 import './Navbar.css';
 
+// Design Migration Confirmed
 export default function Navbar() {
     const { user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
