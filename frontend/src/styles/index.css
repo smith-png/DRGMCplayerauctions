@@ -57,9 +57,9 @@
   /* Subtle green tint shadow */
 
   /* Typography */
-  --font-heading: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  /* Clean Sans for headers */
+  --font-heading: 'Manrope', sans-serif;
   --font-body: 'Source Sans Pro', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
   /* Clean Sans for UI elements */
 
   /* Spacing */
@@ -76,6 +76,11 @@
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
+
+  /* Editorial Dark Theme Variables */
+  --bg-dark: #080808;
+  --accent-sage: #B4C3A3;
+  --accent-sage-rgb: 180, 195, 163;
 
   /* Transitions */
   --transition-base: all 0.2s ease;

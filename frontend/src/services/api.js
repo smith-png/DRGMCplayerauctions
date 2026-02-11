@@ -53,7 +53,8 @@ export const auctionAPI = {
     toggleAuctionState: (isActive) => api.post('/auction/state', { isActive }),
     skipPlayer: (playerId) => api.post('/auction/skip', { playerId }),
     resetCurrentBid: () => api.post('/auction/reset-bid', {}),
-    toggleRegistrationState: (isOpen) => api.post('/auction/state/registration', { isOpen })
+    toggleRegistrationState: (isOpen) => api.post('/auction/state/registration', { isOpen }),
+    getTransactions: () => api.get('/auction/transactions')
 };
 
 // Admin API
@@ -71,6 +72,7 @@ export const adminAPI = {
     }),
     deleteTeam: (id) => api.delete(`/admin/teams/${id}`),
     resetTeamWallet: (id) => api.post(`/admin/teams/${id}/reset`),
+    adjustTeamWallet: (id, action, amount) => api.post(`/admin/teams/${id}/wallet/adjust`, { action, amount }),
 
     // Player Management (Admin)
     createPlayer: (playerData) => api.post('/admin/players', playerData, {
@@ -82,6 +84,7 @@ export const adminAPI = {
     removeFromQueue: (id) => api.post(`/admin/players/${id}/remove-queue`),
     addToQueueById: (id) => api.post(`/admin/players/${id}/queue`),
     releasePlayer: (id) => api.post(`/admin/players/${id}/release`),
+    resetPlayerBid: (id) => api.post(`/admin/players/${id}/reset-bid`),
 
     getStats: () => api.get('/admin/stats'),
     getPendingPlayers: () => api.get('/admin/players/pending'),
@@ -95,6 +98,8 @@ export const adminAPI = {
     updateBidRules: (rules) => api.put('/auction/state/bid-rules', { rules }),
     getRecentBids: () => api.get('/auction/bids/recent')
 };
+
+
 
 // Teams API
 export const teamsAPI = {

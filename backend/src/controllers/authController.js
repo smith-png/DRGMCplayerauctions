@@ -36,7 +36,8 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
@@ -48,7 +49,8 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id
             }
         });
     } catch (error) {
@@ -106,7 +108,8 @@ export const register = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
@@ -118,7 +121,8 @@ export const register = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id
             }
         });
     } catch (error) {

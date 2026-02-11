@@ -213,8 +213,8 @@ export async function getAllTeams(req, res) {
 
         // Filter by sport if provided
         if (sport) {
-            params.push(sport);
-            conditions.push(`sport = $${params.length}`);
+            params.push(sport.toLowerCase());
+            conditions.push(`LOWER(sport) = $${params.length}`);
         }
 
         // Handle Test Data Visibility
@@ -343,36 +343,105 @@ export async function deleteTeam(req, res) {
 
 export async function resetTeamWallet(req, res) {
     const { id } = req.params;
+    const client = await pool.connect();
     try {
+        await client.query('BEGIN');
+
         // 1. Unsell all players belonging to this team
-        await pool.query(
-            "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE team_id = $1",
+        await client.query(
+            "UPDATE players SET status = 'approved', team_id = NULL, sold_price = NULL WHERE team_id = $1",
             [id]
         );
 
-        // 2. Clear any bids by this team (optional but cleaner)
-        await pool.query('DELETE FROM bids WHERE team_id = $1', [id]);
+        // 2. Clear any bids by this team
+        await client.query('DELETE FROM bids WHERE team_id = $1', [id]);
 
-        // 3. Reset team budget to default 2000
-        const result = await pool.query(
+        // 3. Reset team budget to default (2000)
+        const result = await client.query(
             'UPDATE teams SET budget = 2000, remaining_budget = 2000 WHERE id = $1 RETURNING *',
             [id]
         );
 
         if (result.rows.length === 0) {
+            await client.query('ROLLBACK');
             return res.status(404).json({ error: 'Team not found' });
         }
+
+        await client.query('COMMIT');
 
         if (req.io) {
             req.io.emit('refresh-leaderboard');
             req.io.emit('refresh-data');
-            console.log('📡 Socket event emitted: refresh-data (wallet reset)');
         }
 
-        res.json({ message: 'Team wallet and stats reset successfully', team: result.rows[0] });
+        // Persistent Transaction Logging
+        await pool.query(
+            'INSERT INTO transactions (type, team_id, team_name, amount, metadata) VALUES ($1, $2, $3, $4, $5)',
+            ['reset', id, result.rows[0]?.name, -currentTeamBudget, JSON.stringify({ message: 'Team wallet and roster reset' })]
+        );
+
+        res.json({ message: 'Team wallet and roster reset to original state', team: result.rows[0] });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Reset team wallet error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
+    }
+}
+
+export async function adjustTeamWallet(req, res) {
+    const { id } = req.params;
+    const { action, amount } = req.body; // action: 'add' | 'remove'
+
+    if (!action || !amount || isNaN(amount)) {
+        return res.status(400).json({ error: 'Valid action and amount are required' });
+    }
+
+    const value = parseInt(amount);
+    const adjustment = action === 'add' ? value : -value;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Update BOTH budget and remaining_budget
+        const result = await client.query(
+            `UPDATE teams 
+             SET budget = budget + $1, 
+                 remaining_budget = remaining_budget + $1 
+             WHERE id = $2 RETURNING *`,
+            [adjustment, id]
+        );
+
+        if (result.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        await client.query('COMMIT');
+
+        if (req.io) {
+            req.io.emit('refresh-leaderboard');
+            req.io.emit('refresh-data');
+        }
+
+        // Persistent Transaction Logging
+        await pool.query(
+            'INSERT INTO transactions (type, team_id, team_name, amount, metadata) VALUES ($1, $2, $3, $4, $5)',
+            ['adjustment', id, result.rows[0]?.name, adjustment, JSON.stringify({ action })]
+        );
+
+        res.json({
+            message: `Successfully ${action}ed ${value} points`,
+            team: result.rows[0]
+        });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Adjust wallet error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
     }
 }
 
@@ -388,6 +457,12 @@ export async function resetAllWallets(req, res) {
             req.io.emit('refresh-leaderboard');
             req.io.emit('refresh-data');
         }
+
+        // Persistent Transaction Logging
+        await pool.query(
+            'INSERT INTO transactions (type, amount, metadata) VALUES ($1, $2, $3)',
+            ['global_reset', 0, JSON.stringify({ message: 'Global wallet and stats reset' })]
+        );
 
         res.json({ message: 'Global wallet and stats reset successfully.' });
     } catch (error) {
@@ -776,6 +851,40 @@ export async function exportPlayersToCSV(req, res) {
 
     } catch (error) {
         console.error('Export CSV error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Reset an individual player's bid to sport minimum
+export async function resetPlayerBid(req, res) {
+    const { id } = req.params;
+    try {
+        // 1. Get player sport
+        const playerRes = await pool.query('SELECT sport, name FROM players WHERE id = $1', [id]);
+        if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
+        const player = playerRes.rows[0];
+
+        // 2. Get sport min bid
+        const stateRes = await pool.query('SELECT sport_min_bids FROM auction_state LIMIT 1');
+        const sportMinBids = stateRes.rows[0]?.sport_min_bids || { cricket: 50, futsal: 50, volleyball: 50 };
+        const minBid = sportMinBids[player.sport.toLowerCase()] || 50;
+
+        // 3. Update player
+        const result = await pool.query(
+            "UPDATE players SET base_price = $1, sold_price = NULL, team_id = NULL WHERE id = $2 RETURNING *",
+            [minBid, id]
+        );
+
+        // 4. Delete bids for this player
+        await pool.query('DELETE FROM bids WHERE player_id = $1', [id]);
+
+        if (req.io) {
+            req.io.emit('refresh-data');
+        }
+
+        res.json({ message: `Bid for ${player.name} reset to ${minBid}`, player: result.rows[0] });
+    } catch (error) {
+        console.error('Reset player bid error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }

@@ -18,8 +18,10 @@ import {
     addToQueueById,
     releasePlayer,
     resetTeamWallet,
+    adjustTeamWallet,
     resetAllWallets,
-    exportPlayersToCSV
+    exportPlayersToCSV,
+    resetPlayerBid
 } from '../controllers/adminController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -42,6 +44,7 @@ router.get('/teams', getAllTeams);
 router.put('/teams/:id', upload.single('logo'), updateTeam);
 router.delete('/teams/:id', deleteTeam);
 router.post('/teams/:id/reset', resetTeamWallet);
+router.post('/teams/:id/wallet/adjust', adjustTeamWallet);
 router.post('/teams/reset-all', resetAllWallets);
 
 // Player management (Admin Crud)
@@ -51,6 +54,7 @@ router.put('/players/:id', upload.single('photo'), updatePlayer);
 router.post('/players/:id/remove-queue', removeFromQueue);
 router.post('/players/:id/queue', addToQueueById);
 router.post('/players/:id/release', releasePlayer);
+router.post('/players/:id/reset-bid', resetPlayerBid);
 
 // Bulk operations
 router.post('/bulk/min-bid', bulkUpdateMinBid);

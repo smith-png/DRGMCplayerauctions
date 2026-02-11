@@ -15,7 +15,8 @@ import {
     updateAnimationDuration,
     updateAnimationType,
     updateBidRules,
-    getRecentBids
+    getRecentBids,
+    getTransactions
 } from '../controllers/auctionController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -43,7 +44,9 @@ router.put('/animation-duration', authenticateToken, authorizeRoles('admin'), up
 router.put('/animation-type', authenticateToken, authorizeRoles('admin'), updateAnimationType);
 
 // Update Bid Increment Rules
+// Update Bid Increment Rules
 router.put('/state/bid-rules', authenticateToken, authorizeRoles('admin'), updateBidRules);
+router.get('/transactions', authenticateToken, getTransactions); // Allow all authenticated users
 router.get('/bids/recent', authenticateToken, authorizeRoles('admin'), getRecentBids);
 
 export default router;
