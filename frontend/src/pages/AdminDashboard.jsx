@@ -1488,30 +1488,6 @@ export default function AdminDashboard() {
 
 
 
-                                    const battingStyles = ['Right Handed', 'Left Handed'];
-                                    const bowlingStyles = [
-                                    'None',
-                                    'Right Arm Pace',
-                                    'Right Arm Spin',
-                                    'Left Arm Pace',
-                                    'Left Arm Spin',
-                                    'Slow Left Arm Orthodox'
-                                    ];
-
-    const handlePlayerSportChange = (e) => {
-        const newSport = e.target.value;
-                                    const updates = {sport: newSport };
-
-                                    // If creating new player, auto-set base price to sport minimum
-                                    if (!editingPlayer) {
-                                        updates.base_price = sportMinBids[newSport.toLowerCase()] || 50;
-        }
-
-                                    setPlayerForm({...playerForm, ...updates });
-    };
-
-                                    return (
-                                    // ... (existing JSX)
                                     <div className="row gap-2">
                                         <div className="form-group flex-1">
                                             <label>Sport</label>

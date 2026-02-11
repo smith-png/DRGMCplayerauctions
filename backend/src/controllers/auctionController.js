@@ -58,7 +58,7 @@ export const startAuction = async (req, res) => {
 // Place a bid
 // Place a bid
 export const placeBid = async (req, res) => {
-    const client = await pool.connect();
+    let client;
     try {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
@@ -73,6 +73,7 @@ export const placeBid = async (req, res) => {
 
         const roundedBid = Math.round(parseFloat(bidAmount));
 
+        client = await pool.connect();
         await client.query('BEGIN');
 
         // Check budget & Lock Row
@@ -89,7 +90,7 @@ export const placeBid = async (req, res) => {
         const remainingBudget = parseFloat(budgetResult.rows[0].remaining_budget);
         const teamName = budgetResult.rows[0].name;
 
-        if (parseFloat(bidAmount) > remainingBudget) {
+        if (roundedBid > remainingBudget) {
             await client.query('ROLLBACK');
             return res.status(400).json({ error: `Not enough budget. Remaining: ${remainingBudget} Pts` });
         }
@@ -133,11 +134,17 @@ export const placeBid = async (req, res) => {
             bid: result.rows[0]
         });
     } catch (error) {
-        await client.query('ROLLBACK');
+        if (client) {
+            try {
+                await client.query('ROLLBACK');
+            } catch (rollbackError) {
+                console.error('Rollback error:', rollbackError);
+            }
+        }
         console.error('❌ Place bid error:', error);
         res.status(500).json({ error: 'Failed to place bid', details: error.message });
     } finally {
-        client.release();
+        if (client) client.release();
     }
 };
 
@@ -199,6 +206,15 @@ export const toggleAuctionState = async (req, res) => {
         );
 
         res.json({ message: 'Auction state updated successfully', isActive });
+
+        // Broadcast change
+        if (req.io) {
+            req.io.to('auction-room').emit('auction-update', {
+                type: 'state-change',
+                isActive,
+                timestamp: new Date()
+            });
+        }
     } catch (error) {
         console.error('Toggle auction state error:', error);
         res.status(500).json({ error: 'Failed to update auction state' });
@@ -383,6 +399,12 @@ export const markPlayerSold = async (req, res) => {
             console.log('📡 Socket event emitted: player-sold');
         }
 
+        // Persistent Transaction Logging
+        await pool.query(
+            'INSERT INTO transactions (type, player_id, player_name, team_id, team_name, amount) VALUES ($1, $2, $3, $4, $5, $6)',
+            ['sale', playerId, playerRes.rows[0]?.name, teamId, teamRes.rows[0]?.name, roundedPrice]
+        );
+
         res.json({ message: 'Player marked as sold successfully' });
     } catch (error) {
         console.error('Mark player sold error:', error);
@@ -402,24 +424,39 @@ export const markPlayerUnsold = async (req, res) => {
             return res.status(400).json({ error: 'Player ID is required' });
         }
 
-        console.log(`Marking player ${playerId} as unsold`);
+        console.log(`Marking player ${playerId} as unsold (No refund)`);
 
-        // Update player status to unsold
+        // 1. Get player and team info BEFORE clearing for audit/socket
+        const playerDetails = await pool.query('SELECT name, team_id, sold_price FROM players WHERE id = $1', [playerId]);
+        const player = playerDetails.rows[0];
+
+        // 2. Update player status to unsold and CLEAR team linkage
         await pool.query(
-            'UPDATE players SET status = $1 WHERE id = $2',
-            ['unsold', playerId]
+            "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = 0 WHERE id = $2",
+            [playerId]
         );
+
+        // NOTE: We are NOT updating the teams.remaining_budget table here.
+        // This effectively "consumes" the points spent on the player.
 
         if (req.io) {
             req.io.to('auction-room').emit('auction-update', {
                 type: 'unsold',
-                player: { id: playerId },
+                player: { id: playerId, name: player?.name },
                 timestamp: new Date()
             });
-            console.log('📡 Socket event emitted: player-unsold');
+            // Refresh data to show budget/roster changes
+            req.io.emit('refresh-data');
+            console.log('📡 Socket event emitted: player-released-no-refund');
         }
 
-        res.json({ message: 'Player marked as unsold' });
+        // Persistent Transaction Logging
+        await pool.query(
+            'INSERT INTO transactions (type, player_id, player_name, team_id, team_name, amount) VALUES ($1, $2, $3, $4, $5, $6)',
+            ['release', playerId, player?.name, player?.team_id, null, 0] // team_id is from before reset
+        );
+
+        res.json({ message: 'Player released. Points not refunded.' });
     } catch (error) {
         console.error('❌ Mark player unsold error:', error);
         res.status(500).json({ error: 'Failed to mark player as unsold', details: error.message });
@@ -533,6 +570,10 @@ export const toggleRegistrationState = async (req, res) => {
         );
 
         res.json({ message: 'Registration state updated successfully', isOpen });
+
+        if (req.io) {
+            req.io.emit('registration-state-change', { isOpen });
+        }
     } catch (error) {
         console.error('Toggle registration state error:', error);
         res.status(500).json({ error: 'Failed to update registration state' });
@@ -558,5 +599,18 @@ export const updateSportMinBids = async (req, res) => {
     } catch (error) {
         console.error('Update sport min bids error:', error);
         res.status(500).json({ error: 'Failed to update sport minimum bids' });
+    }
+};
+
+// GET all persistent transactions
+export const getTransactions = async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM transactions ORDER BY created_at DESC LIMIT 1000'
+        );
+        res.json({ transactions: result.rows });
+    } catch (error) {
+        console.error('Get transactions error:', error);
+        res.status(500).json({ error: 'Failed to fetch transactions' });
     }
 };
