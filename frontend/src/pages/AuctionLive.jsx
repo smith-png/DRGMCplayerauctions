@@ -134,6 +134,17 @@ export default function AuctionLive() {
         }
     };
 
+    // Admin: Remove from Queue
+    const handleRemoveFromQueue = async (playerId) => {
+        if (!confirm('Remove player from queue?')) return;
+        try {
+            await adminAPI.removeFromQueue(playerId);
+            await loadEligiblePlayers();
+        } catch (err) {
+            setError('Failed to remove player from queue');
+        }
+    };
+
     // Admin: Place Bid via Dropdown
     const handlePlaceBid = async (e) => {
         e.preventDefault();
@@ -316,7 +327,6 @@ export default function AuctionLive() {
 
     // 1. Queue Dock (Visual Panel Bottom)
     const renderQueueDock = () => {
-        if (!isAuctioneer && !isAdmin) return null;
         return (
             <div className="queue-dock">
                 <div className="queue-label">UP NEXT IN QUEUE</div>
@@ -329,7 +339,12 @@ export default function AuctionLive() {
                                 {player.photo_url ? <img src={player.photo_url} className="queue-img" /> : <div className="queue-placeholder">{player.name[0]}</div>}
                                 <div className="queue-name">{player.name}</div>
                                 <div className="queue-actions">
-                                    <button onClick={() => handleStartAuction(player.id)} className="queue-btn start">START</button>
+                                    {(isAuctioneer || isAdmin) && (
+                                        <>
+                                            <button onClick={() => handleStartAuction(player.id)} className="queue-btn start">START</button>
+                                            <button onClick={() => handleRemoveFromQueue(player.id)} className="queue-btn remove">REMOVE</button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ))
@@ -424,7 +439,6 @@ export default function AuctionLive() {
                 ) : (
                     // Standby / Empty State
                     <div className="standby-content">
-                        <div className="standby-icon">🏏</div>
                         <h1>AUCTION TERMINAL</h1>
                         <p>WAITING FOR NEXT PLAYER...</p>
                     </div>
@@ -432,7 +446,7 @@ export default function AuctionLive() {
 
                 {/* Live Indicator */}
                 <div className="live-indicator">
-                    <div className={`blink-dot ${isConnected ? 'connected' : ''}`} style={{ background: isConnected ? 'var(--cricket-green)' : 'red', boxShadow: isConnected ? '0 0 10px var(--cricket-green)' : '0 0 10px red' }}></div>
+                    <div className={`blink-dot ${isConnected ? 'connected' : ''}`} style={{ background: 'red', boxShadow: '0 0 10px red' }}></div>
                     {isAuctionActive ? 'LIVE SESSION' : 'SESSION PAUSED'}
                 </div>
 
