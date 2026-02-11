@@ -98,7 +98,7 @@ export default function PlayerProfilesBySport() {
                                 {selectedPlayer.status === 'sold' && selectedPlayer.team_id && (
                                     <div className="info-item">
                                         <span className="info-label">ACQUIRED BY</span>
-                                        <span className="info-value" style={{ color: 'var(--accent-sage)' }}>{getPlayerTeam(selectedPlayer.team_id)?.name || 'UNKNOWN'}</span>
+                                        <span className="info-value" style={{ color: 'var(--cricket-green)' }}>{getPlayerTeam(selectedPlayer.team_id)?.name || 'UNKNOWN'}</span>
                                     </div>
                                 )}
                             </div>

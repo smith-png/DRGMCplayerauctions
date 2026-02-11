@@ -518,6 +518,28 @@ export default function AdminDashboard() {
     };
 
     // Derived state for filtered players
+    const battingStyles = ['Right Handed', 'Left Handed'];
+    const bowlingStyles = [
+        'None',
+        'Right Arm Pace',
+        'Right Arm Spin',
+        'Left Arm Pace',
+        'Left Arm Spin',
+        'Slow Left Arm Orthodox'
+    ];
+
+    const handlePlayerSportChange = (e) => {
+        const newSport = e.target.value;
+        const updates = { sport: newSport };
+
+        // If creating new player, auto-set base price to sport minimum
+        if (!editingPlayer) {
+            updates.base_price = sportMinBids[newSport.toLowerCase()] || 50;
+        }
+
+        setPlayerForm({ ...playerForm, ...updates });
+    };
+
     const pendingPlayers = players.filter(p => p.status === 'pending');
     const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
     const activePlayers = players.filter(p => p.status !== 'pending');
