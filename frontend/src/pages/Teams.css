@@ -63,47 +63,55 @@
 /* GRID */
 .teams-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 3rem;
 }
 
-/* TEAM CARD */
+/* TEAM CARD - EDITORIAL REDESIGN */
 .team-card {
     background: #080808;
-    border: 1px solid #222;
-    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Subtle border */
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.3s, border-color 0.3s;
-    height: 400px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
 }
 
 .team-card:hover {
     border-color: var(--accent-sage);
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* LOGO SECTION */
-.card-header {
+/* CARD HEADER */
+.team-card .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
 }
 
 .team-logo-wrapper {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     background: #111;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #333;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.team-card:hover .team-logo-wrapper {
+    transform: scale(1.1);
+    border-color: var(--accent-sage);
 }
 
 .team-logo {
@@ -118,60 +126,66 @@
     filter: grayscale(0%);
 }
 
-.team-placeholder {
-    font-family: 'Manrope', sans-serif;
+.team-logo-placeholder {
+    font-family: var(--font-heading);
     font-weight: 800;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: #444;
 }
 
 .team-id {
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.7rem;
-    color: #444;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #666;
+    letter-spacing: 0.1em;
 }
 
 /* CARD BODY */
-.card-body {
-    margin-bottom: auto;
+.team-card .card-body {
+    margin-bottom: 2.5rem;
 }
 
 .team-name {
-    font-family: 'Manrope', sans-serif;
+    font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 2rem;
-    line-height: 1;
-    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+    line-height: 1.1;
+    margin: 0 0 0.75rem 0;
     color: #fff;
+    letter-spacing: -0.02em;
 }
 
 .owner-name {
-    font-family: 'Space Grotesk', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: #666;
+    color: #888;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* FOOTER & STATS */
-.card-footer {
-    border-top: 1px solid #222;
+.team-card .card-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 1.5rem;
 }
 
 .stat-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
 }
 
 .stat-label {
-    color: #666;
+    color: #888;
 }
 
 .stat-value {
     color: #fff;
+    font-weight: 600;
 }
 
 .stat-value.highlight {
@@ -180,23 +194,28 @@
 
 .cap-bar {
     width: 100%;
-    height: 2px;
-    background: #222;
-    margin-top: 1rem;
+    height: 3px;
+    background: #1a1a1a;
+    margin-top: 1.25rem;
     position: relative;
+    border-radius: 2px;
 }
 
 .cap-fill {
     height: 100%;
     background: var(--accent-sage);
+    border-radius: 2px;
+    transition: width 1s ease-out;
 }
 
 .loading-state,
 .empty-state {
-    font-family: 'Space Grotesk', monospace;
-    color: #666;
+    font-family: var(--font-mono);
+    color: #444;
     font-size: 1rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.2em;
+    text-align: center;
+    padding: 4rem;
 }
 
 @media (max-width: 900px) {

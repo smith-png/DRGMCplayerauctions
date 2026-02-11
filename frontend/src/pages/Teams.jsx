@@ -54,39 +54,37 @@ export default function Teams() {
             {loading ? <div className="loading-state">LOADING DATA...</div> : (
                 <div className="teams-grid">
                     {filteredTeams.map(team => (
-                        <div key={team.id} className="team-card-admin">
-                            <div className="card-header" style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
+                        <div key={team.id} className="team-card">
+                            <div className="card-header">
                                 <div className="team-logo-wrapper">
                                     {team.logo_url ? (
-                                        <img src={team.logo_url} alt={team.name} className="team-logo-small" />
+                                        <img src={team.logo_url} alt={team.name} className="team-logo" />
                                     ) : (
                                         <div className="team-logo-placeholder">{(team.name || '?').substring(0, 2).toUpperCase()}</div>
                                     )}
                                 </div>
-                                <div className="text-center text-secondary small">ID: #{String(team.id).padStart(4, '0')}</div>
+                                <div className="team-id">ID: #{String(team.id).padStart(4, '0')}</div>
                             </div>
 
-                            <div className="card-body text-center">
-                                <h2 className="team-name" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{team.name}</h2>
-                                <div className="owner-name text-secondary" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>OWNER: {team.owner_name || 'N/A'}</div>
+                            <div className="card-body">
+                                <h2 className="team-name">{team.name}</h2>
+                                <div className="owner-name">OWNER: {team.owner_name || 'N/A'}</div>
                             </div>
 
-                            <div className="card-footer" style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-secondary small">CAP SPACE</span>
-                                    <span className="font-bold highlight">{team.purse_remaining?.toLocaleString() || team.budget?.toLocaleString() || 0} PTS</span>
+                            <div className="card-footer">
+                                <div className="stat-row">
+                                    <span className="stat-label">CAP SPACE:</span>
+                                    <span className="stat-value highlight">{team.purse_remaining?.toLocaleString() || team.budget?.toLocaleString() || 0} PTS</span>
                                 </div>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-secondary small">ROSTER SIZE</span>
-                                    <span className="font-bold">{team.player_count || 0} ATHLETES</span>
+                                <div className="stat-row">
+                                    <span className="stat-label">ROSTER SIZE:</span>
+                                    <span className="stat-value">{team.player_count || 0} ATHLETES</span>
                                 </div>
-                                <div className="cap-bar" style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                                <div className="cap-bar">
                                     <div
                                         className="cap-fill"
                                         style={{
-                                            width: `${(Math.max(0, 5000 - (team.purse_remaining || 0)) / 5000) * 100}%`,
-                                            height: '100%',
-                                            background: 'var(--accent-gradient)'
+                                            width: `${(Math.max(0, 5000 - (team.purse_remaining || 0)) / 5000) * 100}%`
                                         }}
                                     ></div>
                                 </div>
