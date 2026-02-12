@@ -135,15 +135,28 @@ export default function PlayerRegistration() {
     if (!isRegistrationOpen) {
         return (
             <div className="player-registration-page">
-                <div className="container">
-                    <div className="registration-closed-card card text-center" style={{ padding: '4rem 2rem', marginTop: '4rem' }}>
-                        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏳</div>
-                        <h1>Registration Closed</h1>
-                        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-                            Player registration is currently paused by the administrator.
-                            <br />Please check back later or contact the auction committee.
-                        </p>
-                        <button onClick={() => navigate('/')} className="btn btn-primary">Return to Home</button>
+                <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem' }}>
+                    <div className="registration-lockdown-card">
+                        <div className="lockdown-icon-stage">
+                            <div className="lockdown-icon-wrapper">
+                                ⏳
+                            </div>
+                        </div>
+
+                        <div className="lockdown-content">
+                            <h1 className="lockdown-title">REGISTRATION PORTAL // LOCKED</h1>
+                            <div className="lockdown-divider"></div>
+                            <p className="lockdown-message">
+                                PLAYER ENROLLMENT IS CURRENTLY SUSPENDED BY SYSTEM ADMINISTRATOR.
+                            </p>
+                            <p className="lockdown-submessage">
+                                PLEASE CONTACT AUCTION COMMITTEE OR CHECK BACK LATER FOR UPDATES.
+                            </p>
+                        </div>
+
+                        <button onClick={() => navigate('/')} className="btn-lockdown-return">
+                            ← RETURN TO HOME
+                        </button>
                     </div>
                 </div>
             </div>
