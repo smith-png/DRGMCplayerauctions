@@ -598,7 +598,7 @@ export default function AdminDashboard() {
                             className={`tab-btn ${activeTab === 'teams' ? 'active' : ''}`}
                             onClick={() => setActiveTab('teams')}
                         >
-                            Franchises
+                            Teams
                         </button>
                         <button
                             className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
@@ -1411,32 +1411,33 @@ export default function AdminDashboard() {
                         {
                             showTeamModal && (
                                 <div className="modal-overlay animate-fadeIn">
-                                    <div className="admin-modal glass-card">
-                                        <h2 className="stat-label mb-8">{editingTeam ? 'REFINE FRANCHISE' : 'NEW FRANCHISE ENTRY'}</h2>
+                                    <div className="admin-modal-content card">
+                                        <h2 className="terminal-header">{editingTeam ? 'REFINE TEAM DOSSIER' : 'NEW ACTIVE TEAM ENTRY'}</h2>
                                         <form onSubmit={handleSaveTeamExtended}>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">FRANCHISE NAME</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">FRANCHISE IDENTITY</label>
                                                 <input
                                                     type="text"
                                                     className="input-minimal"
                                                     value={teamForm.name}
                                                     onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
                                                     required
-                                                    placeholder="Enter team name..."
+                                                    placeholder="ENTER TEAM NAME..."
                                                 />
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">BUDGET ALLOCATION (PTS)</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">BUDGET ALLOCATION (PTS)</label>
                                                 <input
                                                     type="number"
                                                     className="input-minimal"
                                                     value={teamForm.budget}
                                                     onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })}
                                                     required
+                                                    placeholder="MAX: 20000"
                                                 />
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">SPORT CATEGORY</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">SPORT CATEGORY</label>
                                                 <select
                                                     className="input-minimal"
                                                     value={teamForm.sport}
@@ -1448,8 +1449,11 @@ export default function AdminDashboard() {
                                                     <option value="volleyball">VOLLEYBALL</option>
                                                 </select>
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-8">
-                                                <label className="stat-label mb-2 block">FRANCHISE EMBLEM</label>
+
+                                            <div className="form-divider-dashed"></div>
+
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">FRANCHISE EMBLEM</label>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -1457,9 +1461,9 @@ export default function AdminDashboard() {
                                                     className="input-minimal"
                                                 />
                                             </div>
-                                            <div className="modal-actions flex gap-4 mt-8">
-                                                <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
-                                                <button type="submit" className="btn btn-primary flex-1">SAVE FRANCHISE</button>
+                                            <div className="terminal-actions">
+                                                <button type="button" onClick={() => setShowTeamModal(false)} className="btn-discard">DISCARD</button>
+                                                <button type="submit" className="btn-commit">{editingTeam ? 'UPDATE DOSSIER' : 'INITIALIZE TEAM'}</button>
                                             </div>
                                         </form>
                                     </div>
