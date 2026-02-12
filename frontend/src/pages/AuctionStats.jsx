@@ -32,7 +32,7 @@ export default function AuctionStats() {
                 auctionAPI.getTransactions()
             ]);
 
-            const allPlayers = playersRes.data.players || [];
+            const allPlayers = playersRes.data.players || playersRes.data || [];
             const parsedPlayers = allPlayers.map(p => {
                 let stats = p.stats;
                 if (typeof stats === 'string') {

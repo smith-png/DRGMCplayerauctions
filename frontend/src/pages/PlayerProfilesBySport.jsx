@@ -20,7 +20,7 @@ export default function PlayerProfilesBySport() {
         setLoading(true);
         try {
             const [playersRes, teamsRes] = await Promise.all([playerAPI.getAllPlayers(), teamsAPI.getAllTeams()]);
-            const allPlayers = playersRes.data.players || [];
+            const allPlayers = playersRes.data.players || playersRes.data || [];
 
             // Ensure stats are parsed correctly
             const parsedPlayers = allPlayers.map(p => {

@@ -98,7 +98,7 @@ export default function AuctionLive() {
     const loadEligiblePlayers = async () => {
         try {
             const response = await playerAPI.getEligiblePlayers();
-            const players = response.data.players || [];
+            const players = response.data.players || response.data || [];
 
             // Ensure stats are parsed
             const parsedPlayers = players.map(p => {
