@@ -1,8 +1,9 @@
 /* EDITORIAL LIGHT THEME */
 :root {
-    --bg-light: #F9F9F9;
+    --bg-light: #D1E0D7;
+    /* New Luminous Sage */
     --text-main: #1A1A1A;
-    --border-light: #E0E0E0;
+    --border-light: rgba(0, 0, 0, 0.1);
     --accent-black: #000;
 }
 
@@ -25,6 +26,50 @@
     border-bottom: 2px solid var(--border-light);
     position: relative;
     background-color: var(--bg-light);
+    /* Sports Doodle Background Pattern */
+    background-image:
+        /* Cricket Balls - Radial dots */
+        radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+        radial-gradient(circle at 70% 50%, rgba(0, 0, 0, 0.05) 3px, transparent 3px),
+        radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+        /* Bat Lines - Diagonal strokes */
+        linear-gradient(45deg, transparent 48%, rgba(0, 0, 0, 0.03) 48%, rgba(0, 0, 0, 0.03) 52%, transparent 52%),
+        /* Gavel Dots - Larger circles */
+        radial-gradient(circle at 85% 20%, rgba(62, 91, 78, 0.04) 4px, transparent 4px);
+    background-size: 200px 200px, 300px 300px, 250px 250px, 150px 150px, 180px 180px;
+    background-position: 0 0, 100px 100px, 50px 150px, 0 0, 200px 50px;
+}
+
+/* Hero Subtitle */
+.hero-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #3E5B4E;
+    /* Deep Sage */
+    font-family: 'Space Grotesk', monospace;
+}
+
+.subtitle-bar {
+    width: 40px;
+    height: 3px;
+    background: #3E5B4E;
+}
+
+/* Hero Main Title */
+.hero-main-title {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 12vw, 6rem);
+    line-height: 0.9;
+    color: #1A1A1A;
+    margin: 0 0 2rem 0;
+    letter-spacing: -0.02em;
 }
 
 .hero-stacked-title {
@@ -56,6 +101,7 @@
     line-height: 1.4;
 }
 
+/* === LIQUID GLASS BUTTONS === */
 .hero-actions {
     margin-top: 4rem;
     display: flex;
@@ -64,36 +110,31 @@
 
 .btn-editorial {
     padding: 1.2rem 3rem;
-    border: 2px solid var(--text-main);
+    border-radius: 50px;
+    /* Capsule shape */
     text-decoration: none;
     font-family: 'Space Grotesk', monospace;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Liquid Glass Effect */
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #1A1A1A;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-    background: var(--text-main);
-    color: var(--bg-light);
-}
-
-.btn-primary:hover {
-    background: transparent;
-    color: var(--text-main);
-    transform: translateY(-4px);
-}
-
-.btn-outline-editorial {
-    background: transparent;
-    color: var(--text-main);
-}
-
+.btn-primary:hover,
 .btn-outline-editorial:hover {
-    background: var(--text-main);
-    color: var(--bg-light);
-    transform: translateY(-4px);
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.4);
+    color: #1A1A1A;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* SPORTS SLICES */

@@ -77,10 +77,14 @@
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* Editorial Dark Theme Variables */
-  --bg-dark: #080808;
-  --accent-sage: #B4C3A3;
-  --accent-sage-rgb: 180, 195, 163;
+  /* Final Sage Redesign Palette */
+  --bg-main: #D1E0D7;
+  /* Luminous Sage */
+  --sage-deep: #3E5B4E;
+  /* Refined Deep Sage Green */
+  --text-primary: #1A1A1A;
+  /* Sharp Black */
+  --accent-glass: rgba(255, 255, 255, 0.6);
 
   /* Transitions */
   --transition-base: all 0.2s ease;
@@ -116,14 +120,7 @@
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-primary);
-  /* Fixed, covering pattern that won't scroll away or get cut off */
-  background-image: radial-gradient(rgba(41, 95, 61, 0.2) 0.8px, transparent 0.8px);
-  background-size: 24px 24px;
-  background-attachment: fixed;
-  /* Ensures pattern stays put */
-  background-position: center;
-
+  background-color: var(--bg-main);
   min-height: 100vh;
   color: var(--text-primary);
   line-height: 1.6;
@@ -233,6 +230,50 @@ h6 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+.main-content {
+  padding-top: 0 !important;
+  /* Remove external gap for glass stage */
+  width: 100%;
+}
+
+/* Phantom Spacer - Invisible element to push content below Navbar */
+.phantom-nav-spacer {
+  height: 120px;
+  /* Navbar height + breathing room */
+  width: 100%;
+  display: block;
+  flex-shrink: 0;
+  /* Prevents collapse in flex containers */
+  background: transparent;
+  /* Totally invisible */
+}
+
+/* Editorial Glass Stage - Full-height container behind Navbar */
+.editorial-glass-stage {
+  /* Position */
+  margin-top: 0;
+  min-height: 100vh;
+  /* Fill the whole screen */
+  width: 100%;
+  max-width: 100%;
+  z-index: 1;
+  /* Layer below Navbar */
+
+  /* Internal Spacing - NO top padding, spacer handles this */
+  padding-top: 0;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-bottom: 40px;
+
+  /* Glass Visuals */
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(62, 91, 78, 0.2);
+  border-right: 1px solid rgba(62, 91, 78, 0.2);
+  /* No top border/radius - extends to screen top */
 }
 
 @media (max-width: 640px) {

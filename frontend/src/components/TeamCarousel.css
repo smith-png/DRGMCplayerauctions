@@ -1,95 +1,137 @@
-/* INFINITE SCROLL & EDITORIAL STYLES */
-.marquee-section {
-    padding: 4rem 0;
-    background: var(--bg-dark);
-    border-top: 1px solid var(--border-dim);
-    border-bottom: 1px solid var(--border-dim);
+/* === INFINITE LEAGUE TICKER === */
+/* High-Contrast, Dense Ticker Strip */
+.ticker-wrap {
+    width: 100%;
+    background: #1A1A1A;
+    /* Sharp Black Contrast */
+    padding: 2rem 0;
     overflow: hidden;
+    border-top: 2px solid #3E5B4E;
+    /* Deep Sage borders */
+    border-bottom: 2px solid #3E5B4E;
     position: relative;
+    z-index: 2;
 }
 
-.marquee-label {
+.ticker-label {
     text-align: center;
     font-family: 'Space Grotesk', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    color: #666;
-    margin-bottom: 2rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: #3E5B4E;
+    /* Deep Sage */
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
+    font-weight: 700;
 }
 
-.marquee-track {
+.ticker-track {
     display: flex;
-    gap: 4rem;
+    gap: 3rem;
+    /* Spacing between items */
     width: max-content;
-    animation: scroll 40s linear infinite;
+    animation: ticker-slide 60s linear infinite;
+    background-color: transparent !important;
+    /* CRITICAL: No background should scroll with content */
 }
 
-.marquee-section:hover .marquee-track {
+/* Pause animation on hover */
+.ticker-wrap:hover .ticker-track {
     animation-play-state: paused;
-    /* Pause on hover */
 }
 
-.marquee-item {
+.ticker-item {
     display: flex;
     align-items: center;
     gap: 1rem;
-    opacity: 0.5;
+    opacity: 0.7;
     transition: all 0.3s ease;
-    cursor: default;
 }
 
-.marquee-item:hover {
+.ticker-item:hover {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
-.marquee-logo-wrapper {
-    width: 60px;
-    height: 60px;
+.ticker-logo-wrapper {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: #111;
+    background: #2F2F2F;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #333;
+    border: 2px solid #3E5B4E;
+    /* Deep Sage border */
     overflow: hidden;
+    flex-shrink: 0;
 }
 
-.marquee-logo {
+.ticker-logo {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(100%);
-    /* B&W by default */
+    filter: grayscale(100%) brightness(0.8);
     transition: filter 0.3s ease;
 }
 
-.marquee-item:hover .marquee-logo {
-    filter: grayscale(0%);
-    /* Color on hover */
+.ticker-item:hover .ticker-logo {
+    filter: grayscale(0%) brightness(1.2);
+    /* Brighten on hover */
 }
 
-.marquee-placeholder {
+.ticker-placeholder {
     color: #fff;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-}
-
-.marquee-name {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 600;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 900;
     font-size: 1.2rem;
-    color: #fff;
+}
+
+.ticker-name {
+    font-family: 'Inter', 'Impact', sans-serif;
+    font-weight: 900;
+    /* Black weight */
+    font-size: 1.8rem;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     white-space: nowrap;
 }
 
-@keyframes scroll {
-    0% {
+/* Separator between teams */
+.ticker-separator {
+    color: #3E5B4E;
+    /* Deep Sage accent */
+    font-weight: 900;
+    font-size: 1.5rem;
+    opacity: 0.6;
+    user-select: none;
+}
+
+/* Infinite scroll animation */
+@keyframes ticker-slide {
+    from {
         transform: translateX(0);
     }
 
-    100% {
+    to {
         transform: translateX(-50%);
+        /* Moves halfway, then loops */
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ticker-name {
+        font-size: 1.3rem;
+    }
+
+    .ticker-logo-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .ticker-track {
+        gap: 2rem;
     }
 }

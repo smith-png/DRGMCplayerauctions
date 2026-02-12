@@ -8,8 +8,7 @@ import Login from './pages/Login';
 import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
 import AuctionStats from './pages/AuctionStats';
-import Admin from './pages/Admin';
-import Testgrounds from './pages/Testgrounds';
+import AdminDashboard from './pages/AdminDashboard';
 import Teams from './pages/Teams';
 import PlayerProfilesBySport from './pages/PlayerProfilesBySport';
 // import PlayerProfiles from './pages/PlayerProfiles'; // Kept for future use
@@ -44,7 +43,7 @@ function Layout() {
     return (
         <>
             {showNavbar && <Navbar />}
-            <main className="main-content">
+            <main className="main-content" style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh' }}>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
@@ -63,15 +62,7 @@ function Layout() {
                         path="/admin"
                         element={
                             <ProtectedRoute requireAdmin={true}>
-                                <Admin />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/testgrounds"
-                        element={
-                            <ProtectedRoute requireAdmin={true}>
-                                <Testgrounds />
+                                <AdminDashboard />
                             </ProtectedRoute>
                         }
                     />

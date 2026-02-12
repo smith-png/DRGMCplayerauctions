@@ -52,17 +52,6 @@ export async function createPlayer(req, res) {
     const userId = req.user.id;
 
     try {
-        // Check if registration is allowed
-        const stateResult = await pool.query('SELECT is_registration_open FROM auction_state LIMIT 1');
-        const isRegistrationOpen = stateResult.rows[0]?.is_registration_open ?? true;
-
-        if (!isRegistrationOpen) {
-            return res.status(403).json({
-                error: 'Player registration is currently closed.',
-                code: 'REGISTRATION_CLOSED'
-            });
-        }
-
         // Validate required fields
         if (!name || !sport || !year) {
             return res.status(400).json({ error: 'Name, sport, and year are required' });
@@ -85,10 +74,10 @@ export async function createPlayer(req, res) {
 
         // Insert player
         const result = await pool.query(
-            `INSERT INTO players (user_id, name, sport, year, photo_url, stats, status, base_price, is_test_data) 
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, $8) 
+            `INSERT INTO players (user_id, name, sport, year, photo_url, stats, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, 'pending') 
        RETURNING *`,
-            [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats), req.body.base_price || 500, false]
+            [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats)]
         );
 
         res.status(201).json({

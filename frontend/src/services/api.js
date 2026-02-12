@@ -48,7 +48,7 @@ export const auctionAPI = {
     getCurrentAuction: () => api.get('/auction/current'),
     markPlayerSold: (playerId, teamId, finalPrice) => api.post('/auction/sold', { playerId, teamId, finalPrice }),
     markPlayerUnsold: (playerId) => api.post('/auction/unsold', { playerId }),
-    getLeaderboard: () => api.get('/auction/leaderboard'),
+    getLeaderboard: (sport = '') => api.get('/auction/leaderboard', { params: { sport } }),
     getAuctionState: () => api.get('/auction/state'),
     toggleAuctionState: (isActive) => api.post('/auction/state', { isActive }),
     skipPlayer: (playerId) => api.post('/auction/skip', { playerId }),
@@ -104,46 +104,6 @@ export const adminAPI = {
 // Teams API
 export const teamsAPI = {
     getAllTeams: () => api.get('/teams'),
-};
-
-// Testgrounds API
-export const testgroundsAPI = {
-    // Test Players
-    createTestPlayer: (formData) => api.post('/testgrounds/players', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    getAllTestPlayers: () => api.get('/testgrounds/players'),
-    updateTestPlayer: (id, formData) => api.put(`/testgrounds/players/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    deleteTestPlayer: (id) => api.delete(`/testgrounds/players/${id}`),
-
-    // Test Teams
-    createTestTeam: (formData) => api.post('/testgrounds/teams', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    getAllTestTeams: () => api.get('/testgrounds/teams'),
-    updateTestTeam: (id, formData) => api.put(`/testgrounds/teams/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    deleteTestTeam: (id) => api.delete(`/testgrounds/teams/${id}`),
-
-    // Pseudo Owners
-    createPseudoOwner: (data) => api.post('/testgrounds/owners', data),
-    getAllPseudoOwners: () => api.get('/testgrounds/owners'),
-    updatePseudoOwner: (id, data) => api.put(`/testgrounds/owners/${id}`, data),
-    deletePseudoOwner: (id) => api.delete(`/testgrounds/owners/${id}`),
-
-    // Queue
-    addToTestQueue: (id) => api.post(`/testgrounds/queue/${id}`),
-    removeFromTestQueue: (id) => api.delete(`/testgrounds/queue/${id}`),
-
-    // Lockdown
-    getTestgroundsState: () => api.get('/testgrounds/state'),
-    toggleLockdown: () => api.post('/testgrounds/toggle-lockdown'),
-
-    // Bulk Delete
-    clearAllTestData: () => api.delete('/testgrounds/clear-all')
 };
 
 // Team Owner API

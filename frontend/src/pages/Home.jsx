@@ -10,10 +10,11 @@ export default function Home() {
         <div className="editorial-home">
             {/* HERO SECTION */}
             <section className="editorial-hero">
-                <h1 className="hero-stacked-title">
-                    <div className="line-primary">THE DRAFT</div>
-                    <div className="line-outline">PROTOCOL</div>
-                </h1>
+                <div className="hero-subtitle">
+                    <div className="subtitle-bar"></div>
+                    <span>THE OFFICIAL LEAGUE | SEASON 2025</span>
+                </div>
+                <h1 className="hero-main-title">DRGMC PLAYER AUCTIONS</h1>
 
                 <p className="hero-desc">
                     The official digital terminal for DRGMC Player Auctions.

@@ -31,72 +31,75 @@ export default function Teams() {
     }, [activeSport, teams]);
 
     return (
-        <div className="teams-page">
-            <div className="teams-header">
-                <div className="header-meta">OFFICIAL LEAGUE PARTNERS</div>
-                <h1 className="header-title">TEAM<br />DIRECTORY</h1>
-            </div>
+        <div className="editorial-glass-stage">
+            <div className="phantom-nav-spacer"></div>
+            <div className="teams-page">
+                <div className="teams-header">
+                    <div className="header-left">
+                        <div className="header-meta">AUCTION TERMINAL // 2026 EDITION</div>
+                        <h1 className="header-title">THE<br />TEAMS</h1>
+                    </div>
+                    <div className="header-right">
+                        <div className="header-meta">SPORT: {activeSport.toUpperCase()}</div>
+                    </div>
+                </div>
 
-            {/* TAB NAV */}
-            <div className="sport-tabs">
-                {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
-                    <button
-                        key={sport}
-                        className={`tab-btn ${activeSport === sport ? 'active' : ''}`}
-                        onClick={() => setActiveSport(sport)}
-                    >
-                        {sport}
-                    </button>
-                ))}
-            </div>
-
-            {/* GRID */}
-            {loading ? <div className="loading-state">LOADING DATA...</div> : (
-                <div className="teams-grid">
-                    {filteredTeams.map(team => (
-                        <div key={team.id} className="team-card">
-                            <div className="card-header">
-                                <div className="team-logo-wrapper">
-                                    {team.logo_url ? (
-                                        <img src={team.logo_url} alt={team.name} className="team-logo" />
-                                    ) : (
-                                        <div className="team-logo-placeholder">{(team.name || '?').substring(0, 2).toUpperCase()}</div>
-                                    )}
-                                </div>
-                                <div className="team-id">ID: #{String(team.id).padStart(4, '0')}</div>
-                            </div>
-
-                            <div className="card-body">
-                                <h2 className="team-name">{team.name}</h2>
-                                <div className="owner-name">OWNER: {team.owner_name || 'N/A'}</div>
-                            </div>
-
-                            <div className="card-footer">
-                                <div className="stat-row">
-                                    <span className="stat-label">CAP SPACE:</span>
-                                    <span className="stat-value highlight">{team.purse_remaining?.toLocaleString() || team.budget?.toLocaleString() || 0} PTS</span>
-                                </div>
-                                <div className="stat-row">
-                                    <span className="stat-label">ROSTER SIZE:</span>
-                                    <span className="stat-value">{team.player_count || 0} ATHLETES</span>
-                                </div>
-                                <div className="cap-bar">
-                                    <div
-                                        className="cap-fill"
-                                        style={{
-                                            width: `${(Math.max(0, 5000 - (team.purse_remaining || 0)) / 5000) * 100}%`
-                                        }}
-                                    ></div>
-                                </div>
-                            </div>
-                        </div>
+                {/* GLASS CAPSULE TAB NAV */}
+                <div className="sport-tabs-container">
+                    {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
+                        <button
+                            key={sport}
+                            className={`sport-tab ${activeSport === sport ? 'active' : ''}`}
+                            onClick={() => setActiveSport(sport)}
+                        >
+                            {sport}
+                        </button>
                     ))}
                 </div>
-            )}
 
-            {filteredTeams.length === 0 && !loading && (
-                <div className="empty-state">NO TEAMS REGISTERED FOR THIS SPORT.</div>
-            )}
+                {/* FLOATING GLASS DATA STRIPS */}
+                {loading ? <div className="loading-state">SYNCHRONIZING DATA...</div> : (
+                    <div className="teams-list">
+                        {filteredTeams.map(team => {
+                            const budgetRemaining = team.purse_remaining || team.budget || 0;
+                            const budgetTotal = team.budget || 2000;
+                            const budgetUsedPercent = ((budgetTotal - budgetRemaining) / budgetTotal) * 100;
+
+                            return (
+                                <div key={team.id} className="franchise-strip">
+                                    {/* Identity Column */}
+                                    <div className="strip-identity">
+                                        <div className="team-name-main">{team.name}</div>
+                                        <div className="owner-subtitle">PRINCIPAL OWNER: {team.owner_name || 'N/A'}</div>
+                                    </div>
+
+                                    {/* Visual Budget Column */}
+                                    <div className="strip-budget">
+                                        <div className="budget-header">
+                                            <span className="budget-label">CAP LEFT</span>
+                                            <span className="budget-value">{budgetRemaining.toLocaleString()} PTS</span>
+                                        </div>
+                                        <div className="budget-track">
+                                            <div className="budget-fill" style={{ width: `${Math.max(0, 100 - budgetUsedPercent)}%` }}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Roster Badge Column */}
+                                    <div className="strip-roster">
+                                        <div className="roster-badge">
+                                            {team.player_count || 0}/15
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {filteredTeams.length === 0 && !loading && (
+                    <div className="empty-state">NO RECORD FOUND FOR THIS CATEGORY.</div>
+                )}
+            </div>
         </div>
     );
 }

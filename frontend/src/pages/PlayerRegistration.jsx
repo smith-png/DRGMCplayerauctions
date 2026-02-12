@@ -60,6 +60,17 @@ export default function PlayerRegistration() {
         }));
     };
 
+    const handleStatsChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            stats: {
+                ...prev.stats,
+                [name]: value
+            }
+        }));
+    };
+
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -141,168 +152,171 @@ export default function PlayerRegistration() {
 
     return (
         <div className="player-registration-page">
-            <div className="container">
+            <div className="registration-visual-side">
+                <div className="pan-image-container"></div>
+                <div className="visual-overlay">
+                    <h1 className="visual-brand">PLAYER<br />AUCTION<br />SYSTEM</h1>
+                </div>
+            </div>
+            <div className="registration-form-side">
                 <div className="registration-container">
                     <div className="registration-header">
-                        <h1>Register as <span>Player</span></h1>
-                        <p>Fill in your details to participate in the auction</p>
+                        <h1>PLAYER AUCTION SYSTEM</h1>
+                        <p>OFFICIAL SCOUTING REGISTRATION // 2025</p>
                     </div>
 
                     {error && <div className="alert alert-error">{error}</div>}
                     {success && <div className="alert alert-success">{success}</div>}
 
-                    <form onSubmit={handleSubmit} className="registration-form card">
+                    <form onSubmit={handleSubmit} className="registration-form">
                         <div className="form-section">
-                            <h3>Basic Information</h3>
+                            <h3>01 // IDENTIFICATION</h3>
 
-                            <div className="basic-info-container">
-                                <div className="input-group name-field">
-                                    <label className="input-label">Player Name *</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
+                            <div className="input-group">
+                                <label className="input-label">LEGAL NAME</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className="input"
+                                    placeholder="E.G. ALEX JOHNSON"
+                                    required
+                                />
+                            </div>
+
+                            <div className="dropdowns-row">
+                                <div className="input-group">
+                                    <label className="input-label">SPORT CATEGORY</label>
+                                    <select
+                                        name="sport"
+                                        value={formData.sport}
                                         onChange={handleChange}
                                         className="input"
-                                        placeholder="Enter player name"
                                         required
-                                    />
+                                    >
+                                        <option value="cricket">CRICKET</option>
+                                        <option value="futsal">FUTSAL</option>
+                                        <option value="volleyball">VOLLEYBALL</option>
+                                    </select>
                                 </div>
 
-                                <div className="dropdowns-row">
-                                    <div className="input-group sport-field">
-                                        <label className="input-label">Sport *</label>
-                                        <select
-                                            name="sport"
-                                            value={formData.sport}
-                                            onChange={handleChange}
-                                            className="input"
-                                            required
-                                        >
-                                            <option value="cricket">Cricket</option>
-                                            <option value="futsal">Futsal</option>
-                                            <option value="volleyball">Volleyball</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="input-group year-field">
-                                        <label className="input-label">Year *</label>
-                                        <select
-                                            name="year"
-                                            value={formData.year}
-                                            onChange={handleChange}
-                                            className="input"
-                                            required
-                                        >
-                                            <option value="1st">1st MBBS</option>
-                                            <option value="2nd">2nd MBBS</option>
-                                            <option value="3rd">3rd MBBS</option>
-                                        </select>
-                                    </div>
-
-                                    {formData.sport === 'cricket' && (
-                                        <div className="input-group role-field">
-                                            <label className="input-label">Playing Role *</label>
-                                            <select
-                                                value={formData.stats.playingRole || ''}
-                                                onChange={(e) => {
-                                                    const newRole = e.target.value;
-                                                    handleStatChange('playingRole', newRole);
-                                                    if (newRole === 'Wicketkeeper Batsman') {
-                                                        handleStatChange('bowlingStyle', 'None');
-                                                    }
-                                                }}
-                                                className="input"
-                                                required
-                                            >
-                                                <option value="">Select Role</option>
-                                                <option value="Batsman">Batsman</option>
-                                                <option value="Wicketkeeper Batsman">Wicketkeeper Batsman</option>
-                                                <option value="Bowler">Bowler</option>
-                                                <option value="All Rounder">All Rounder</option>
-                                            </select>
-                                        </div>
-                                    )}
-
-                                    {formData.sport === 'volleyball' && (
-                                        <div className="input-group role-field">
-                                            <label className="input-label">Preference *</label>
-                                            <select
-                                                value={formData.stats.preference || ''}
-                                                onChange={(e) => handleStatChange('preference', e.target.value)}
-                                                className="input"
-                                                required
-                                            >
-                                                <option value="">Select Preference</option>
-                                                <option value="Setter">Setter</option>
-                                                <option value="Center">Center</option>
-                                                <option value="Striker (Right)">Striker (Right)</option>
-                                                <option value="Striker (Left)">Striker (Left)</option>
-                                                <option value="Defence (Right)">Defence (Right)</option>
-                                                <option value="Defence (Left)">Defence (Left)</option>
-                                            </select>
-                                        </div>
-                                    )}
-
-                                    {formData.sport === 'futsal' && (
-                                        <div className="input-group role-field">
-                                            <label className="input-label">Position *</label>
-                                            <select
-                                                value={formData.stats.playingRole || ''}
-                                                onChange={(e) => handleStatChange('playingRole', e.target.value)}
-                                                className="input"
-                                                required
-                                            >
-                                                <option value="">Select Position</option>
-                                                <option value="Goalkeeper">Goalkeeper</option>
-                                                <option value="Defender">Defender</option>
-                                                <option value="Mid-fielder">Mid-fielder</option>
-                                                <option value="Attacker">Attacker</option>
-                                            </select>
-                                        </div>
-                                    )}
-
-                                    {formData.sport === 'cricket' && (
-                                        <>
-                                            <div className="input-group role-field">
-                                                <label className="input-label">Batting Style *</label>
-                                                <select
-                                                    value={formData.stats.battingStyle || ''}
-                                                    onChange={(e) => handleStatChange('battingStyle', e.target.value)}
-                                                    className="input"
-                                                    required
-                                                >
-                                                    <option value="">Select Batting Style</option>
-                                                    <option value="Right Handed">Right Handed</option>
-                                                    <option value="Left Handed">Left Handed</option>
-                                                </select>
-                                            </div>
-
-                                            <div className="input-group role-field">
-                                                <label className="input-label">Bowling Style *</label>
-                                                <select
-                                                    value={formData.stats.bowlingStyle || ''}
-                                                    onChange={(e) => handleStatChange('bowlingStyle', e.target.value)}
-                                                    className="input"
-                                                    required
-                                                >
-                                                    <option value="">Select Bowling Style</option>
-                                                    <option value="None">None</option>
-                                                    <option value="Right Arm Pace">Right Arm Pace</option>
-                                                    <option value="Right Arm Spin">Right Arm Spin</option>
-                                                    <option value="Left Arm Pace">Left Arm Pace</option>
-                                                    <option value="Left Arm Spin">Left Arm Spin</option>
-                                                    <option value="Slow Left Arm Orthodox">Slow Left Arm Orthodox</option>
-                                                </select>
-                                            </div>
-                                        </>
-                                    )}
+                                <div className="input-group">
+                                    <label className="input-label">ACADEMIC YEAR</label>
+                                    <select
+                                        name="year"
+                                        value={formData.year}
+                                        onChange={handleChange}
+                                        className="input"
+                                        required
+                                    >
+                                        <option value="1st">1ST MBBS</option>
+                                        <option value="2nd">2ND MBBS</option>
+                                        <option value="3rd">3RD MBBS</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
                         <div className="form-section">
-                            <h3>Player Photo</h3>
+                            <h3>02 // TECHNICAL SPECS</h3>
+                            <div className="dropdowns-row">
+                                {formData.sport === 'cricket' && (
+                                    <div className="stats-grid-row fade-in" style={{ gridColumn: 'span 2' }}>
+                                        {/* role */}
+                                        <div className="form-group-minimal">
+                                            <label>PRIMARY ROLE</label>
+                                            <select
+                                                name="role"
+                                                value={formData.stats.role || ''}
+                                                onChange={handleStatsChange}
+                                                className="input-sage-minimal"
+                                                required
+                                            >
+                                                <option value="">SELECT ROLE</option>
+                                                <option value="Batsman">Batsman</option>
+                                                <option value="Bowler">Bowler</option>
+                                                <option value="All-Rounder">All-Rounder</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Wicketkeeper */}
+                                        <div className="form-group-minimal">
+                                            <label>WICKETKEEPER</label>
+                                            <select
+                                                name="wicketkeeper"
+                                                value={formData.stats.wicketkeeper || ''}
+                                                onChange={handleStatsChange}
+                                                className="input-sage-minimal"
+                                                required
+                                            >
+                                                <option value="">SELECT...</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Batting Style */}
+                                        <div className="form-group-minimal">
+                                            <label>BATTING STYLE</label>
+                                            <select
+                                                name="battingStyle"
+                                                value={formData.stats.battingStyle || ''}
+                                                onChange={handleStatsChange}
+                                                className="input-sage-minimal"
+                                                required
+                                            >
+                                                <option value="">SELECT STYLE</option>
+                                                <option value="Right-Hand">Right-Hand Bat</option>
+                                                <option value="Left-Hand">Left-Hand Bat</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Bowling Style */}
+                                        <div className="form-group-minimal">
+                                            <label>BOWLING STYLE</label>
+                                            <select
+                                                name="bowlingStyle"
+                                                value={formData.stats.bowlingStyle || ''}
+                                                onChange={handleStatsChange}
+                                                className="input-sage-minimal"
+                                                required
+                                            >
+                                                <option value="">SELECT STYLE</option>
+                                                <option value="None">None</option>
+                                                <option value="Right-Arm Fast">Right-Arm Fast</option>
+                                                <option value="Right-Arm Medium">Right-Arm Medium</option>
+                                                <option value="Right-Arm Spin">Right-Arm Spin</option>
+                                                <option value="Left-Arm Fast">Left-Arm Fast</option>
+                                                <option value="Left-Arm Medium">Left-Arm Medium</option>
+                                                <option value="Left-Arm Spin">Left-Arm Spin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formData.sport === 'futsal' && (
+                                    <div className="input-group">
+                                        <label className="input-label">POSITION</label>
+                                        <select
+                                            value={formData.stats.playingRole || ''}
+                                            onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="">SELECT</option>
+                                            <option value="Goalkeeper">GK</option>
+                                            <option value="Defender">DF</option>
+                                            <option value="Mid-fielder">MF</option>
+                                            <option value="Attacker">AT</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="form-section">
+                            <h3>03 // VISUAL ID</h3>
 
                             <div className="photo-upload">
                                 <input
@@ -318,17 +332,15 @@ export default function PlayerRegistration() {
                                     ) : (
                                         <div className="photo-placeholder">
                                             <span className="upload-icon">📷</span>
-                                            <span>Click to upload photo</span>
+                                            <span>UPLOAD BIOMETRIC PHOTO</span>
                                         </div>
                                     )}
                                 </label>
                             </div>
                         </div>
 
-
-
-                        <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                            {loading ? 'Registering...' : 'Register Player'}
+                        <button type="submit" className="btn-submit-scout" disabled={loading}>
+                            {loading ? 'PROCESSING...' : 'SUBMIT ENROLLMENT'}
                         </button>
                     </form>
                 </div>

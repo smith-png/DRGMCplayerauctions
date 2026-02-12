@@ -93,21 +93,6 @@ export async function initializeDatabase() {
       )
     `);
 
-    // Transactions table (Sale, Release, Adjustments)
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id SERIAL PRIMARY KEY,
-        type VARCHAR(50) NOT NULL,
-        player_id INTEGER,
-        player_name VARCHAR(255),
-        team_id INTEGER,
-        team_name VARCHAR(255),
-        amount INTEGER,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        metadata JSONB
-      )
-    `);
-
     // Auction state table
     await client.query(`
       CREATE TABLE IF NOT EXISTS auction_state (

@@ -1,229 +1,261 @@
-/* CONTAINER */
-.teams-page {
-    min-height: 100vh;
-    background-color: var(--bg-dark);
-    padding: 4rem 5vw;
-    color: #fff;
+/* ========================================
+   TEAMS PAGE - GLASS EDITORIAL REDESIGN
+   ======================================== */
+
+:root {
+    --bg-white: #FFFFFF;
+    --text-black: #000000;
+    --sage-deep: #3E5B4E;
+    --sage-light: #D1E0D7;
 }
 
-/* HEADER */
+.teams-page {
+    min-height: 100vh;
+    background-color: var(--sage-light);
+    color: var(--text-black);
+    padding: 6rem 5vw;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Header */
 .teams-header {
-    margin-bottom: 4rem;
-    border-bottom: 1px solid #222;
+    margin-bottom: 5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     padding-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .header-meta {
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.8rem;
-    color: var(--accent-sage);
-    letter-spacing: 0.2em;
-    margin-bottom: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
 }
 
 .header-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 5rem;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
+    font-weight: 900;
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
     margin: 0;
     text-transform: uppercase;
+    color: var(--text-black);
 }
 
-/* TABS */
-.sport-tabs {
-    display: flex;
-    gap: 2rem;
+/* === GLASS CAPSULE SWITCHER === */
+.sport-tabs-container {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px;
+    border-radius: 50px;
     margin-bottom: 3rem;
+    gap: 8px;
 }
 
-.tab-btn {
-    background: transparent;
-    border: none;
-    font-family: 'Space Grotesk', monospace;
-    font-size: 1rem;
-    color: #666;
+.sport-tab {
+    padding: 12px 30px;
+    border-radius: 40px;
+    font-weight: 700;
     text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
     cursor: pointer;
-    padding-bottom: 0.5rem;
-    transition: all 0.3s;
-    letter-spacing: 0.1em;
+    border: none;
+    background: transparent;
+    color: var(--sage-deep);
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', monospace;
 }
 
-.tab-btn:hover {
-    color: #fff;
+.sport-tab:hover {
+    background: rgba(0, 0, 0, 0.03);
 }
 
-.tab-btn.active {
-    color: var(--accent-sage);
-    border-bottom: 1px solid var(--accent-sage);
+.sport-tab.active {
+    background: #1A1A1A;
+    color: #FFFFFF;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* GRID */
-.teams-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 3rem;
-}
-
-/* TEAM CARD - EDITORIAL REDESIGN */
-.team-card {
-    background: #080808;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    /* Subtle border */
-    padding: 2.5rem;
+/* === FLOATING GLASS DATA STRIPS === */
+.teams-list {
     display: flex;
     flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    position: relative;
-    overflow: hidden;
+    gap: 15px;
 }
 
-.team-card:hover {
-    border-color: var(--accent-sage);
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
-
-/* CARD HEADER */
-.team-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1rem;
-}
-
-.team-logo-wrapper {
-    width: 60px;
-    height: 60px;
-    background: #111;
-    border-radius: 50%;
-    display: flex;
+.franchise-strip {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.5fr;
+    /* Name - Budget - Roster */
     align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    padding: 24px 30px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    gap: 30px;
 }
 
-.team-card:hover .team-logo-wrapper {
-    transform: scale(1.1);
-    border-color: var(--accent-sage);
+.franchise-strip:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--sage-deep);
+    box-shadow: 0 8px 30px rgba(62, 91, 78, 0.15);
 }
 
-.team-logo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(100%);
-    transition: filter 0.3s;
+/* Identity Column */
+.strip-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.team-card:hover .team-logo {
-    filter: grayscale(0%);
-}
-
-.team-logo-placeholder {
-    font-family: var(--font-heading);
-    font-weight: 800;
-    font-size: 1.25rem;
-    color: #444;
-}
-
-.team-id {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: #666;
-    letter-spacing: 0.1em;
-}
-
-/* CARD BODY */
-.team-card .card-body {
-    margin-bottom: 2.5rem;
-}
-
-.team-name {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 1.75rem;
-    line-height: 1.1;
-    margin: 0 0 0.75rem 0;
-    color: #fff;
+.team-name-main {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: var(--text-black);
+    text-transform: uppercase;
     letter-spacing: -0.02em;
 }
 
-.owner-name {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: #888;
+.owner-subtitle {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: 700;
 }
 
-/* FOOTER & STATS */
-.team-card .card-footer {
-    margin-top: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 1.5rem;
+/* Visual Budget Column */
+.strip-budget {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.stat-row {
+.budget-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
+    align-items: baseline;
 }
 
-.stat-label {
-    color: #888;
+.budget-label {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.65rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
 }
 
-.stat-value {
-    color: #fff;
-    font-weight: 600;
-}
-
-.stat-value.highlight {
-    color: var(--accent-sage);
-}
-
-.cap-bar {
-    width: 100%;
-    height: 3px;
-    background: #1a1a1a;
-    margin-top: 1.25rem;
-    position: relative;
-    border-radius: 2px;
-}
-
-.cap-fill {
-    height: 100%;
-    background: var(--accent-sage);
-    border-radius: 2px;
-    transition: width 1s ease-out;
-}
-
-.loading-state,
-.empty-state {
-    font-family: var(--font-mono);
-    color: #444;
+.budget-value {
+    font-family: 'Inter', sans-serif;
     font-size: 1rem;
-    letter-spacing: 0.2em;
-    text-align: center;
-    padding: 4rem;
+    font-weight: 700;
+    color: var(--text-black);
 }
 
-@media (max-width: 900px) {
+/* Progress Bar */
+.budget-track {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.budget-fill {
+    height: 100%;
+    background: var(--sage-deep);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Roster Badge Column */
+.strip-roster {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.roster-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(62, 91, 78, 0.1);
+    border: 2px solid var(--sage-deep);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: var(--sage-deep);
+    min-width: 80px;
+}
+
+/* States */
+.loading-state {
+    text-align: center;
+    padding: 4rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--sage-deep);
+    letter-spacing: 0.15em;
+    font-weight: 700;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--sage-deep);
+    letter-spacing: 0.15em;
+    font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .franchise-strip {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .strip-roster {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
     .header-title {
         font-size: 3rem;
     }
 
-    .teams-grid {
-        grid-template-columns: 1fr;
+    .sport-tabs-container {
+        width: 100%;
+        flex-direction: column;
+        border-radius: 16px;
+    }
+
+    .sport-tab {
+        width: 100%;
+        text-align: center;
+    }
+
+    .franchise-strip {
+        padding: 20px;
+    }
+
+    .team-name-main {
+        font-size: 1.1rem;
     }
 }

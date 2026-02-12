@@ -66,17 +66,16 @@ export default function Login() {
     return (
         <div className="login-viewport">
             <div className="login-visual-side">
+                <div className="pan-image-container"></div>
                 <div className="visual-overlay">
-                    <h1 className="visual-brand">DRGMC<br />ARCHIVE</h1>
-                    <div className="visual-meta"><span>EST. 2026</span><span>OFFICIAL AUCTION TERMINAL</span></div>
+                    <h1 className="visual-brand">PLAYER<br />AUCTION<br />SYSTEM</h1>
                 </div>
             </div>
             <div className="login-form-side">
                 <div className="form-container">
                     {(isRegistrationClosed && !isLogin) ? (
                         <div className="lockout-container">
-                            <div className="lockout-icon">✕</div>
-                            <h3 className="lockout-title">SYSTEM LOCKED</h3>
+                            <h3 className="lockout-title">SYSTEM<br />LOCKED</h3>
                             <p className="lockout-message">NEW USER REGISTRATION IS CURRENTLY DISABLED BY ADMINISTRATION.</p>
                             <button onClick={() => navigate('/login')} className="lockout-btn">
                                 RETURN TO LOGIN
@@ -85,45 +84,49 @@ export default function Login() {
                     ) : (
                         <>
                             <div className="form-header">
-                                <span className="form-subtitle">WELCOME BACK</span>
-                                <h2 className="form-title">{isLogin ? 'MEMBER ACCESS' : 'NEW REGISTRATION'}</h2>
+                                <span className="form-subtitle">PLAYER AUCTION SYSTEM</span>
+                                <h2 className="form-title">{isLogin ? 'MEMBER LOGIN' : 'RECRUITMENT'}</h2>
                             </div>
+
                             {error && <div className="error-message">{error}</div>}
-                            <form onSubmit={handleSubmit} className="editorial-form">
+
+                            <form onSubmit={handleSubmit} className="registration-form">
                                 {!isLogin && (
                                     <div className="input-group">
-                                        <input type="text" name="name" placeholder="FULL NAME" value={formData.name} onChange={handleChange} required className="editorial-input" />
-                                        <div className="input-underline"></div>
+                                        <label className="input-label">FULL NAME</label>
+                                        <input type="text" name="name" placeholder="E.G. JOHN DOE" value={formData.name} onChange={handleChange} required className="input" />
                                     </div>
                                 )}
                                 <div className="input-group">
-                                    <input type="email" name="email" placeholder="EMAIL ADDRESS" value={formData.email} onChange={handleChange} required className="editorial-input" />
-                                    <div className="input-underline"></div>
+                                    <label className="input-label">EMAIL ADDRESS</label>
+                                    <input type="email" name="email" placeholder="USER@EXAMPLE.COM" value={formData.email} onChange={handleChange} required className="input" />
                                 </div>
                                 <div className="input-group">
+                                    <label className="input-label">SECURE PASSWORD</label>
                                     <div className="input-wrapper">
                                         <input
                                             type={showPassword ? "text" : "password"}
                                             name="password"
-                                            placeholder="PASSWORD"
+                                            placeholder="••••••••"
                                             value={formData.password}
                                             onChange={handleChange}
                                             required
-                                            className="editorial-input"
+                                            className="input"
                                         />
                                         <button
                                             type="button"
                                             className="password-seek-btn"
+                                            style={{ color: '#1A1A1A', opacity: 0.5, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 800 }}
                                             onClick={() => setShowPassword(!showPassword)}
                                         >
                                             {showPassword ? "HIDE" : "SHOW"}
                                         </button>
                                     </div>
-                                    <div className="input-underline"></div>
                                 </div>
+
                                 {!isLogin && (
                                     <div className="role-selector">
-                                        <span className="role-label">I AM REGISTERING AS:</span>
+                                        <label className="input-label">ACCESS ROLE</label>
                                         <div className="role-options">
                                             {['player', 'viewer'].map((role) => (
                                                 <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} onClick={() => setFormData({ ...formData, role })}>
@@ -133,12 +136,18 @@ export default function Login() {
                                         </div>
                                     </div>
                                 )}
-                                <button type="submit" className="submit-btn" disabled={loading}>
-                                    {loading ? 'PROCESSING...' : (isLogin ? 'ENTER TERMINAL' : 'SUBMIT APPLICATION')}
+
+                                <button type="submit" className="btn-primary" disabled={loading}>
+                                    {loading ? 'AUTHORIZING...' : (isLogin ? 'ENTER TERMINAL' : 'RECRUIT ME')}
                                 </button>
                             </form>
+
                             <div className="form-footer">
-                                {isLogin ? <p>New User? <span onClick={() => navigate('/register')} className="link-text">Sign UP</span></p> : <p>Already a Member? <span onClick={() => navigate('/login')} className="link-text">Access Terminal</span></p>}
+                                {isLogin ? (
+                                    <p>NEW USER? <span onClick={() => navigate('/register')} className="link-text">SIGN UP</span></p>
+                                ) : (
+                                    <p>ALREADY A MEMBER? <span onClick={() => navigate('/login')} className="link-text">ACCESS TERMINAL</span></p>
+                                )}
                             </div>
                         </>
                     )}

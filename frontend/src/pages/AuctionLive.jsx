@@ -6,6 +6,7 @@ import Confetti from 'react-confetti';
 import useSound from 'use-sound';
 import './AuctionLive.css';
 import './SoldPlayers.css';
+import './AuctionAnimation.css';
 
 const BID_SFX = 'https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-click-900.mp3';
 const SOLD_SFX = 'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3';
@@ -354,7 +355,59 @@ export default function AuctionLive() {
         );
     };
 
-    // 2. Sold Players Overlay
+    // 2. Gavel Slam Overlay - High-Impact SOLD Animation
+    const renderGavelSlamOverlay = () => {
+        if (!soldAnimation) return null;
+
+        const team = teams.find(t => t.id === soldAnimation.team_id);
+
+        return (
+            <div className="gavel-slam-overlay">
+                <div className="gavel-slam-content">
+                    {/* Phase 1: The SOLD Stamp */}
+                    <div className="sold-stamp">SOLD</div>
+
+                    {/* Phase 2: The Reveal - Player Info */}
+                    <div className="gavel-player-card">
+                        {soldAnimation.photo_url ? (
+                            <img src={soldAnimation.photo_url} alt={soldAnimation.name} className="gavel-player-photo" />
+                        ) : (
+                            <div className="gavel-player-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', fontWeight: 900, background: '#f1f5f9' }}>
+                                {soldAnimation.name?.[0] || '?'}
+                            </div>
+                        )}
+                        <div className="gavel-player-info">
+                            <h2 className="gavel-player-name">{soldAnimation.name}</h2>
+                            <div style={{ color: '#64748b', fontSize: '1.2rem' }}>
+                                {soldAnimation.year} • {soldAnimation.sport}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Team Info */}
+                    <div className="gavel-team-card">
+                        {team?.logo_url ? (
+                            <img src={team.logo_url} alt={team.name} className="gavel-team-logo" />
+                        ) : (
+                            <div className="gavel-team-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 800, background: '#f1f5f9', color: '#64748b' }}>
+                                {team?.name?.[0] || 'T'}
+                            </div>
+                        )}
+                        <div className="gavel-team-info">
+                            <h3 className="gavel-team-name">{team?.name || `Team ${soldAnimation.team_id}`}</h3>
+                        </div>
+                    </div>
+
+                    {/* Final Price */}
+                    <div className="gavel-final-price">
+                        ₹ {soldAnimation.sold_price?.toLocaleString()} PTS
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // 3. Sold Players Overlay
     const renderSoldOverlay = () => {
         if (!showSoldPlayers) return null;
         return (
@@ -401,137 +454,182 @@ export default function AuctionLive() {
     };
 
     // --- MAIN RENDER ---
+    // --- MAIN RENDER ---
     if (loading) return (
         <div className="auction-terminal">
-            <div className="visual-panel standby-mode">
+            <div className="standby-panel">
                 <div className="spinner"></div>
             </div>
         </div>
     );
 
-    // Terminal Layout
     return (
         <div className="auction-terminal">
-            {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#B8E0C0', '#ffffff', '#000000']} />}
+            {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#3E5B4E', '#ffffff', '#000000']} />}
 
-            {/* LEFT: VISUAL PANEL */}
-            <div className={`visual-panel ${!auction ? 'standby' : ''}`}>
-                {/* Visual Content */}
+            {/* Gavel Slam SOLD Overlay */}
+            {renderGavelSlamOverlay()}
+
+            {/* LEFT: THE ARENA (75%) */}
+            <div className="showcase-side">
                 {auction ? (
-                    <>
-                        {auction.photo_url ? <img src={auction.photo_url} className="hero-image" /> : <div className="hero-placeholder">{auction.player_name[0]}</div>}
-                        <div className="hero-overlay">
-                            <h1 className="hero-name">{auction.player_name}</h1>
-                            <div className="hero-meta">
-                                <span>{auction.sport}</span>
-                                <span>//</span>
-                                <span>{auction.year}</span>
-                                <span>//</span>
-                                <span>{auction.stats?.role || 'PLAYER'}</span>
+                    <div className="player-showcase animate-fadeIn">
+                        <div className="image-container">
+                            {auction.photo_url ? (
+                                <img src={auction.photo_url} className="player-hero-image" alt={auction.player_name} />
+                            ) : (
+                                <div className="player-hero-placeholder">{auction.player_name[0]}</div>
+                            )}
+                        </div>
+
+                        <div className="scouting-report">
+                            <div className="report-header">
+                                <span className="report-tag">SCOUTING REPORT // REF.{auction.current_player_id?.toString().padStart(4, '0')}</span>
+                                <h1 className="player-name-display">{auction.player_name}</h1>
                             </div>
-                            <div className="hero-stats">
+
+                            <div className="data-grid-stats">
+                                <div className="stat-col">
+                                    <label className="grid-label">ID #</label>
+                                    <span className="grid-value">{auction.current_player_id}</span>
+                                </div>
+                                <div className="stat-col">
+                                    <label className="grid-label">CATEGORY</label>
+                                    <span className="grid-value">{auction.sport?.toUpperCase()}</span>
+                                </div>
+                                <div className="stat-col">
+                                    <label className="grid-label">ACADEMIC YEAR</label>
+                                    <span className="grid-value">{auction.year?.toUpperCase()}</span>
+                                </div>
+                                <div className="stat-col">
+                                    <label className="grid-label">BASE VALUATION</label>
+                                    <span className="grid-value">₹{auction.base_price?.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <div className="technical-specs-grid">
                                 {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
-                                    key !== 'role' && <div key={key} className="stat-badge">{key}: {value}</div>
+                                    <div key={key} className="spec-item">
+                                        <label className="spec-label">{key.replace('_', ' ').toUpperCase()}</label>
+                                        <span className="spec-value">{value}</span>
+                                    </div>
                                 ))}
                             </div>
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    // Standby / Empty State
-                    <div className="standby-content">
-                        <h1>AUCTION TERMINAL</h1>
-                        <p>WAITING FOR NEXT PLAYER...</p>
+                    <div className="standby-display animate-fadeIn">
+                        <div className="terminal-logo">DRGMC AUCTIONS</div>
+                        <p className="terminal-status">READY FOR NEXT DEPLOYMENT</p>
+                        {renderQueueDock()}
                     </div>
                 )}
 
-                {/* Live Indicator */}
-                <div className="live-indicator">
-                    <div className={`blink-dot ${isConnected ? 'connected' : ''}`} style={{ background: 'red', boxShadow: '0 0 10px red' }}></div>
-                    {isAuctionActive ? 'LIVE SESSION' : 'SESSION PAUSED'}
+                {/* Status Badges */}
+                <div className="session-badges">
+                    <div className="session-badge">
+                        <span className={`status-dot ${isConnected ? 'live' : 'offline'}`}></span>
+                        {isAuctionActive ? 'LIVE' : 'PAUSED'}
+                    </div>
+                    {auction && (
+                        <div className="session-badge">
+                            PLAYER ACTIVE
+                        </div>
+                    )}
                 </div>
-
-                {/* Queue Dock (Absolute Bottom) */}
-                {renderQueueDock()}
             </div>
 
-            {/* RIGHT: CONTROL PANEL */}
-            <div className="control-panel">
-                <div className="panel-header">
-                    <span>DRGMC AUCTION SYSTEM // V.2.0</span>
-                    <span>{new Date().toLocaleDateString()}</span>
+            {/* RIGHT: THE CONSOLE (25%) */}
+            <div className="trading-desk-side">
+                <div className="desk-header">
+                    <span>CONSOLE_SYS.v2.0</span>
+                    <span>{new Date().toLocaleTimeString()}</span>
                 </div>
 
-                {/* Big Numbers */}
-                <div className="bid-display-huge">
-                    <div className="label">CURRENT BIDDING</div>
-                    <div className="huge-number">{auction ? (auction.current_bid || auction.base_price).toLocaleString() : '---'}</div>
-                    <div className="current-leader-box">
-                        <span className="leader-label">CURRENT LEADER</span>
+                <div className="market-valuation">
+                    <div className="valuation-block">
+                        <label className="market-label">CURRENT VALUATION</label>
+                        <div className="market-price">
+                            <span className="currency">₹</span>
+                            {auction ? (auction.current_bid || auction.base_price).toLocaleString() : '---'}
+                        </div>
+                    </div>
+
+                    <div className="valuation-block">
+                        <label className="market-label">CURRENT LEAD</label>
                         <div className="leader-name">
-                            {auction?.current_team_name ? auction.current_team_name : (auction ? 'NO BIDS' : '---')}
+                            {auction?.current_team_name ? auction.current_team_name.toUpperCase() : (auction ? 'NO ACTIVE BIDS' : 'STANDBY')}
                         </div>
                     </div>
                 </div>
 
-                {/* Action Zone */}
-                <div className="action-zone">
-                    {/* Error Display */}
-                    {error && <div className="alert alert-error mb-4">{error}</div>}
-
-                    {/* Controls based on Role */}
-                    {(isAuctioneer || isAdmin) ? (
-                        <div className="admin-command-deck">
-                            <div className="deck-header">ADMIN COMMANDS</div>
-                            {auction ? (
-                                <>
-                                    {/* Quick Actions Grid */}
-                                    <div className="deck-grid mb-4">
-                                        <button onClick={handleMarkSold} className="deck-btn btn-sold" disabled={!auction.current_team_id}>SOLD</button>
-                                        <button onClick={handleMarkUnsold} className="deck-btn btn-unsold">UNSOLD</button>
-                                        <button onClick={handleResetBid} className="deck-btn btn-reset">RESET BID</button>
-                                    </div>
-
-                                    {/* Manual Bid Form */}
-                                    <form onSubmit={handlePlaceBid} className="proxy-bid-row">
-                                        <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="admin-select-small" required>
-                                            <option value="">Team...</option>
-                                            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                        </select>
-                                        <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="admin-input-small" placeholder="Amt" required />
-                                        <button type="submit" className="btn-proxy">BID</button>
-                                    </form>
-                                </>
-                            ) : (
-                                <div className="text-secondary text-center small">Select a player from the Queue to start.</div>
-                            )}
-                        </div>
-                    ) : isTeamOwner && isAuctionActive && auction ? (
-                        // Team Owner Controls
-                        <div className="bidder-controls">
-                            <button
-                                className={`btn-bid-dynamic ${isBidding ? 'loading' : ''}`}
-                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
-                                disabled={isBidding}
-                            >
-                                {isBidding ? 'PROCESSING...' : `BID ₹${nextBidAmount.toLocaleString()}`}
-                                <span className="bid-label">CLICK TO PLACE BID</span>
-                            </button>
-                        </div>
-                    ) : (
-                        // Viewer / Resting State
-                        <div className="viewer-controls text-center text-secondary">
-                            {auction ? "SPECTATOR MODE" : "AUCTION PAUSED"}
+                <div className="trading-action-zone">
+                    {/* Team Wallet Info (Only for active Team Owner or if Bidder is the owner) */}
+                    {user && (isTeamOwner || isAdmin) && (
+                        <div className="wallet-card card glass-card p-4 mb-4" style={{ background: 'rgba(62,91,78,0.1)', border: '1px solid var(--border-color)' }}>
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="text-[10px] font-black tracking-widest uppercase opacity-60">ACTIVE BUDGET</label>
+                                <span className="text-[10px] font-black">₹</span>
+                            </div>
+                            <div className="text-xl font-black">
+                                {(() => {
+                                    let myTeam = teams.find(t => t.id == user.team_id);
+                                    if (!myTeam && user.name) myTeam = teams.find(t => t.owner_name?.toLowerCase() === user.name?.toLowerCase());
+                                    return myTeam ? myTeam.points.toLocaleString() : 'READING...';
+                                })()}
+                            </div>
                         </div>
                     )}
 
-                    {/* Universal Links/Toggles */}
-                    <div className="mt-4 flex justify-between">
-                        <button className="btn-outline" onClick={() => setShowSoldPlayers(true)}>VIEW SOLD PLAYERS ({Object.values(soldPlayers).flat().length})</button>
+                    {error && <div className="market-alert error p-2 text-xs font-bold text-red-700 uppercase bg-red-100 mb-4">{error}</div>}
+
+                    {(isAuctioneer || isAdmin) ? (
+                        <div className="admin-trading-deck">
+                            <button onClick={handleMarkSold} className="trading-btn sold mb-2" disabled={!auction?.current_team_id}>EXECUTE SALE</button>
+                            <div className="deck-grid mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                <button onClick={handleMarkUnsold} className="trading-btn secondary">NO SALE</button>
+                                <button onClick={handleResetBid} className="trading-btn danger">RESET</button>
+                            </div>
+
+                            <form onSubmit={handlePlaceBid} className="proxy-trading-row">
+                                <label className="market-label">PROXY OVERRIDE</label>
+                                <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="trading-select" required>
+                                    <option value="">TEAM SELECT...</option>
+                                    {teams.map(t => <option key={t.id} value={t.id}>{t.name.toUpperCase()}</option>)}
+                                </select>
+                                <div className="proxy-input-group">
+                                    <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="trading-input" placeholder="0.00" required />
+                                    <button type="submit" className="trading-btn black">BID</button>
+                                </div>
+                            </form>
+                        </div>
+                    ) : isTeamOwner && isAuctionActive && auction ? (
+                        <div className="bidder-trading-deck">
+                            <button
+                                className={`trading-btn bid-execute ${isBidding ? 'processing' : ''}`}
+                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
+                                disabled={isBidding}
+                            >
+                                <span className="action-tag">PLACE BID</span>
+                                <span className="action-val">₹{nextBidAmount.toLocaleString()}</span>
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="market-standby">
+                            <div className="text-center font-black tracking-widest text-[10px] opacity-40">
+                                {auction ? 'MARKET MONITORING ACTIVE' : 'SYSTEM ON STANDBY'}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="market-footer mt-6">
+                        <button className="market-btn-text" onClick={() => setShowSoldPlayers(true)}>
+                            HISTORY: {Object.values(soldPlayers).flat().length} ACQUISITIONS
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Overlays */}
             {renderSoldOverlay()}
         </div>
     );

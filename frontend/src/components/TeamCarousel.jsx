@@ -23,20 +23,25 @@ export default function TeamCarousel() {
     const displayTeams = [...teams, ...teams, ...teams, ...teams];
 
     return (
-        <section className="marquee-section">
-            <div className="marquee-label">PARTICIPATING FRANCHISES</div>
-            <div className="marquee-track">
+        <section className="ticker-wrap">
+            <div className="ticker-label">PARTICIPATING TEAMS</div>
+            <div className="ticker-track">
                 {displayTeams.map((team, index) => (
-                    <div key={`${team.id}-${index}`} className="marquee-item">
-                        <div className="marquee-logo-wrapper">
-                            {team.logo_url ? (
-                                <img src={team.logo_url} alt={team.name} className="marquee-logo" onError={(e) => e.target.style.display = 'none'} />
-                            ) : (
-                                <div className="marquee-placeholder">{team.name.substring(0, 2)}</div>
-                            )}
+                    <React.Fragment key={`${team.id}-${index}`}>
+                        <div className="ticker-item">
+                            <div className="ticker-logo-wrapper">
+                                {team.logo_url ? (
+                                    <img src={team.logo_url} alt={team.name} className="ticker-logo" onError={(e) => e.target.style.display = 'none'} />
+                                ) : (
+                                    <div className="ticker-placeholder">{team.name.substring(0, 2)}</div>
+                                )}
+                            </div>
+                            <span className="ticker-name">{team.name}</span>
                         </div>
-                        <span className="marquee-name">{team.name}</span>
-                    </div>
+                        {index < displayTeams.length - 1 && (
+                            <span className="ticker-separator">///</span>
+                        )}
+                    </React.Fragment>
                 ))}
             </div>
         </section>
