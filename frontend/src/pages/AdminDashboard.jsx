@@ -1012,45 +1012,67 @@ export default function AdminDashboard() {
                                                 }, {})).map(([sport, sportTeams]) => (
                                                     <div key={sport} className="sport-section mb-4">
                                                         <h4 className="capitalize mb-4" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>{sport}</h4>
-                                                        <div className="teams-grid">
-                                                            {sportTeams.map(team => (
-                                                                <div key={team.id} className="team-card-admin card flex flex-col items-center text-center p-4">
-                                                                    <div className="team-logo-wrapper mb-3" style={{ margin: '0 auto 1rem' }}>
-                                                                        {team.logo_url ? (
-                                                                            <img src={team.logo_url} alt={team.name} className="team-logo-small" />
-                                                                        ) : (
-                                                                            <div className="team-logo-placeholder">
-                                                                                {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="team-info w-full">
-                                                                        <h4 className="m-0 text-lg font-bold">{team.name}</h4>
-                                                                        <span className="text-sm text-secondary capitalize block mb-2">{team.sport}</span>
-                                                                        <div className="team-card-body mt-3">
-                                                                            <div className="stat-row flex justify-between text-sm mb-1">
-                                                                                <span>Budget:</span>
-                                                                                <span className="font-bold">{parseFloat(team.budget).toLocaleString()}</span>
-                                                                            </div>
-                                                                            {/* Could add player count here if available */}
+                                                        <div className="dossier-grid">
+                                                            {sportTeams.map(team => {
+                                                                const budgetRemaining = team.budget || 0; // In this app, 'budget' is the remaining purse
+                                                                const maxBudget = 20000;
+                                                                const budgetUsed = maxBudget - budgetRemaining;
+                                                                const percentUsed = (budgetUsed / maxBudget) * 100;
+
+                                                                return (
+                                                                    <div key={team.id} className="dossier-franchise-card">
+                                                                        <div className="franchise-logo-wrapper">
+                                                                            {team.logo_url ? (
+                                                                                <img src={team.logo_url} alt={team.name} className="franchise-logo-img" />
+                                                                            ) : (
+                                                                                <div className="team-logo-placeholder">
+                                                                                    {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
+                                                                                </div>
+                                                                            )}
                                                                         </div>
-                                                                        <div className="team-card-actions mt-3 flex gap-2">
+
+                                                                        <div className="franchise-identity">
+                                                                            <h4 className="m-0">{team.name}</h4>
+                                                                            <span className="sport-tag">{team.sport}</span>
+                                                                        </div>
+
+                                                                        <div className="dossier-divider"></div>
+
+                                                                        <div className="franchise-budget-block">
+                                                                            <div className="budget-meta">
+                                                                                <span className="budget-label">BUDGET REMAINING</span>
+                                                                                <span className="budget-value-mono">PTS {parseFloat(budgetRemaining).toLocaleString()}</span>
+                                                                            </div>
+                                                                            <div className="budget-progress-track">
+                                                                                <div
+                                                                                    className="budget-progress-fill"
+                                                                                    style={{ width: `${Math.max(0, 100 - percentUsed)}%` }}
+                                                                                ></div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="franchise-actions">
                                                                             <button
                                                                                 onClick={() => handleOpenTeamModal(team)}
-                                                                                className="btn btn-sm btn-secondary flex-1"
+                                                                                className="btn-action-primary"
                                                                             >
-                                                                                Edit
+                                                                                EDIT FRANCHISE
                                                                             </button>
                                                                             <button
-                                                                                onClick={() => handleDeleteTeam(team.id)}
-                                                                                className="btn btn-sm btn-danger flex-1"
+                                                                                onClick={() => {
+                                                                                    // Filter roster by this team's ID
+                                                                                    // Since we don't have a direct route, we switch tab and set filter
+                                                                                    setActiveTab('users'); // Switch to Roster
+                                                                                    // Ideally we'd set a filter, but for now just navigate
+                                                                                }}
+                                                                                className="btn-action-secondary"
                                                                             >
-                                                                                Delete
+                                                                                VIEW ROSTER
                                                                             </button>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            ))}
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
                                                 ))

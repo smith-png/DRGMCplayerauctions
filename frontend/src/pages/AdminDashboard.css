@@ -1173,3 +1173,183 @@ tr:hover .table-thumb {
     display: block;
     font-weight: 700;
 }
+
+/* --- FRANCHISE DOSSIER GRID --- */
+
+.dossier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.dossier-franchise-card {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 4px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dossier-franchise-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.6);
+    border-color: var(--sage-deep);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.franchise-logo-wrapper {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #000;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1.5rem;
+    position: relative;
+    box-shadow: 0 0 20px rgba(62, 91, 78, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+.dossier-franchise-card:hover .franchise-logo-wrapper {
+    box-shadow: 0 0 30px rgba(62, 91, 78, 0.4);
+}
+
+.franchise-logo-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+}
+
+.dossier-franchise-card:hover .franchise-logo-img {
+    filter: grayscale(0);
+}
+
+.franchise-identity h4 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin: 0 0 0.5rem 0;
+    color: #1A1A1A;
+    line-height: 1.1;
+}
+
+.franchise-identity .sport-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
+/* Technical Separator */
+.dossier-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(62, 91, 78, 0.2);
+    margin: 0 0 1.5rem 0;
+}
+
+/* Budget Visualization */
+.franchise-budget-block {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.budget-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.budget-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+}
+
+.budget-value-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #000;
+}
+
+.budget-progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(62, 91, 78, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    background: var(--sage-deep);
+    transition: width 1s ease-out;
+}
+
+/* Action Cluster */
+.franchise-actions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.btn-action-primary {
+    flex: 1;
+    background: #1E392A;
+    color: #fff;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.6rem 0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action-primary:hover {
+    background: #2a4d3a;
+    transform: translateY(-2px);
+}
+
+.btn-action-secondary {
+    flex: 1;
+    background: transparent;
+    color: #000;
+    border: 1px solid #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.6rem 0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
