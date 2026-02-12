@@ -27,6 +27,10 @@ export default function AdminDashboard() {
     const [rosterSearch, setRosterSearch] = useState('');
     const [rosterPage, setRosterPage] = useState(1);
 
+    // User Tab State
+    const [userSearch, setUserSearch] = useState('');
+    const [userPage, setUserPage] = useState(1);
+
     // User Modal State
     const [showUserModal, setShowUserModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
@@ -540,6 +544,20 @@ export default function AdminDashboard() {
     const paginatedRoster = filteredRoster.slice((rosterPage - 1) * rosterItemsPerPage, rosterPage * rosterItemsPerPage);
     const totalRosterPages = Math.ceil(filteredRoster.length / rosterItemsPerPage);
 
+    // User Filtering
+    const filteredUsers = users.filter(user => {
+        const search = userSearch.toLowerCase();
+        return (
+            user.name.toLowerCase().includes(search) ||
+            user.email.toLowerCase().includes(search) ||
+            user.role.toLowerCase().includes(search)
+        );
+    });
+
+    const userItemsPerPage = 5;
+    const paginatedUsers = filteredUsers.slice((userPage - 1) * userItemsPerPage, userPage * userItemsPerPage);
+    const totalUserPages = Math.ceil(filteredUsers.length / userItemsPerPage);
+
     return (
         <div className="editorial-glass-stage">
             <div className="phantom-nav-spacer"></div>
@@ -816,9 +834,19 @@ export default function AdminDashboard() {
                                             <div className="section-block mt-12 pt-12 border-t border-black/10">
                                                 <div className="flex justify-between items-center mb-6">
                                                     <h3>System Access Control</h3>
-                                                    <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
-                                                        + New Admin
-                                                    </button>
+                                                    <div className="flex gap-4 items-center">
+                                                        <input
+                                                            type="text"
+                                                            className="roster-search"
+                                                            placeholder="SEARCH USERS..."
+                                                            value={userSearch}
+                                                            onChange={(e) => { setUserSearch(e.target.value); setUserPage(1); }}
+                                                            style={{ width: '200px' }}
+                                                        />
+                                                        <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
+                                                            + New Admin
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div className="users-table card">
                                                     <table>
@@ -832,41 +860,74 @@ export default function AdminDashboard() {
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {users.map((user) => (
-                                                                <tr key={user.id}>
-                                                                    <td className="font-bold">{user.name}</td>
-                                                                    <td className="text-secondary">{user.email}</td>
-                                                                    <td>
-                                                                        <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
-                                                                            {user.role}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>
-                                                                        {user.role === 'team_owner' && user.team_id
-                                                                            ? teams.find(t => t.id === user.team_id)?.name || 'UNASSIGNED'
-                                                                            : '---'
-                                                                        }
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="flex gap-2">
-                                                                            <button
-                                                                                onClick={() => handleOpenUserModal(user)}
-                                                                                className="btn btn-secondary"
-                                                                            >
-                                                                                Edit
-                                                                            </button>
-                                                                            <button
-                                                                                onClick={() => handleDeleteUser(user.id)}
-                                                                                className="btn btn-outline-danger"
-                                                                            >
-                                                                                Drop
-                                                                            </button>
-                                                                        </div>
+                                                            {paginatedUsers.length === 0 ? (
+                                                                <tr>
+                                                                    <td colSpan="5" className="text-center py-8 text-secondary">
+                                                                        NO RECORDS FOUND
                                                                     </td>
                                                                 </tr>
-                                                            ))}
+                                                            ) : (
+                                                                paginatedUsers.map((user) => (
+                                                                    <tr key={user.id}>
+                                                                        <td className="font-bold">{user.name}</td>
+                                                                        <td className="text-secondary">{user.email}</td>
+                                                                        <td>
+                                                                            <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
+                                                                                {user.role}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            {user.role === 'team_owner' && user.team_id
+                                                                                ? teams.find(t => t.id === user.team_id)?.name || 'UNASSIGNED'
+                                                                                : '---'
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="flex gap-2">
+                                                                                <button
+                                                                                    onClick={() => handleOpenUserModal(user)}
+                                                                                    className="btn btn-secondary"
+                                                                                >
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeleteUser(user.id)}
+                                                                                    className="btn btn-outline-danger"
+                                                                                >
+                                                                                    Drop
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
                                                         </tbody>
                                                     </table>
+
+                                                    {/* User Pagination */}
+                                                    {totalUserPages > 1 && (
+                                                        <div className="pagination-footer px-4 pb-4 border-none mt-0">
+                                                            <button
+                                                                className="page-nav-link"
+                                                                onClick={() => setUserPage(p => Math.max(1, p - 1))}
+                                                                disabled={userPage === 1}
+                                                            >
+                                                                &lt; PREV
+                                                            </button>
+
+                                                            <span className="pagination-info">
+                                                                PAGE {userPage} OF {totalUserPages}
+                                                            </span>
+
+                                                            <button
+                                                                className="page-nav-link"
+                                                                onClick={() => setUserPage(p => Math.min(totalUserPages, p + 1))}
+                                                                disabled={userPage === totalUserPages}
+                                                            >
+                                                                NEXT &gt;
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
