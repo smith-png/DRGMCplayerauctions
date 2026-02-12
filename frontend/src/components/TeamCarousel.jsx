@@ -11,39 +11,35 @@ export default function TeamCarousel() {
             try {
                 const response = await teamsAPI.getAllTeams();
                 setTeams(response.data.teams);
-            } catch (error) { console.error('Failed to fetch teams:', error); }
-            finally { setLoading(false); }
+            } catch (error) {
+                console.error('Failed to fetch teams:', error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchTeams();
     }, []);
 
     if (loading || teams.length === 0) return null;
 
-    // Quadruple the list for smooth infinite loop
-    const displayTeams = [...teams, ...teams, ...teams, ...teams];
+    // Duplicate the list 4 times to ensure it's long enough to scroll infinitely
+    const displayList = [...teams, ...teams, ...teams, ...teams];
 
     return (
-        <section className="ticker-wrap">
-            <div className="ticker-label">PARTICIPATING TEAMS</div>
+        <div className="ticker-shell">
+            {/* STATIC TITLE OVERLAY */}
+            <div className="ticker-static-title">PARTICIPATING TEAMS</div>
+
+            {/* MOVING TRACK (Must be transparent) */}
             <div className="ticker-track">
-                {displayTeams.map((team, index) => (
-                    <React.Fragment key={`${team.id}-${index}`}>
-                        <div className="ticker-item">
-                            <div className="ticker-logo-wrapper">
-                                {team.logo_url ? (
-                                    <img src={team.logo_url} alt={team.name} className="ticker-logo" onError={(e) => e.target.style.display = 'none'} />
-                                ) : (
-                                    <div className="ticker-placeholder">{team.name.substring(0, 2)}</div>
-                                )}
-                            </div>
-                            <span className="ticker-name">{team.name}</span>
-                        </div>
-                        {index < displayTeams.length - 1 && (
-                            <span className="ticker-separator">///</span>
-                        )}
-                    </React.Fragment>
+                {displayList.map((team, index) => (
+                    <div key={`${team.id}-${index}`} className="ticker-item">
+                        <div className="ticker-dot"></div>
+                        <span className="ticker-name">{team.name || "TEAM NAME"}</span>
+                        <span className="ticker-divider">///</span>
+                    </div>
                 ))}
             </div>
-        </section>
+        </div>
     );
 }

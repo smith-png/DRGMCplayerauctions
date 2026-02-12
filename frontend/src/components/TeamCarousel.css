@@ -1,137 +1,121 @@
-/* === INFINITE LEAGUE TICKER === */
-/* High-Contrast, Dense Ticker Strip */
-.ticker-wrap {
+/* ========================================
+   TEAM CAROUSEL - THE SHELL SYSTEM
+   Background NEVER moves, only content scrolls
+   ======================================== */
+
+/* 1. THE STATIC SHELL (The Tunnel) - BLACK BACKGROUND LIVES HERE */
+.ticker-shell {
     width: 100%;
-    background: #1A1A1A;
-    /* Sharp Black Contrast */
-    padding: 2rem 0;
+    background-color: #1A1A1A;
+    /* Solid Black - STAYS FIXED */
+    color: #FFFFFF;
     overflow: hidden;
-    border-top: 2px solid #3E5B4E;
-    /* Deep Sage borders */
-    border-bottom: 2px solid #3E5B4E;
+    /* Hides the scrolling track when it goes off screen */
     position: relative;
-    z-index: 2;
+    padding: 3rem 0 1.5rem 0;
+    /* Space for the title */
+    border-top: 2px solid #3E5B4E;
+    border-bottom: 2px solid #3E5B4E;
+    z-index: 10;
 }
 
-.ticker-label {
-    text-align: center;
+/* 2. THE STATIC TITLE (Pinned to the Shell) */
+.ticker-static-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: 'Space Grotesk', monospace;
     font-size: 0.7rem;
-    letter-spacing: 0.25em;
+    font-weight: 800;
+    letter-spacing: 2px;
     color: #3E5B4E;
     /* Deep Sage */
-    margin-bottom: 1.5rem;
     text-transform: uppercase;
-    font-weight: 700;
+    z-index: 20;
+    pointer-events: none;
+    /* Let clicks pass through */
 }
 
+/* 3. THE MOVING TRACK (The Train) - MUST BE TRANSPARENT */
 .ticker-track {
     display: flex;
-    gap: 3rem;
-    /* Spacing between items */
     width: max-content;
-    animation: ticker-slide 60s linear infinite;
+    /* Force it to be as wide as the content */
     background-color: transparent !important;
-    /* CRITICAL: No background should scroll with content */
+    /* CRITICAL: No background here */
+    background-image: none !important;
+    background: transparent !important;
+    animation: scroll-left 60s linear infinite;
 }
 
-/* Pause animation on hover */
-.ticker-wrap:hover .ticker-track {
-    animation-play-state: paused;
-}
-
+/* 4. THE ITEMS */
 .ticker-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    opacity: 0.7;
-    transition: all 0.3s ease;
+    flex-shrink: 0;
+    /* Prevent squishing */
+    padding-right: 4rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
 }
 
 .ticker-item:hover {
     opacity: 1;
-    transform: scale(1.08);
-}
-
-.ticker-logo-wrapper {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #2F2F2F;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #3E5B4E;
-    /* Deep Sage border */
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-.ticker-logo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(100%) brightness(0.8);
-    transition: filter 0.3s ease;
-}
-
-.ticker-item:hover .ticker-logo {
-    filter: grayscale(0%) brightness(1.2);
-    /* Brighten on hover */
-}
-
-.ticker-placeholder {
-    color: #fff;
-    font-family: 'Space Grotesk', monospace;
-    font-weight: 900;
-    font-size: 1.2rem;
 }
 
 .ticker-name {
     font-family: 'Inter', 'Impact', sans-serif;
+    font-size: 2rem;
     font-weight: 900;
-    /* Black weight */
-    font-size: 1.8rem;
-    color: #FFFFFF;
     text-transform: uppercase;
-    letter-spacing: 1px;
     white-space: nowrap;
+    color: #FFFFFF;
+    letter-spacing: 1px;
 }
 
-/* Separator between teams */
-.ticker-separator {
+.ticker-divider {
     color: #3E5B4E;
-    /* Deep Sage accent */
+    margin-left: 2rem;
     font-weight: 900;
     font-size: 1.5rem;
     opacity: 0.6;
-    user-select: none;
 }
 
-/* Infinite scroll animation */
-@keyframes ticker-slide {
-    from {
+.ticker-dot {
+    width: 12px;
+    height: 12px;
+    background: #3E5B4E;
+    border-radius: 50%;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+/* 5. THE ANIMATION */
+@keyframes scroll-left {
+    0% {
         transform: translateX(0);
     }
 
-    to {
-        transform: translateX(-50%);
-        /* Moves halfway, then loops */
+    100% {
+        transform: translateX(-25%);
     }
+
+    /* Move 1/4th because we duplicated list 4x */
 }
 
-/* Responsive adjustments */
+/* OPTIONAL: Pause on Hover */
+.ticker-shell:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .ticker-name {
         font-size: 1.3rem;
     }
 
-    .ticker-logo-wrapper {
-        width: 40px;
-        height: 40px;
-    }
-
-    .ticker-track {
-        gap: 2rem;
+    .ticker-item {
+        padding-right: 2rem;
     }
 }
