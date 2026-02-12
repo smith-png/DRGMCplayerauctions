@@ -1058,7 +1058,13 @@ export default function AdminDashboard() {
                                         <div className="teams-section">
                                             <div className="section-header-row mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <h3>Active Teams</h3>
-                                                <button onClick={() => handleOpenTeamModal()} className="btn btn-primary">+ Create Team</button>
+                                                <button
+                                                    onClick={() => handleOpenTeamModal()}
+                                                    className="btn-action-primary"
+                                                    style={{ flex: 'none', padding: '0.6rem 1.5rem', fontSize: '0.75rem' }}
+                                                >
+                                                    CREATE NEW TEAM
+                                                </button>
                                             </div>
 
                                             {Object.keys(teams.reduce((acc, team) => {
