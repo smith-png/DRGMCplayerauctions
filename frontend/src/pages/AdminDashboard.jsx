@@ -898,7 +898,7 @@ export default function AdminDashboard() {
                                                                                     onClick={() => handleDeleteUser(user.id)}
                                                                                     className="btn btn-outline-danger"
                                                                                 >
-                                                                                    Drop
+                                                                                    Delete
                                                                                 </button>
                                                                             </div>
                                                                         </td>
