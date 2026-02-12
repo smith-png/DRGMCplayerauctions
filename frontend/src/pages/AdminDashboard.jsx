@@ -1111,7 +1111,7 @@ export default function AdminDashboard() {
                                                                             <div className="budget-progress-track">
                                                                                 <div
                                                                                     className="budget-progress-fill"
-                                                                                    style={{ width: `${Math.max(0, 100 - percentUsed)}%` }}
+                                                                                    style={{ width: `${Math.min(100, Math.max(0, percentUsed))}%` }}
                                                                                 ></div>
                                                                             </div>
                                                                         </div>
