@@ -1239,33 +1239,36 @@ export default function AdminDashboard() {
                         {
                             showUserModal && (
                                 <div className="modal-overlay animate-fadeIn">
-                                    <div className="admin-modal glass-card">
-                                        <h2 className="stat-label mb-8">{editingUser ? 'MODIFY USER REGISTRY' : 'NEW ACCESS CREDENTIAL'}</h2>
+                                    <div className="glass-terminal-modal">
+                                        <h2 className="terminal-header">MODIFY USER REGISTRY // SYSTEM OVERRIDE</h2>
                                         <form onSubmit={handleSaveUser}>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">FULL LEGAL NAME</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">FULL LEGAL NAME</label>
                                                 <input
                                                     type="text"
                                                     className="input-minimal"
                                                     value={userData.name}
                                                     onChange={e => setUserData({ ...userData, name: e.target.value })}
                                                     required
-                                                    placeholder="Enter name..."
+                                                    placeholder="ENTER NAME..."
                                                 />
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">EMAIL IDENTIFIER</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">EMAIL IDENTIFIER</label>
                                                 <input
                                                     type="email"
                                                     className="input-minimal"
                                                     value={userData.email}
                                                     onChange={e => setUserData({ ...userData, email: e.target.value })}
                                                     required
-                                                    placeholder="email@system.com"
+                                                    placeholder="EMAIL@SYSTEM.COM"
                                                 />
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">SECURE ACCESS TOKEN {editingUser && <span className="text-secondary opacity-50">(BLANK TO KEEP)</span>}</label>
+
+                                            <div className="form-divider-dashed"></div>
+
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">SECURE ACCESS TOKEN {editingUser && <span className="opacity-50">(BLANK TO KEEP)</span>}</label>
                                                 <input
                                                     type="password"
                                                     className="input-minimal"
@@ -1275,8 +1278,8 @@ export default function AdminDashboard() {
                                                     placeholder="••••••••"
                                                 />
                                             </div>
-                                            <div className="form-group border-bottom pb-4 mb-4">
-                                                <label className="stat-label mb-2 block">SYSTEM ROLE</label>
+                                            <div className="form-group-terminal">
+                                                <label className="terminal-label">SYSTEM ROLE</label>
                                                 <select
                                                     className="input-minimal"
                                                     value={userData.role}
@@ -1290,8 +1293,8 @@ export default function AdminDashboard() {
                                             </div>
 
                                             {userData.role === 'team_owner' && (
-                                                <div className="form-group border-bottom pb-4 mb-8">
-                                                    <label className="stat-label mb-2 block">ASSIGNED FRANCHISE</label>
+                                                <div className="form-group-terminal">
+                                                    <label className="terminal-label">ASSIGNED FRANCHISE</label>
                                                     <select
                                                         className="input-minimal"
                                                         value={userData.team_id}
@@ -1308,9 +1311,9 @@ export default function AdminDashboard() {
                                                 </div>
                                             )}
 
-                                            <div className="modal-actions flex gap-4 mt-8">
-                                                <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary flex-1">DISCARD</button>
-                                                <button type="submit" className="btn btn-primary flex-1">{editingUser ? 'COMMIT' : 'INITIALIZE'}</button>
+                                            <div className="terminal-actions">
+                                                <button type="button" onClick={handleCloseUserModal} className="btn-discard">DISCARD</button>
+                                                <button type="submit" className="btn-commit">{editingUser ? 'COMMIT CHANGE' : 'INITIALIZE USER'}</button>
                                             </div>
                                         </form>
                                     </div>
