@@ -652,7 +652,7 @@ export default function AdminDashboard() {
                             className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
                             onClick={() => setActiveTab('users')}
                         >
-                            Rosters
+                            Registrations
                         </button>
                         <button
                             className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`}
