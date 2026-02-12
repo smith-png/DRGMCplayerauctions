@@ -12,7 +12,7 @@ export default function Home() {
             <section className="editorial-hero">
                 <div className="hero-subtitle">
                     <div className="subtitle-bar"></div>
-                    <span>THE OFFICIAL LEAGUE | SEASON 2025</span>
+                    <span>THE UNOFFICIAL LEAGUE | SEASON 2026</span>
                 </div>
                 <h1 className="hero-main-title">DRGMC PLAYER AUCTIONS</h1>
 

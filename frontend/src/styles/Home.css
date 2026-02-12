@@ -61,15 +61,24 @@
     background: #3E5B4E;
 }
 
-/* Hero Main Title */
+/* Hero Main Title - HOLLOW TEXT EFFECT */
 .hero-main-title {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-weight: 900;
     font-size: clamp(3rem, 12vw, 6rem);
     line-height: 0.9;
-    color: #1A1A1A;
     margin: 0 0 2rem 0;
     letter-spacing: -0.02em;
+
+    /* Hollow Tech Effect */
+    color: transparent;
+    -webkit-text-stroke: 2px #1A1A1A;
+    transition: all 0.4s ease;
+}
+
+.hero-main-title:hover {
+    color: #1A1A1A;
+    -webkit-text-stroke: 0px transparent;
 }
 
 .hero-stacked-title {
@@ -101,39 +110,84 @@
     line-height: 1.4;
 }
 
-/* === LIQUID GLASS BUTTONS === */
+/* === STANDARDIZED HERO BUTTONS === */
 .hero-actions {
     margin-top: 4rem;
     display: flex;
     gap: 1.5rem;
+    flex-wrap: wrap;
 }
 
+/* Base Button Style - IDENTICAL DIMENSIONS */
 .btn-editorial {
-    padding: 1.2rem 3rem;
-    border-radius: 50px;
-    /* Capsule shape */
+    /* FORCED IDENTICAL SHAPE */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    min-width: 200px;
+    padding: 0 32px;
+    border-radius: 100px;
+
+    /* Typography */
     text-decoration: none;
     font-family: 'Space Grotesk', monospace;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 2px;
     font-size: 0.9rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
 
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.15);
+    /* Effects */
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #1A1A1A;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary:hover,
-.btn-outline-editorial:hover {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.4);
+/* Primary Button - Solid Black */
+.btn-editorial.btn-primary {
+    background: #1A1A1A;
+    color: #FFFFFF;
+    border: 2px solid #1A1A1A;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-editorial.btn-primary:hover {
+    transform: translateY(-2px);
+    background: #000000;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Secondary Button - Glass Outline */
+.btn-outline-editorial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    min-width: 200px;
+    padding: 0 32px;
+    border-radius: 100px;
+
+    background: rgba(255, 255, 255, 0.1);
     color: #1A1A1A;
+    border: 2px solid #1A1A1A;
+
+    text-decoration: none;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.btn-outline-editorial:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.3);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 

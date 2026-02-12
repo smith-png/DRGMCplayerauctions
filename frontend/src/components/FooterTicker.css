@@ -1,0 +1,67 @@
+/* ========================================
+   FOOTER TICKER - HORIZONTAL SCROLL ONLY
+   ======================================== */
+
+/* 1. THE SHELL (Stationary Container) */
+.footer-ticker-shell {
+    width: 100%;
+    background-color: #D1E0D7;
+    /* Sage Light background */
+    overflow: hidden;
+    /* Hides overflowing text */
+    padding: 1rem 0;
+    border-top: 1px solid rgba(62, 91, 78, 0.2);
+    position: relative;
+}
+
+/* 2. THE TRACK (Moving Text) - FORCED HORIZONTAL */
+.footer-ticker-track {
+    /* FORCE HORIZONTAL LAYOUT */
+    display: inline-block;
+    /* Critical for horizontal flow */
+    width: max-content;
+    /* Allow infinite width */
+    white-space: nowrap;
+    /* Prevent text wrapping */
+
+    /* Animation */
+    animation: footer-scroll 40s linear infinite;
+
+    /* Typography */
+    font-family: 'Space Grotesk', 'Courier New', monospace;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #3E5B4E;
+    /* Deep Sage */
+
+    /* Start from right edge */
+    padding-left: 100%;
+}
+
+/* 3. ANIMATION */
+@keyframes footer-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+
+    /* Scrolls half the duplicated length */
+}
+
+/* Pause on Hover (Optional) */
+.footer-ticker-shell:hover .footer-ticker-track {
+    animation-play-state: paused;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-ticker-track {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+    }
+}
