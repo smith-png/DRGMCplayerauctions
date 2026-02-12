@@ -1,215 +1,252 @@
-/* EDITORIAL HOME */
+/* EDITORIAL LIGHT THEME */
+:root {
+    --bg-light: #F9F9F9;
+    --text-main: #1A1A1A;
+    --border-light: #E0E0E0;
+    --accent-black: #000;
+}
+
 .editorial-home {
-    background-color: var(--bg-dark);
-    color: #fff;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     overflow-x: hidden;
 }
 
 /* HERO SECTION */
 .editorial-hero {
-    height: 90vh;
+    padding: 8rem 5vw 6rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-bottom: 2px solid var(--border-light);
     position: relative;
-    padding: 0 5vw;
-    background: radial-gradient(circle at 80% 20%, #1a1a1a 0%, var(--bg-dark) 50%);
+    background-color: var(--bg-light);
 }
 
-.hero-meta {
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
-    color: var(--accent-sage);
-    margin-bottom: 2rem;
-}
-
-.hero-display {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 8rem;
-    line-height: 0.9;
+.hero-stacked-title {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    line-height: 0.8;
     letter-spacing: -0.05em;
-    margin-bottom: 2rem;
+    font-size: clamp(4rem, 18vw, 14rem);
+    text-transform: uppercase;
+    margin: 0;
 }
 
-.text-outline {
+.line-primary {
+    color: var(--text-main);
+}
+
+.line-outline {
     color: transparent;
-    -webkit-text-stroke: 2px #fff;
+    -webkit-text-stroke: 2px var(--text-main);
 }
 
 .hero-desc {
+    margin-top: 3rem;
     font-family: 'Manrope', sans-serif;
-    font-size: 1.5rem;
-    max-width: 600px;
-    color: #888;
-    margin-bottom: 3rem;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    max-width: 700px;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.4;
 }
 
 .hero-actions {
+    margin-top: 4rem;
     display: flex;
     gap: 1.5rem;
 }
 
-.btn-sage {
-    background: var(--accent-sage);
-    color: #000;
-    padding: 1rem 2rem;
-    font-family: 'Space Grotesk', monospace;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+.btn-editorial {
+    padding: 1.2rem 3rem;
+    border: 2px solid var(--text-main);
     text-decoration: none;
-    transition: transform 0.2s;
-}
-
-.btn-outline {
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 1rem 2rem;
     font-family: 'Space Grotesk', monospace;
-    font-weight: 700;
+    font-weight: 800;
+    text-transform: uppercase;
     letter-spacing: 0.1em;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-}
-
-.btn-sage:hover,
-.btn-outline:hover {
-    transform: translateY(-2px);
-}
-
-.btn-outline:hover {
-    background: #fff;
-    color: #000;
-}
-
-/* TICKER */
-.hero-ticker {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #000;
-    border-top: 1px solid #333;
-    padding: 1rem 0;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-}
-
-.ticker-content {
-    display: flex;
-    justify-content: center;
-    gap: 4rem;
-    font-family: 'Space Grotesk', monospace;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     font-size: 0.9rem;
-    color: #666;
 }
 
-/* SPORTS COLUMNS */
-.sports-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    height: 80vh;
+.btn-primary {
+    background: var(--text-main);
+    color: var(--bg-light);
 }
 
-.sport-col {
-    position: relative;
-    border-right: 1px solid var(--border-dim);
+.btn-primary:hover {
+    background: transparent;
+    color: var(--text-main);
+    transform: translateY(-4px);
+}
+
+.btn-outline-editorial {
+    background: transparent;
+    color: var(--text-main);
+}
+
+.btn-outline-editorial:hover {
+    background: var(--text-main);
+    color: var(--bg-light);
+    transform: translateY(-4px);
+}
+
+/* SPORTS SLICES */
+.sports-slices {
     display: flex;
-    align-items: flex-end;
-    padding: 3rem;
-    text-decoration: none;
-    transition: flex 0.5s ease;
+    height: 75vh;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.sport-slice {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--border-light);
+    transition: flex 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     background-size: cover;
     background-position: center;
-    /* Use B&W placeholders from Unsplash */
-    filter: grayscale(100%);
+    filter: grayscale(1);
+    text-decoration: none;
 }
 
-.cricket-col {
+.sport-slice:last-child {
+    border-right: none;
+}
+
+.cricket-slice {
     background-image: url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2067&auto=format&fit=crop');
 }
 
-.futsal-col {
+.futsal-slice {
     background-image: url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1935&auto=format&fit=crop');
 }
 
-.volleyball-col {
+.volleyball-slice {
     background-image: url('https://images.unsplash.com/photo-1592656094267-764a45160876?q=80&w=2070&auto=format&fit=crop');
 }
 
-.col-overlay {
+.sport-slice:hover {
+    flex: 2.5;
+    filter: grayscale(0);
+}
+
+.slice-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    transition: background 0.3s;
+    background: linear-gradient(to bottom, transparent 40%, rgba(249, 249, 249, 0.95) 95%);
+    transition: opacity 0.5s;
 }
 
-.col-content {
-    position: relative;
+.slice-content {
+    position: absolute;
+    bottom: 4rem;
+    left: 3rem;
     z-index: 2;
+    opacity: 0.8;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
-.col-number {
-    display: block;
-    font-family: 'Space Grotesk', monospace;
-    font-size: 1rem;
-    color: var(--accent-sage);
-    margin-bottom: 1rem;
+.sport-slice:hover .slice-content {
+    opacity: 1;
+    transform: translateY(-5px);
 }
 
-.col-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
+.slice-number {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
     font-size: 3rem;
-    color: #fff;
-    margin: 0;
-}
-
-.col-link {
+    color: var(--text-main);
     display: block;
-    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.slice-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--text-main);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+}
+
+/* TICKER */
+.editorial-ticker {
+    background: var(--accent-black);
+    color: #fff;
+    padding: 1.5rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    border-top: 1px solid #333;
+}
+
+.ticker-wrap {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker-animation 40s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding: 0 4rem;
     font-family: 'Space Grotesk', monospace;
-    font-size: 0.8rem;
-    color: transparent;
-    transition: color 0.3s;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    font-size: 1rem;
+    text-transform: uppercase;
 }
 
-/* HOVER EFFECTS */
-.sport-col:hover {
-    filter: grayscale(0%);
-    flex: 1.2;
-    /* Expand width */
+@keyframes ticker-animation {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
-.sport-col:hover .col-overlay {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.sport-col:hover .col-link {
-    color: var(--accent-sage);
+/* TEAM CAROUSEL ADAPTATION */
+.team-carousel-container {
+    background: var(--bg-light);
+    border-bottom: 2px solid var(--border-light);
+    padding: 4rem 0;
 }
 
 @media (max-width: 900px) {
     .editorial-hero {
-        padding-top: 4rem;
-        height: auto;
-        padding-bottom: 4rem;
+        padding-top: 6rem;
     }
 
-    .hero-display {
-        font-size: 4rem;
+    .hero-stacked-title {
+        font-size: clamp(3rem, 15vw, 6rem);
     }
 
-    .sports-columns {
-        grid-template-columns: 1fr;
+    .sports-slices {
+        flex-direction: column;
         height: auto;
     }
 
-    .sport-col {
-        height: 300px;
+    .sport-slice {
+        height: 350px;
+        flex: none;
         border-right: none;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .sport-slice:hover {
+        flex: none;
+    }
+
+    .slice-name {
+        font-size: 2.5rem;
     }
 }
