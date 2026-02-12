@@ -169,8 +169,8 @@ export default function AuctionStats() {
             <div className="stats-page admin-stats-swapped">
                 <div className="stats-header-row">
                     <div>
-                        <div className="meta-tag">ADMINISTRATION /// {activeSport.toUpperCase()}</div>
-                        <h1 className="page-title">TEAMS & ROSTERS</h1>
+                        <div className="meta-tag">OFFICIAL /// {activeSport.toUpperCase()}</div>
+                        <h1 className="page-title">OFFICIAL AUCTION LEDGER</h1>
                     </div>
                     <div className="header-actions">
                         <div className="sport-filter-group">
@@ -185,52 +185,63 @@ export default function AuctionStats() {
                             ))}
                         </div>
                         <button className="sidebar-toggle log-toggle" onClick={() => setShowSidebar(true)}>
-                            VIEW TRANSACTION LOGS →
+                            VIEW LOGS →
                         </button>
                     </div>
                 </div>
 
-                <div className="teams-grid-main">
+                <div className="ledger-scroll-snap-container">
                     {teamsWithRosters.length === 0 ? (
                         <div className="empty-ledger">NO TEAMS FOUND FOR {activeSport}</div>
                     ) : (
-                        <div className="teams-report-grid">
+                        <div className="ledger-container">
                             {teamsWithRosters.map(team => (
-                                <div key={team.id} className="team-report-card">
-                                    <div className="card-header">
-                                        <div className="team-info">
-                                            <span className="team-name">{team.name}</span>
-                                            <button
-                                                className="btn-manage-wallet"
-                                                onClick={() => setWalletModal({ show: true, team, action: 'add', amount: '' })}
-                                            >
-                                                MANAGE WALLET
-                                            </button>
+                                <div key={team.id} className="ledger-column">
+                                    <div className="ledger-team-header">
+                                        <div className="team-info-group">
+                                            <span className="ledger-team-name" title={team.name}>{team.name}</span>
+                                            <div className="ledger-stats">
+                                                <span className="stat-tag">[ {String(team.roster.length).padStart(2, '0')} PLS ]</span>
+                                                <span className="stat-tag tag-accent">[ {(team.remaining_budget || 0).toLocaleString()} PTS ]</span>
+                                            </div>
                                         </div>
-                                        <div className="team-budget">
-                                            <div className="budget-val">{(team.remaining_budget || 0).toLocaleString()} PTS</div>
-                                            <div className="budget-label">REMAINING</div>
-                                        </div>
+                                        <button
+                                            className="ledger-wallet-btn"
+                                            onClick={() => setWalletModal({ show: true, team, action: 'add', amount: '' })}
+                                            title="Manage Wallet"
+                                        >
+                                            <span className="material-icons">account_balance_wallet</span>
+                                        </button>
                                     </div>
-                                    <div className="card-roster">
-                                        <div className="roster-header">PLAYER ROSTER ({team.roster.length})</div>
+                                    <div className="ledger-roster-content">
                                         {team.roster.length === 0 ? (
-                                            <div className="roster-empty">NO PLAYERS ACQUIRED</div>
+                                            <div className="roster-empty">OPEN ROSTER</div>
                                         ) : (
-                                            <div className="roster-list">
-                                                {team.roster.map(p => (
-                                                    <div key={p.id} className="roster-row">
-                                                        <div className="player-meta">
-                                                            <span className="p-name">{p.name} <span className="p-year">({p.year} MBBS)</span></span>
-                                                            <span className="p-price">#{p.sold_price?.toLocaleString()}</span>
+                                            <div className="ledger-player-list">
+                                                {team.roster.map((p, index) => (
+                                                    <div key={p.id} className="ledger-player-row">
+                                                        <div className="ledger-player-inner">
+                                                            <span className="ledger-row-index">#{String(index + 1).padStart(2, '0')}</span>
+                                                            {p.photo_url ? (
+                                                                <img src={p.photo_url} alt={p.name} className="ledger-player-avatar" />
+                                                            ) : (
+                                                                <div className="ledger-player-avatar placeholder">{p.name[0]}</div>
+                                                            )}
+                                                            <div className="ledger-player-info">
+                                                                <span className="ledger-player-name">{p.name}</span>
+                                                                <span className="ledger-player-sub">{p.year} • {p.sport}</span>
+                                                            </div>
                                                         </div>
-                                                        <button
-                                                            className="btn-release-inline"
-                                                            onClick={() => handleRelease(p)}
-                                                            title="Release Player (No Refund)"
-                                                        >
-                                                            RELEASE
-                                                        </button>
+                                                        <div className="ledger-player-action">
+                                                            <span className="ledger-player-price">{p.sold_price?.toLocaleString()} PTS</span>
+                                                            <button
+                                                                className="ledger-delete-btn"
+                                                                onClick={() => handleRelease(p)}
+                                                                title="Release Player"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>

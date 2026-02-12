@@ -614,3 +614,94 @@ tr:hover .table-thumb {
         font-size: 2.5rem;
     }
 }
+
+/* DOSSIER PLAYER CARDS (REGISTRY) */
+.dossier-player-card {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.dossier-player-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(62, 91, 78, 0.5) !important;
+}
+
+.dossier-player-card .player-card-photo,
+.dossier-player-card .table-placeholder {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    filter: grayscale(0.2);
+    transition: filter 0.3s ease;
+}
+
+.dossier-player-card:hover .player-card-photo {
+    filter: grayscale(0);
+}
+
+.dossier-player-card h4 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.dossier-player-card .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    border-radius: 99px;
+    padding: 4px 10px;
+    border: none !important;
+}
+
+.dossier-player-card .badge-primary {
+    background: var(--sage-deep) !important;
+    color: #fff;
+}
+
+.dossier-player-card .badge-secondary {
+    background: #000 !important;
+    color: #fff;
+}
+
+.registry-purge-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 24px;
+    height: 24px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
+    z-index: 10;
+}
+
+.dossier-player-card:hover .registry-purge-btn {
+    opacity: 0.6;
+}
+
+.registry-purge-btn:hover {
+    opacity: 1 !important;
+    background: #dc2626;
+    transform: scale(1.1);
+}

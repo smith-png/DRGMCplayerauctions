@@ -1,46 +1,3 @@
-/* ========================================
-   FOOTER TICKER - HORIZONTAL SCROLL ONLY
-   ======================================== */
-
-/* 1. THE SHELL (Stationary Container) */
-.footer-ticker-shell {
-    width: 100%;
-    background-color: #D1E0D7;
-    /* Sage Light background */
-    overflow: hidden;
-    /* Hides overflowing text */
-    padding: 1rem 0;
-    border-top: 1px solid rgba(62, 91, 78, 0.2);
-    position: relative;
-}
-
-/* 2. THE TRACK (Moving Text) - FORCED HORIZONTAL */
-.footer-ticker-track {
-    /* FORCE HORIZONTAL LAYOUT */
-    display: inline-block;
-    /* Critical for horizontal flow */
-    width: max-content;
-    /* Allow infinite width */
-    white-space: nowrap;
-    /* Prevent text wrapping */
-
-    /* Animation */
-    animation: footer-scroll 40s linear infinite;
-
-    /* Typography */
-    font-family: 'Space Grotesk', 'Courier New', monospace;
-    font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #3E5B4E;
-    /* Deep Sage */
-
-    /* Start from right edge */
-    padding-left: 100%;
-}
-
-/* 3. ANIMATION */
 @keyframes footer-scroll {
     0% {
         transform: translateX(0);
@@ -49,19 +6,39 @@
     100% {
         transform: translateX(-50%);
     }
-
-    /* Scrolls half the duplicated length */
 }
 
-/* Pause on Hover (Optional) */
-.footer-ticker-shell:hover .footer-ticker-track {
-    animation-play-state: paused;
+/* Base shell styling - the inline styles in JSX handle the breakout */
+.footer-ticker-shell {
+    padding: 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100vw;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .footer-ticker-track {
-        font-size: 0.7rem;
-        letter-spacing: 2px;
-    }
+.footer-ticker-track {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    animation: footer-scroll 30s linear infinite;
+    padding: 10px 0;
+}
+
+/* Ensure the span doesn't inherit any weird wrapping from parents */
+.footer-ticker-track span {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--accent-sage);
+    letter-spacing: 0.1em;
+    padding: 0 40px;
+    flex-shrink: 0 !important;
 }

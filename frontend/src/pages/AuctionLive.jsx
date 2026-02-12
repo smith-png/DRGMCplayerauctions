@@ -326,24 +326,41 @@ export default function AuctionLive() {
 
     // --- RENDER HELPERS ---
 
-    // 1. Queue Dock (Visual Panel Bottom)
+    // 1. Queue Dock (Standby Technical Module)
     const renderQueueDock = () => {
         return (
-            <div className="queue-dock">
-                <div className="queue-label">UP NEXT IN QUEUE</div>
-                <div className="queue-list">
+            <div className="queue-dock glass-module animate-fadeIn">
+                <div className="queue-header">
+                    <span className="queue-label">UP NEXT IN QUEUE</span>
+                </div>
+                <div className="queue-list-container custom-scrollbar">
                     {eligiblePlayers.length === 0 ? (
-                        <div className="text-secondary small" style={{ padding: '0 1rem' }}>Queue Empty</div>
+                        <div className="empty-queue-msg">NO ASSETS PENDING DEPLOYMENT</div>
                     ) : (
-                        eligiblePlayers.map(player => (
-                            <div key={player.id} className="queue-card">
-                                {player.photo_url ? <img src={player.photo_url} className="queue-img" /> : <div className="queue-placeholder">{player.name[0]}</div>}
-                                <div className="queue-name">{player.name}</div>
-                                <div className="queue-actions">
+                        eligiblePlayers.map((player, index) => (
+                            <div key={player.id} className="queue-strip">
+                                <div className="strip-rank">#{String(index + 1).padStart(2, '0')}</div>
+                                <div className="strip-avatar-box">
+                                    {player.photo_url ? (
+                                        <img src={player.photo_url} alt={player.name} className="strip-photo" />
+                                    ) : (
+                                        <div className="strip-photo placeholder">{player.name[0]}</div>
+                                    )}
+                                </div>
+                                <div className="strip-info">
+                                    <div className="strip-main-row">
+                                        <span className="strip-name">{player.name.toUpperCase()}</span>
+                                        <span className="strip-sport-tag">{player.sport.toUpperCase()}</span>
+                                    </div>
+                                    <div className="strip-tech-specs">
+                                        ID-{String(player.id).padStart(4, '0')} // {player.year} // {player.role || 'PLAYER'}
+                                    </div>
+                                </div>
+                                <div className="strip-actions">
                                     {(isAuctioneer || isAdmin) && (
                                         <>
-                                            <button onClick={() => handleStartAuction(player.id)} className="queue-btn start">START</button>
-                                            <button onClick={() => handleRemoveFromQueue(player.id)} className="queue-btn remove">REMOVE</button>
+                                            <button onClick={() => handleStartAuction(player.id)} className="cmd-btn start">START</button>
+                                            <button onClick={() => handleRemoveFromQueue(player.id)} className="cmd-btn remove">REMOVE</button>
                                         </>
                                     )}
                                 </div>
@@ -400,7 +417,7 @@ export default function AuctionLive() {
 
                     {/* Final Price */}
                     <div className="gavel-final-price">
-                        ₹ {soldAnimation.sold_price?.toLocaleString()} PTS
+                        {soldAnimation.sold_price?.toLocaleString()} PTS
                     </div>
                 </div>
             </div>
@@ -411,49 +428,70 @@ export default function AuctionLive() {
     const renderSoldOverlay = () => {
         if (!showSoldPlayers) return null;
         return (
-            <div className="sold-overlay">
+            <div className="ledger-overlay-backdrop">
                 <button className="dismiss-sold" onClick={() => setShowSoldPlayers(false)}>×</button>
-                <div className="sold-list-container" style={{ width: '90%', maxWidth: '1200px', maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-secondary)', padding: '2rem', borderRadius: '1rem' }}>
-                    <h2 className="section-title text-center mb-4">SOLD PLAYERS</h2>
-                    <div className="teams-grid">
-                        {Object.entries(soldPlayers).map(([teamId, players]) => {
-                            const team = teams.find(t => t.id === parseInt(teamId));
-                            const totalSpent = players.reduce((sum, p) => sum + (parseFloat(p.sold_price) || 0), 0);
-                            return (
-                                <div key={teamId} className="team-sold-group">
-                                    <div className="team-header">
-                                        <h3 className="team-name">{team?.name || `Team ${teamId}`}</h3>
-                                        <div className="team-stats">
-                                            <span className="stat-badge">{players.length} Pls</span>
-                                            <span className="stat-badge stat-accent">{totalSpent.toLocaleString()} Pts</span>
+                <div className="ledger-content-inner">
+                    <div className="ledger-header">
+                        <div className="meta-tag">OFFICIAL AUCTION REPORT</div>
+                        <h2 className="ledger-main-title">OFFICIAL AUCTION LEDGER</h2>
+                    </div>
+
+                    <div className="ledger-horizontal-scroll">
+                        {Object.entries(soldPlayers).length === 0 ? (
+                            <div className="empty-ledger-state">NO ASSETS LIQUIDATED YET.</div>
+                        ) : (
+                            Object.entries(soldPlayers).map(([teamId, players]) => {
+                                const team = teams.find(t => t.id === parseInt(teamId));
+                                const totalSpent = players.reduce((sum, p) => sum + (parseFloat(p.sold_price) || 0), 0);
+                                return (
+                                    <div key={teamId} className="glass-ledger-pane">
+                                        <div className="pane-header">
+                                            <div className="team-info-pane">
+                                                <h3 className="pane-team-name">{team?.name || `Team ${teamId}`}</h3>
+                                                <div className="pane-stats">
+                                                    <span className="mono-tag">[ {String(players.length).padStart(2, '0')} PLS ]</span>
+                                                    <span className="mono-tag tag-accent">[ {totalSpent.toLocaleString()} PTS ]</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pane-transaction-list">
+                                            {players.map((player, index) => (
+                                                <div key={player.id} className="transaction-strip">
+                                                    <div className="strip-identity">
+                                                        <span className="strip-rank">#{String(index + 1).padStart(2, '0')}</span>
+                                                        <div className="strip-avatar">
+                                                            {player.photo_url ? <img src={player.photo_url} alt={player.name} /> : <div className="avatar-placeholder">{player.name[0]}</div>}
+                                                        </div>
+                                                        <div className="strip-details">
+                                                            <div className="strip-name">{player.name}</div>
+                                                            <div className="strip-subtitle">{player.year} • {player.stats?.role || 'Player'}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="strip-action-group">
+                                                        <div className="strip-price">{player.sold_price} PTS</div>
+                                                        {(isAuctioneer || isAdmin) && (
+                                                            <button
+                                                                onClick={() => handleReleasePlayer(player.id)}
+                                                                className="strip-delete-btn"
+                                                                title="Release Asset"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                    <div className="players-list">
-                                        {players.map((player, index) => (
-                                            <div key={player.id} className="sold-player-item">
-                                                <div className="player-rank">#{index + 1}</div>
-                                                <div className="player-avatar">{player.photo_url ? <img src={player.photo_url} /> : '👤'}</div>
-                                                <div className="player-details">
-                                                    <h4 className="player-name">{player.name}</h4>
-                                                    <div className="player-meta"><span>{player.year}</span>•<span>{player.stats?.role || 'Player'}</span></div>
-                                                </div>
-                                                <div className="player-price"><div className="price-value">{player.sold_price}</div></div>
-                                                {(isAuctioneer || isAdmin) && (
-                                                    <button onClick={() => handleReleasePlayer(player.id)} className="release-btn" title="Release">×</button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             </div>
         );
     };
 
-    // --- MAIN RENDER ---
     // --- MAIN RENDER ---
     if (loading) return (
         <div className="auction-terminal">
@@ -462,175 +500,164 @@ export default function AuctionLive() {
             </div>
         </div>
     );
-
     return (
-        <div className="auction-terminal">
-            {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#3E5B4E', '#ffffff', '#000000']} />}
+        <>
+            <div className="editorial-glass-stage">
+                <div className="phantom-nav-spacer"></div>
+                <div className="auction-terminal">
+                    {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#3E5B4E', '#ffffff', '#000000']} />}
 
-            {/* Gavel Slam SOLD Overlay */}
-            {renderGavelSlamOverlay()}
+                    {/* LEFT: THE ARENA (75%) */}
+                    <div className="showcase-side">
+                        {auction ? (
+                            <div className="player-showcase animate-fadeIn">
+                                <div className="image-container">
+                                    {auction.photo_url ? (
+                                        <img src={auction.photo_url} className="player-hero-image" alt={auction.player_name} />
+                                    ) : (
+                                        <div className="player-hero-placeholder">{auction.player_name[0]}</div>
+                                    )}
+                                </div>
 
-            {/* LEFT: THE ARENA (75%) */}
-            <div className="showcase-side">
-                {auction ? (
-                    <div className="player-showcase animate-fadeIn">
-                        <div className="image-container">
-                            {auction.photo_url ? (
-                                <img src={auction.photo_url} className="player-hero-image" alt={auction.player_name} />
-                            ) : (
-                                <div className="player-hero-placeholder">{auction.player_name[0]}</div>
+                                <div className="scouting-report">
+                                    <div className="report-header">
+                                        <span className="report-tag">SCOUTING REPORT // REF.{auction.current_player_id?.toString().padStart(4, '0')}</span>
+                                        <h1 className="player-name-display">{auction.player_name}</h1>
+                                    </div>
+
+                                    <div className="data-grid-stats">
+                                        <div className="stat-col">
+                                            <label className="grid-label">ID #</label>
+                                            <span className="grid-value">{auction.current_player_id}</span>
+                                        </div>
+                                        <div className="stat-col">
+                                            <label className="grid-label">CATEGORY</label>
+                                            <span className="grid-value">{auction.sport?.toUpperCase()}</span>
+                                        </div>
+                                        <div className="stat-col">
+                                            <label className="grid-label">ACADEMIC YEAR</label>
+                                            <span className="grid-value">{auction.year?.toUpperCase()}</span>
+                                        </div>
+                                        <div className="stat-col">
+                                            <label className="grid-label">BASE VALUATION</label>
+                                            <span className="grid-value">{auction.base_price?.toLocaleString()} PTS</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="technical-specs-grid">
+                                        {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
+                                            <div key={key} className="spec-item">
+                                                <label className="spec-label">{key.replace('_', ' ').toUpperCase()}</label>
+                                                <span className="spec-value">{value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="standby-display animate-fadeIn">
+                                <div className="terminal-logo">DRGMC AUCTIONS</div>
+                                <p className="terminal-status">READY FOR NEXT DEPLOYMENT</p>
+                                {renderQueueDock()}
+                            </div>
+                        )}
+
+                        {/* Status Badges */}
+                        <div className="session-badges">
+                            <div className="session-badge">
+                                <span className={`status-dot ${isConnected ? 'live' : 'offline'}`}></span>
+                                {isAuctionActive ? 'LIVE' : 'PAUSED'}
+                            </div>
+                            {auction && (
+                                <div className="session-badge">
+                                    PLAYER ACTIVE
+                                </div>
                             )}
                         </div>
+                    </div>
 
-                        <div className="scouting-report">
-                            <div className="report-header">
-                                <span className="report-tag">SCOUTING REPORT // REF.{auction.current_player_id?.toString().padStart(4, '0')}</span>
-                                <h1 className="player-name-display">{auction.player_name}</h1>
-                            </div>
+                    {/* RIGHT: THE CONSOLE (25%) */}
+                    <div className="trading-desk-side">
+                        <div className="desk-header">
+                            <span>CONSOLE_SYS.v2.0</span>
+                            <span>{new Date().toLocaleTimeString()}</span>
+                        </div>
 
-                            <div className="data-grid-stats">
-                                <div className="stat-col">
-                                    <label className="grid-label">ID #</label>
-                                    <span className="grid-value">{auction.current_player_id}</span>
-                                </div>
-                                <div className="stat-col">
-                                    <label className="grid-label">CATEGORY</label>
-                                    <span className="grid-value">{auction.sport?.toUpperCase()}</span>
-                                </div>
-                                <div className="stat-col">
-                                    <label className="grid-label">ACADEMIC YEAR</label>
-                                    <span className="grid-value">{auction.year?.toUpperCase()}</span>
-                                </div>
-                                <div className="stat-col">
-                                    <label className="grid-label">BASE VALUATION</label>
-                                    <span className="grid-value">₹{auction.base_price?.toLocaleString()}</span>
+                        <div className="market-valuation">
+                            <div className="valuation-block">
+                                <label className="market-label">CURRENT VALUATION</label>
+                                <div className="market-price">
+                                    {auction ? (auction.current_bid || auction.base_price).toLocaleString() : '---'} <span className="currency-label">PTS</span>
                                 </div>
                             </div>
 
-                            <div className="technical-specs-grid">
-                                {auction.stats && Object.entries(typeof auction.stats === 'string' ? JSON.parse(auction.stats) : auction.stats).map(([key, value]) => (
-                                    <div key={key} className="spec-item">
-                                        <label className="spec-label">{key.replace('_', ' ').toUpperCase()}</label>
-                                        <span className="spec-value">{value}</span>
+                            <div className="valuation-block">
+                                <label className="market-label">CURRENT LEAD</label>
+                                <div className="leader-name">
+                                    {auction?.current_team_name ? auction.current_team_name.toUpperCase() : (auction ? 'NO ACTIVE BIDS' : 'STANDBY')}
+                                </div>
+                            </div>
+                        </div>
+
+                        {(isAuctioneer || isAdmin) && (
+                            <div className="admin-trading-deck mt-6">
+                                <button onClick={handleMarkSold} className="trading-btn sold mb-2" disabled={!auction?.current_team_id}>EXECUTE SALE</button>
+                                <div className="deck-grid mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                    <button onClick={handleMarkUnsold} className="trading-btn secondary">MARK UNSOLD</button>
+                                    <button onClick={handleResetBid} className="trading-btn danger">RESET BIDS</button>
+                                </div>
+
+                                <form onSubmit={handlePlaceBid} className="proxy-trading-row mt-6 pt-6 border-t border-border-color">
+                                    <label className="market-label">PROXY OVERRIDE</label>
+                                    <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="trading-select" required>
+                                        <option value="">TEAM SELECT...</option>
+                                        {teams.map(t => <option key={t.id} value={t.id}>{t.name.toUpperCase()}</option>)}
+                                    </select>
+                                    <div className="proxy-input-group">
+                                        <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="trading-input" placeholder="0.00" required />
+                                        <button type="submit" className="trading-btn black">BID</button>
                                     </div>
-                                ))}
+                                </form>
                             </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="standby-display animate-fadeIn">
-                        <div className="terminal-logo">DRGMC AUCTIONS</div>
-                        <p className="terminal-status">READY FOR NEXT DEPLOYMENT</p>
-                        {renderQueueDock()}
-                    </div>
-                )}
+                        )}
 
-                {/* Status Badges */}
-                <div className="session-badges">
-                    <div className="session-badge">
-                        <span className={`status-dot ${isConnected ? 'live' : 'offline'}`}></span>
-                        {isAuctionActive ? 'LIVE' : 'PAUSED'}
-                    </div>
-                    {auction && (
-                        <div className="session-badge">
-                            PLAYER ACTIVE
-                        </div>
-                    )}
-                </div>
-            </div>
+                        <div className="trading-action-zone">
+                            {error && <div className="market-alert error p-2 text-xs font-bold text-red-700 uppercase bg-red-100 mb-4">{error}</div>}
 
-            {/* RIGHT: THE CONSOLE (25%) */}
-            <div className="trading-desk-side">
-                <div className="desk-header">
-                    <span>CONSOLE_SYS.v2.0</span>
-                    <span>{new Date().toLocaleTimeString()}</span>
-                </div>
-
-                <div className="market-valuation">
-                    <div className="valuation-block">
-                        <label className="market-label">CURRENT VALUATION</label>
-                        <div className="market-price">
-                            <span className="currency">₹</span>
-                            {auction ? (auction.current_bid || auction.base_price).toLocaleString() : '---'}
-                        </div>
-                    </div>
-
-                    <div className="valuation-block">
-                        <label className="market-label">CURRENT LEAD</label>
-                        <div className="leader-name">
-                            {auction?.current_team_name ? auction.current_team_name.toUpperCase() : (auction ? 'NO ACTIVE BIDS' : 'STANDBY')}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="trading-action-zone">
-                    {/* Team Wallet Info (Only for active Team Owner or if Bidder is the owner) */}
-                    {user && (isTeamOwner || isAdmin) && (
-                        <div className="wallet-card card glass-card p-4 mb-4" style={{ background: 'rgba(62,91,78,0.1)', border: '1px solid var(--border-color)' }}>
-                            <div className="flex justify-between items-center mb-1">
-                                <label className="text-[10px] font-black tracking-widest uppercase opacity-60">ACTIVE BUDGET</label>
-                                <span className="text-[10px] font-black">₹</span>
-                            </div>
-                            <div className="text-xl font-black">
-                                {(() => {
-                                    let myTeam = teams.find(t => t.id == user.team_id);
-                                    if (!myTeam && user.name) myTeam = teams.find(t => t.owner_name?.toLowerCase() === user.name?.toLowerCase());
-                                    return myTeam ? myTeam.points.toLocaleString() : 'READING...';
-                                })()}
-                            </div>
-                        </div>
-                    )}
-
-                    {error && <div className="market-alert error p-2 text-xs font-bold text-red-700 uppercase bg-red-100 mb-4">{error}</div>}
-
-                    {(isAuctioneer || isAdmin) ? (
-                        <div className="admin-trading-deck">
-                            <button onClick={handleMarkSold} className="trading-btn sold mb-2" disabled={!auction?.current_team_id}>EXECUTE SALE</button>
-                            <div className="deck-grid mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                                <button onClick={handleMarkUnsold} className="trading-btn secondary">NO SALE</button>
-                                <button onClick={handleResetBid} className="trading-btn danger">RESET</button>
-                            </div>
-
-                            <form onSubmit={handlePlaceBid} className="proxy-trading-row">
-                                <label className="market-label">PROXY OVERRIDE</label>
-                                <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="trading-select" required>
-                                    <option value="">TEAM SELECT...</option>
-                                    {teams.map(t => <option key={t.id} value={t.id}>{t.name.toUpperCase()}</option>)}
-                                </select>
-                                <div className="proxy-input-group">
-                                    <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} className="trading-input" placeholder="0.00" required />
-                                    <button type="submit" className="trading-btn black">BID</button>
+                            {isTeamOwner && isAuctionActive && auction && (
+                                <div className="bidder-trading-deck">
+                                    <button
+                                        className={`trading-btn bid-execute ${isBidding ? 'processing' : ''}`}
+                                        onClick={() => handleTeamOwnerBid(nextBidAmount)}
+                                        disabled={isBidding}
+                                    >
+                                        <span className="action-tag">PLACE BID</span>
+                                        <span className="action-val">{nextBidAmount.toLocaleString()} PTS</span>
+                                    </button>
                                 </div>
-                            </form>
-                        </div>
-                    ) : isTeamOwner && isAuctionActive && auction ? (
-                        <div className="bidder-trading-deck">
-                            <button
-                                className={`trading-btn bid-execute ${isBidding ? 'processing' : ''}`}
-                                onClick={() => handleTeamOwnerBid(nextBidAmount)}
-                                disabled={isBidding}
-                            >
-                                <span className="action-tag">PLACE BID</span>
-                                <span className="action-val">₹{nextBidAmount.toLocaleString()}</span>
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="market-standby">
-                            <div className="text-center font-black tracking-widest text-[10px] opacity-40">
-                                {auction ? 'MARKET MONITORING ACTIVE' : 'SYSTEM ON STANDBY'}
+                            )}
+
+                            {!isTeamOwner && !isAdmin && !isAuctioneer && (
+                                <div className="market-standby">
+                                    <div className="text-center font-black tracking-widest text-[10px] opacity-40">
+                                        {auction ? 'MARKET MONITORING ACTIVE' : 'SYSTEM ON STANDBY'}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="market-footer mt-6">
+                                <button className="market-btn-text" onClick={() => setShowSoldPlayers(true)}>
+                                    HISTORY: {Object.values(soldPlayers).flat().length} ACQUISITIONS
+                                </button>
                             </div>
                         </div>
-                    )}
-
-                    <div className="market-footer mt-6">
-                        <button className="market-btn-text" onClick={() => setShowSoldPlayers(true)}>
-                            HISTORY: {Object.values(soldPlayers).flat().length} ACQUISITIONS
-                        </button>
                     </div>
                 </div>
             </div>
 
+            {/* Overlays moved outside editorial-glass-stage to prevent containing block (blur filter) issues */}
+            {renderGavelSlamOverlay()}
             {renderSoldOverlay()}
-        </div>
+        </>
     );
 }

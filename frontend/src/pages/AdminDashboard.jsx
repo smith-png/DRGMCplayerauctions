@@ -878,19 +878,26 @@ export default function AdminDashboard() {
 
                                             <div className="players-grid">
                                                 {getPaginatedData(activePlayers).map(player => (
-                                                    <div key={player.id} className="player-card card">
+                                                    <div key={player.id} className="dossier-player-card card">
+                                                        <button
+                                                            onClick={() => handleDeletePlayer(player.id)}
+                                                            className="registry-purge-btn"
+                                                            title="Purge Entry"
+                                                        >
+                                                            ✕
+                                                        </button>
                                                         {player.photo_url ? (
                                                             <img src={player.photo_url} alt={player.name} className="player-card-photo" />
                                                         ) : (
-                                                            <div className="table-placeholder mb-4" style={{ height: '140px', width: '100%', borderRadius: '0' }}>
+                                                            <div className="table-placeholder mb-4" style={{ height: '140px', width: '100%', borderRadius: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0e0e0', color: '#666', fontSize: '2rem', fontWeight: '900' }}>
                                                                 {player.name.charAt(0).toUpperCase()}
                                                             </div>
                                                         )}
                                                         <h4>{player.name}</h4>
                                                         <div className="player-card-meta mb-4">
-                                                            <span className="badge badge-primary">{player.sport}</span>
-                                                            <span className="badge badge-secondary">{player.year}</span>
-                                                            <span className="badge badge-warning">{player.status}</span>
+                                                            <span className="badge badge-primary">{player.sport.toUpperCase()}</span>
+                                                            <span className="badge badge-secondary">{player.year} • MS</span>
+                                                            <span className={`badge badge-${player.status === 'sold' ? 'success' : 'warning'}`}>{player.status.toUpperCase()}</span>
                                                         </div>
                                                         <div className="player-card-actions flex-col gap-2">
                                                             {player.status === 'approved' && (
@@ -898,7 +905,7 @@ export default function AdminDashboard() {
                                                                     onClick={() => handleAddToQueue(player.id)}
                                                                     className="btn btn-success w-full"
                                                                 >
-                                                                    Add to Queue
+                                                                    ACTIVATE IN QUEUE
                                                                 </button>
                                                             )}
                                                             {player.status === 'eligible' && (
@@ -906,7 +913,7 @@ export default function AdminDashboard() {
                                                                     onClick={() => handleRemoveFromQueue(player.id)}
                                                                     className="btn btn-outline-danger w-full"
                                                                 >
-                                                                    Drop Queue
+                                                                    RETRACT QUEUE
                                                                 </button>
                                                             )}
                                                             {player.status === 'unsold' && (
@@ -914,20 +921,14 @@ export default function AdminDashboard() {
                                                                     onClick={() => handleReApprove(player.id)}
                                                                     className="btn btn-success w-full"
                                                                 >
-                                                                    Release to Approved
+                                                                    RESTORE TO APPROVED
                                                                 </button>
                                                             )}
                                                             <button
                                                                 onClick={() => handleOpenPlayerModal(player)}
                                                                 className="btn btn-secondary w-full"
                                                             >
-                                                                Modify
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeletePlayer(player.id)}
-                                                                className="btn btn-outline-danger w-full"
-                                                            >
-                                                                Purge
+                                                                UPDATE PROFILE
                                                             </button>
                                                         </div>
                                                     </div>
@@ -1301,7 +1302,7 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">BUDGET ALLOCATION (₹)</label>
+                                            <label className="stat-label mb-2 block">BUDGET ALLOCATION (PTS)</label>
                                             <input
                                                 type="number"
                                                 className="input-minimal"
@@ -1474,7 +1475,7 @@ export default function AdminDashboard() {
 
                                         <div className="grid grid-2 gap-4 mb-8">
                                             <div className="form-group border-bottom pb-4">
-                                                <label className="stat-label mb-2 block">BASE PRICE (₹)</label>
+                                                <label className="stat-label mb-2 block">BASE PRICE (PTS)</label>
                                                 <input
                                                     type="number"
                                                     className="input-minimal"

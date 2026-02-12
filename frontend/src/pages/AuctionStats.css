@@ -358,104 +358,247 @@
     }
 }
 
-/* ADMIN VIEW: SWAPPED STYLES */
-.admin-stats-swapped .teams-grid-main {
-    padding-top: 1rem;
+/* --- OFFICIAL AUCTION LEDGER (GLASS) --- */
+.ledger-scroll-snap-container {
+    padding-bottom: 2rem;
+    margin: 0 -1rem;
+    /* Negative margin to let scroll touch edges if needed */
 }
 
-.teams-report-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 2rem;
+.ledger-container {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 20px 5px 40px 5px;
+    scroll-behavior: smooth;
+    align-items: flex-start;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(62, 91, 78, 0.4) transparent;
 }
 
-.team-report-card {
-    background: #0a0a0a;
-    border: 1px solid #222;
-    padding: 1.5rem;
+.ledger-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.ledger-container::-webkit-scrollbar-thumb {
+    background: rgba(62, 91, 78, 0.4);
+    border-radius: 10px;
+}
+
+/* Individual Team Pane - Liquid Glass Dossier */
+.ledger-column {
+    flex: 0 0 280px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 12px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    border-radius: 4px;
+    max-height: 600px;
+    scroll-snap-align: start;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
 }
 
-.team-report-card .card-header {
+.ledger-column:hover {
+    border-color: rgba(62, 91, 78, 0.5);
+    transform: translateY(-4px);
+}
+
+/* Team Header */
+.ledger-team-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 1px solid #1a1a1a;
-    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.team-report-card .team-name {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #fff;
-    text-transform: uppercase;
-}
-
-.team-report-card .team-sport {
-    font-size: 0.7rem;
-    color: #444;
-    text-transform: uppercase;
-    font-family: 'Space Grotesk', monospace;
-}
-
-.team-report-card .budget-val {
-    font-family: 'Space Grotesk', monospace;
-    color: var(--accent-sage);
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-align: right;
-}
-
-.team-report-card .budget-label {
-    font-size: 0.6rem;
-    color: #333;
-    text-align: right;
-}
-
-.roster-row {
+.team-info-group {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #111;
-}
-
-.player-meta {
+    flex-direction: column;
+    gap: 0.75rem;
     flex: 1;
+    min-width: 0;
+}
+
+.ledger-team-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.ledger-stats {
     display: flex;
-    justify-content: space-between;
-    padding-right: 1.5rem;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
-.p-name {
-    font-size: 0.85rem;
-    color: #ccc;
+.stat-tag {
+    background: #000;
+    color: #fff;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 99px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
 }
 
-.p-price {
-    font-family: 'Space Grotesk', monospace;
-    color: var(--accent-sage);
-    font-size: 0.85rem;
+.stat-tag.tag-accent {
+    background: var(--sage-deep);
 }
 
-.btn-release-inline {
+.ledger-wallet-btn {
     background: transparent;
-    border: 1px solid #FF3333;
-    color: #FF3333;
-    padding: 2px 8px;
-    font-size: 0.6rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000;
     cursor: pointer;
-    font-family: 'Space Grotesk', monospace;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
 }
 
-.btn-release-inline:hover {
-    background: #FF3333;
+.ledger-wallet-btn:hover {
+    background: #000;
     color: #fff;
+}
+
+/* Player List & Transaction Strips */
+.ledger-roster-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ledger-player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.2);
+    transition: background 0.2s ease;
+    position: relative;
+}
+
+.ledger-player-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ledger-row-index {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.2);
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.ledger-player-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #000;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ledger-player-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ledger-player-name {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.ledger-player-sub {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.6rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+}
+
+.ledger-player-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ledger-player-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    color: var(--sage-deep);
+    font-size: 0.85rem;
+}
+
+/* Delete Button - Subtle Circular Close */
+.ledger-delete-btn {
+    opacity: 0;
+    background: #000;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.ledger-player-row:hover .ledger-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ledger-delete-btn:hover {
+    transform: scale(1.1);
+    background: #dc2626;
+}
+
+.roster-empty {
+    padding: 2rem 0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #333;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+}
+
+/* OVERRIDE FOR ADMIN VIEW SWAP */
+.admin-stats-swapped .teams-grid-main {
+    padding-top: 0;
 }
 
 /* SIDEBAR MINI TABLE */

@@ -17,9 +17,7 @@ export default function Home() {
                 <h1 className="hero-main-title">DRGMC PLAYER AUCTIONS</h1>
 
                 <p className="hero-desc">
-                    The official digital terminal for DRGMC Player Auctions.
-                    Streamlined bidding, real-time rosters, and professional draft management
-                    across three major disciplines.
+                    Live Auction website for the DRGMC sports events! Sign up and Register to participate in the Auction.
                 </p>
 
                 <div className="hero-actions">
