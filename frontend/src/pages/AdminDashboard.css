@@ -279,6 +279,41 @@ input:checked+.slider-editorial:before {
     background-color: #fff;
 }
 
+/* Market Ledger Strip */
+.market-ledger-strip {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+}
+
+.ledger-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sage-deep);
+}
+
+.ledger-value {
+    font-weight: 800;
+    color: #000;
+}
+
+.ledger-divider {
+    color: rgba(62, 91, 78, 0.3);
+    font-weight: 300;
+}
+
 /* Rosters - Admin Tables */
 .table-container.card,
 .users-table.card {
@@ -423,6 +458,7 @@ tr:hover .table-thumb {
     color: var(--sage-deep);
     margin-bottom: 1.5rem;
     display: block;
+    text-transform: uppercase;
 }
 
 /* Budget Progress Bar */
@@ -500,7 +536,7 @@ tr:hover .table-thumb {
 
 .admin-modal-content h2 {
     font-family: 'Manrope', sans-serif;
-    font-weight: 900;
+    font-weight: 950;
     text-transform: uppercase;
     font-size: 2rem;
     margin-bottom: 2.5rem;
@@ -785,10 +821,225 @@ tr:hover .table-thumb {
     opacity: 1 !important;
     background: #dc2626;
     transform: scale(1.1);
-}/ *  
- N e w  
- M a r k e t  
- L e d g e r  
- S t r i p  
- * /  
- 
+}
+
+/* --- ROSTERS TAB - MASTER LEDGER --- */
+
+/* Header & Filters */
+.roster-header {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.roster-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin: 0;
+    color: #1A1A1A;
+}
+
+.roster-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.roster-search {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.5rem 0;
+    width: 200px;
+    color: #000;
+    transition: width 0.3s ease, border-color 0.3s ease;
+}
+
+.roster-search:focus {
+    width: 250px;
+    outline: none;
+    border-bottom-color: var(--sage-deep);
+}
+
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-pill {
+    background: transparent;
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--sage-deep);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill:hover,
+.filter-pill.active {
+    background: var(--sage-deep);
+    color: #fff;
+    border-color: var(--sage-deep);
+}
+
+/* Ledger List (Data Strips) */
+.roster-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.roster-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.4);
+    transition: background 0.2s ease;
+}
+
+.roster-strip:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.player-info-block {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 2;
+}
+
+.player-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--sage-deep);
+    filter: grayscale(100%);
+}
+
+.player-identity {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-name-bold {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: #000;
+    line-height: 1.1;
+}
+
+.player-id-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
+}
+
+.tech-data-block {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.tech-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #333;
+}
+
+.tech-label {
+    color: rgba(62, 91, 78, 0.6);
+    margin-right: 0.5rem;
+    font-size: 0.65rem;
+}
+
+/* Editorial Status Tag */
+.editorial-tag {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid #000;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.editorial-tag.pending {
+    border-color: #FFA500;
+    color: #cc8400;
+}
+
+/* Pagination Footer */
+.pagination-footer {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 2rem;
+}
+
+.page-nav-link {
+    background: none;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #000;
+    position: relative;
+    padding: 0;
+}
+
+.page-nav-link:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.page-nav-link:not(:disabled):hover::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
+}

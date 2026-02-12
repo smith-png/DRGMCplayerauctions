@@ -22,6 +22,11 @@ export default function AdminDashboard() {
     const [animationType, setAnimationType] = useState('confetti');
     const [bidIncrementRules, setBidIncrementRules] = useState([]);
 
+    // Roster Tab State
+    const [rosterFilter, setRosterFilter] = useState('ALL');
+    const [rosterSearch, setRosterSearch] = useState('');
+    const [rosterPage, setRosterPage] = useState(1);
+
     // User Modal State
     const [showUserModal, setShowUserModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
@@ -522,6 +527,19 @@ export default function AdminDashboard() {
     const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
     const activePlayers = players.filter(p => p.status !== 'pending');
 
+    // Roster Filtering
+    const filteredRoster = players.filter(player => {
+        const matchesFilter = rosterFilter === 'ALL' || player.sport?.toLowerCase() === rosterFilter.toLowerCase();
+        const matchesSearch = rosterSearch === '' ||
+            player.name.toLowerCase().includes(rosterSearch.toLowerCase()) ||
+            (player.id && player.id.toString().includes(rosterSearch));
+        return matchesFilter && matchesSearch;
+    });
+
+    const rosterItemsPerPage = 8;
+    const paginatedRoster = filteredRoster.slice((rosterPage - 1) * rosterItemsPerPage, rosterPage * rosterItemsPerPage);
+    const totalRosterPages = Math.ceil(filteredRoster.length / rosterItemsPerPage);
+
     return (
         <div className="editorial-glass-stage">
             <div className="phantom-nav-spacer"></div>
@@ -674,132 +692,132 @@ export default function AdminDashboard() {
                                 {
                                     activeTab === 'users' && (
                                         <div className="users-section animate-fadeIn">
-                                            {/* Section 1: Pending Players */}
-                                            <div className="section-block">
-                                                <h3>Pending Approvals</h3>
-                                                {pendingPlayers.length === 0 ? (
-                                                    <p className="no-data text-secondary">No pending registries found in system.</p>
-                                                ) : (
-                                                    <div className="table-container card">
-                                                        <table>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>IMG</th>
-                                                                    <th>PLAYER NAME</th>
-                                                                    <th>SPORT</th>
-                                                                    <th>YEAR</th>
-                                                                    <th>PRIMARY ROLE</th>
-                                                                    <th>ACTIONS</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {pendingPlayers.map(player => (
-                                                                    <tr key={player.id}>
-                                                                        <td>
-                                                                            {player.photo_url ? (
-                                                                                <img src={player.photo_url} alt="" className="table-thumb" />
-                                                                            ) : (
-                                                                                <div className="table-placeholder">
-                                                                                    {player.name.charAt(0).toUpperCase()}
-                                                                                </div>
-                                                                            )}
-                                                                        </td>
-                                                                        <td className="font-bold">{player.name}</td>
-                                                                        <td className="uppercase">{player.sport}</td>
-                                                                        <td>{player.year}</td>
-                                                                        <td>{player.stats?.role || '-'}</td>
-                                                                        <td>
-                                                                            <button
-                                                                                onClick={() => handleApprovePlayer(player.id)}
-                                                                                className="btn btn-success"
-                                                                            >
-                                                                                Approve
-                                                                            </button>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
+                                            {/* Master Roster Header */}
+                                            <div className="roster-header">
+                                                <div>
+                                                    <h3 className="roster-title">MASTER ROSTER // DATABASE ACCESS</h3>
+                                                    <div className="filter-group mt-3">
+                                                        {['ALL', 'CRICKET', 'FUTSAL', 'VOLLEYBALL'].map(sport => (
+                                                            <button
+                                                                key={sport}
+                                                                className={`filter-pill ${rosterFilter === sport ? 'active' : ''}`}
+                                                                onClick={() => { setRosterFilter(sport); setRosterPage(1); }}
+                                                            >
+                                                                {sport}
+                                                            </button>
+                                                        ))}
                                                     </div>
+                                                </div>
+
+                                                <div className="roster-actions">
+                                                    <input
+                                                        type="text"
+                                                        className="roster-search"
+                                                        placeholder="SEARCH DATABASE..."
+                                                        value={rosterSearch}
+                                                        onChange={(e) => { setRosterSearch(e.target.value); setRosterPage(1); }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Roster List - Ledger Strips */}
+                                            <div className="roster-list card mb-5">
+                                                {paginatedRoster.length === 0 ? (
+                                                    <div className="p-8 text-center text-secondary font-mono text-xs tracking-widest uppercase">
+                                                        No Entries Found
+                                                    </div>
+                                                ) : (
+                                                    paginatedRoster.map(player => (
+                                                        <div key={player.id} className="roster-strip">
+                                                            <div className="player-info-block">
+                                                                {player.photo_url ? (
+                                                                    <img src={player.photo_url} alt="" className="player-avatar-small" />
+                                                                ) : (
+                                                                    <div className="player-avatar-small flex items-center justify-center bg-gray-200 text-xs font-bold" style={{ backgroundColor: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                        {player.name.charAt(0)}
+                                                                    </div>
+                                                                )}
+                                                                <div className="player-identity">
+                                                                    <span className="player-name-bold">{player.name}</span>
+                                                                    <span className="player-id-mono">REF.{player.id?.toString().padStart(4, '0') || '0000'}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="tech-data-block">
+                                                                <div className="tech-item">
+                                                                    <span className="tech-label">SPORT:</span>
+                                                                    {player.sport}
+                                                                </div>
+                                                                <div className="tech-item">
+                                                                    <span className="tech-label">YEAR:</span>
+                                                                    {player.year}
+                                                                </div>
+                                                                <div className="tech-item">
+                                                                    <span className="tech-label">ROLE:</span>
+                                                                    {player.stats?.role || '-'}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="status-block flex items-center gap-4">
+                                                                <span className={`editorial-tag ${player.status === 'pending' ? 'pending' : ''}`}>
+                                                                    [{player.status === 'eligible' ? 'QUEUED' : player.status?.toUpperCase() || 'UNKNOWN'}]
+                                                                </span>
+
+                                                                <div className="flex gap-2">
+                                                                    {player.status === 'pending' && (
+                                                                        <button
+                                                                            onClick={() => handleApprovePlayer(player.id)}
+                                                                            className="btn btn-success"
+                                                                            style={{ fontSize: '0.6rem', padding: '0.4rem 0.8rem' }}
+                                                                        >
+                                                                            APPROVE
+                                                                        </button>
+                                                                    )}
+                                                                    <button
+                                                                        onClick={() => handleDeletePlayer(player.id)}
+                                                                        className="btn btn-outline-danger"
+                                                                        style={{ fontSize: '0.6rem', padding: '0.4rem 0.8rem', border: '1px solid #dc2626', color: '#dc2626' }}
+                                                                    >
+                                                                        REMOVE
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
                                                 )}
                                             </div>
 
-                                            {/* Section 2: Approved Players */}
-                                            <div className="section-block">
-                                                <h3>Approved Registrations</h3>
-                                                {approvedPlayers.length === 0 ? (
-                                                    <p className="no-data text-secondary">No verified athletes available.</p>
-                                                ) : (
-                                                    <div className="table-container card">
-                                                        <table>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>IMG</th>
-                                                                    <th>NAME</th>
-                                                                    <th>SPORT</th>
-                                                                    <th>YEAR</th>
-                                                                    <th>ROLE</th>
-                                                                    <th>MARKET STATUS</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {getPaginatedData(approvedPlayers, overviewPage).map(player => (
-                                                                    <tr key={player.id}>
-                                                                        <td>
-                                                                            {player.photo_url ? (
-                                                                                <img src={player.photo_url} alt="" className="table-thumb" />
-                                                                            ) : (
-                                                                                <div className="table-placeholder">
-                                                                                    {player.name.charAt(0).toUpperCase()}
-                                                                                </div>
-                                                                            )}
-                                                                        </td>
-                                                                        <td className="font-bold">{player.name}</td>
-                                                                        <td className="uppercase">{player.sport}</td>
-                                                                        <td>{player.year}</td>
-                                                                        <td>{player.stats?.role || '-'}</td>
-                                                                        <td>
-                                                                            {player.status === 'eligible'
-                                                                                ? <span className="badge badge-warning">Queued</span>
-                                                                                : <span className="badge badge-success">Approved</span>
-                                                                            }
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                        {/* Overview Pagination */}
-                                                        {approvedPlayers.length > itemsPerPage && (
-                                                            <div className="pagination-controls flex justify-center gap-4 p-6 border-t border-black/5">
-                                                                <button
-                                                                    className="btn btn-secondary"
-                                                                    onClick={() => setOverviewPage(p => Math.max(1, p - 1))}
-                                                                    disabled={overviewPage === 1}
-                                                                >
-                                                                    Prev
-                                                                </button>
-                                                                <span className="flex items-center font-bold text-xs">
-                                                                    P. {overviewPage} / {totalPages(approvedPlayers)}
-                                                                </span>
-                                                                <button
-                                                                    className="btn btn-secondary"
-                                                                    onClick={() => setOverviewPage(p => Math.min(totalPages(approvedPlayers), p + 1))}
-                                                                    disabled={overviewPage === totalPages(approvedPlayers)}
-                                                                >
-                                                                    Next
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
+                                            {/* Pagination */}
+                                            {totalRosterPages > 1 && (
+                                                <div className="pagination-footer">
+                                                    <button
+                                                        className="page-nav-link"
+                                                        onClick={() => setRosterPage(p => Math.max(1, p - 1))}
+                                                        disabled={rosterPage === 1}
+                                                    >
+                                                        &lt; PREV
+                                                    </button>
+
+                                                    <span className="pagination-info">
+                                                        PAGE {rosterPage} OF {totalRosterPages}
+                                                    </span>
+
+                                                    <button
+                                                        className="page-nav-link"
+                                                        onClick={() => setRosterPage(p => Math.min(totalRosterPages, p + 1))}
+                                                        disabled={rosterPage === totalRosterPages}
+                                                    >
+                                                        NEXT &gt;
+                                                    </button>
+                                                </div>
+                                            )}
 
                                             {/* User Accounts Section */}
-                                            <div className="section-block">
+                                            <div className="section-block mt-12 pt-12 border-t border-black/10">
                                                 <div className="flex justify-between items-center mb-6">
-                                                    <h3>Access Control</h3>
+                                                    <h3>System Access Control</h3>
                                                     <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
-                                                        + New User
+                                                        + New Admin
                                                     </button>
                                                 </div>
                                                 <div className="users-table card">
@@ -1482,7 +1500,7 @@ export default function AdminDashboard() {
                                                             value={playerForm.stats.role || ''}
                                                             onChange={e => handlePlayerStatChange('role', e.target.value)}
                                                         >
-                                                            <option value="">SELECT PREFERENCE</option>
+                                                            <option value="">SELECT POSITION</option>
                                                             {rolesBySport.Volleyball.map(role => (
                                                                 <option key={role} value={role}>{role.toUpperCase()}</option>
                                                             ))}
@@ -1490,27 +1508,6 @@ export default function AdminDashboard() {
                                                     </div>
                                                 </div>
                                             )}
-
-                                            <div className="grid grid-2 gap-4 mb-8">
-                                                <div className="form-group border-bottom pb-4">
-                                                    <label className="stat-label mb-2 block">BASE PRICE (PTS)</label>
-                                                    <input
-                                                        type="number"
-                                                        className="input-minimal"
-                                                        value={playerForm.base_price}
-                                                        onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="form-group border-bottom pb-4">
-                                                    <label className="stat-label mb-2 block">PLAYER PHOTO</label>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })}
-                                                        className="input-minimal"
-                                                    />
-                                                </div>
-                                            </div>
 
                                             <div className="modal-actions flex gap-4 mt-8">
                                                 <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
@@ -1527,4 +1524,3 @@ export default function AdminDashboard() {
         </div >
     );
 }
-
