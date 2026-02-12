@@ -1129,17 +1129,6 @@ export default function AdminDashboard() {
                                                                             >
                                                                                 EDIT FRANCHISE
                                                                             </button>
-                                                                            <button
-                                                                                onClick={() => {
-                                                                                    // Filter roster by this team's ID
-                                                                                    // Since we don't have a direct route, we switch tab and set filter
-                                                                                    setActiveTab('users'); // Switch to Roster
-                                                                                    // Ideally we'd set a filter, but for now just navigate
-                                                                                }}
-                                                                                className="btn-action-secondary"
-                                                                            >
-                                                                                VIEW ROSTER
-                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 );
