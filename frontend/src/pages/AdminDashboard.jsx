@@ -843,8 +843,12 @@ export default function AdminDashboard() {
                                                             onChange={(e) => { setUserSearch(e.target.value); setUserPage(1); }}
                                                             style={{ width: '200px' }}
                                                         />
-                                                        <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
-                                                            + New Admin
+                                                        <button
+                                                            onClick={() => handleOpenUserModal()}
+                                                            className="btn-action-primary"
+                                                            style={{ flex: 'none', padding: '0.6rem 1.5rem', fontSize: '0.75rem' }}
+                                                        >
+                                                            CREATE NEW USER
                                                         </button>
                                                     </div>
                                                 </div>
