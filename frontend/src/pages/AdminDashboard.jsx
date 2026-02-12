@@ -579,933 +579,952 @@ export default function AdminDashboard() {
                             <>
                                 {activeTab === 'overview' && stats && (
                                     <div className="overview-container animate-fadeIn">
-                                        <div className="overview-grid mb-6">
+                                        <div className="overview-grid">
                                             <div className="stat-card card">
-                                                <div className="stat-label">TOTAL USERS // REGISTRIES</div>
+                                                <span className="stat-ref-index">REF.001</span>
+                                                <div className="stat-label">TOTAL USERS</div>
                                                 <div className="stat-number">{stats.totalUsers}</div>
                                             </div>
                                             <div className="stat-card card">
-                                                <div className="stat-label">TOTAL PLAYERS // ACTIVE</div>
+                                                <span className="stat-ref-index">REF.002</span>
+                                                <div className="stat-label">TOTAL PLAYERS</div>
                                                 <div className="stat-number">
                                                     {Object.values(stats.players || {}).reduce((a, b) => a + b, 0)}
                                                 </div>
                                             </div>
                                             <div className="stat-card card">
-                                                <div className="stat-label">TOTAL FRANCHISES</div>
+                                                <span className="stat-ref-index">REF.003</span>
+                                                <div className="stat-label">FRANCHISES</div>
                                                 <div className="stat-number">{stats.totalTeams}</div>
                                             </div>
                                             <div className="stat-card card">
-                                                <div className="stat-label">TRANSFERRED VOLUME (BIDS)</div>
+                                                <span className="stat-ref-index">REF.004</span>
+                                                <div className="stat-label">VOL. BIDS</div>
                                                 <div className="stat-number">{stats.totalBids}</div>
                                             </div>
                                         </div>
 
-                                        <div className="overview-controls-row grid grid-2 gap-4 mb-6">
-                                            <div className="card overview-controls">
-                                                <div className="flex justify-between items-center">
-                                                    <div>
-                                                        <h3>Auction Master Control</h3>
-                                                        <p className="text-secondary">Toggle global market availability.</p>
-                                                    </div>
-                                                    <div className="toggle-switch-container">
-                                                        <label className="toggle-switch">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={isAuctionActive}
-                                                                onChange={handleToggleAuction}
-                                                            />
-                                                            <span className="slider round"></span>
-                                                        </label>
-                                                    </div>
+                                        <div className="overview-controls card">
+                                            <div className="system-override-strip">
+                                                <div className="control-info">
+                                                    <h3>LIVE AUCTION PROTOCOL</h3>
+                                                    <span className="text-secondary">ENABLE REAL-TIME BIDDING ENGINE</span>
+                                                </div>
+                                                <div className="editorial-toggle-wrapper">
+                                                    <span className={`system-status-indicator ${isAuctionActive ? 'active' : ''}`}>SYSTEM ACTIVE</span>
+                                                    <label className="toggle-switch-editorial">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isAuctionActive}
+                                                            onChange={handleToggleAuction}
+                                                        />
+                                                        <span className="slider-editorial type2"></span>
+                                                    </label>
                                                 </div>
                                             </div>
 
-                                            <div className="card overview-controls">
-                                                <div className="flex justify-between items-center">
-                                                    <div>
-                                                        <h3>Registration Gateway</h3>
-                                                        <p className="text-secondary">Open/Close athlete registration portal.</p>
-                                                    </div>
-                                                    <div className="toggle-switch-container">
-                                                        <label className="toggle-switch">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={isRegistrationOpen}
-                                                                onChange={handleToggleRegistration}
-                                                            />
-                                                            <span className="slider round"></span>
-                                                        </label>
-                                                    </div>
+                                            <div className="system-override-strip">
+                                                <div className="control-info">
+                                                    <h3>REGISTRATION PORTAL</h3>
+                                                    <span className="text-secondary">ALLOW NEW PLAYER ENTRIES</span>
+                                                </div>
+                                                <div className="editorial-toggle-wrapper">
+                                                    <span className={`system-status-indicator ${isRegistrationOpen ? 'active' : ''}`}>SYSTEM ACTIVE</span>
+                                                    <label className="toggle-switch-editorial">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isRegistrationOpen}
+                                                            onChange={handleToggleRegistration}
+                                                        />
+                                                        <span className="slider-editorial type2"></span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {stats.players && (
-                                            <div className="card overview-controls">
-                                                <h3>Market Status Breakdown</h3>
-                                                <div className="status-list mt-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-                                                    <div className="status-item flex flex-col items-center">
-                                                        <span className="stat-label mb-1">Pending</span>
-                                                        <span className="stat-number" style={{ fontSize: '2rem' }}>{stats.players.pending || 0}</span>
-                                                    </div>
-                                                    <div className="status-item flex flex-col items-center">
-                                                        <span className="stat-label mb-1">Approved</span>
-                                                        <span className="stat-number" style={{ fontSize: '2rem' }}>{stats.players.approved || 0}</span>
-                                                    </div>
-                                                    <div className="status-item flex flex-col items-center">
-                                                        <span className="stat-label mb-1">Sold</span>
-                                                        <span className="stat-number" style={{ fontSize: '2rem' }}>{stats.players.sold || 0}</span>
-                                                    </div>
-                                                    <div className="status-item flex flex-col items-center">
-                                                        <span className="stat-label mb-1">Unsold</span>
-                                                        <span className="stat-number" style={{ fontSize: '2rem' }}>{stats.players.unsold || 0}</span>
-                                                    </div>
-                                                </div>
+                                        <div className="market-ledger-strip">
+                                            <div className="ledger-item">
+                                                <span>PENDING</span>
+                                                <span className="ledger-value">{stats.players?.pending || 0}</span>
                                             </div>
-                                        )}
+                                            <span className="ledger-divider">///</span>
+                                            <div className="ledger-item">
+                                                <span>APPROVED</span>
+                                                <span className="ledger-value">{stats.players?.approved || 0}</span>
+                                            </div>
+                                            <span className="ledger-divider">///</span>
+                                            <div className="ledger-item">
+                                                <span>ELIGIBLE</span>
+                                                <span className="ledger-value">{stats.players?.eligible || 0}</span>
+                                            </div>
+                                            <span className="ledger-divider">///</span>
+                                            <div className="ledger-item">
+                                                <span>SOLD</span>
+                                                <span className="ledger-value">{stats.players?.sold || 0}</span>
+                                            </div>
+                                            <span className="ledger-divider">///</span>
+                                            <div className="ledger-item">
+                                                <span>UNSOLD</span>
+                                                <span className="ledger-value">{stats.players?.unsold || 0}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
+                                )}{/* End Overview Tab */}
 
-                                {activeTab === 'users' && (
-                                    <div className="users-section animate-fadeIn">
-                                        {/* Section 1: Pending Players */}
-                                        <div className="section-block">
-                                            <h3>Pending Approvals</h3>
-                                            {pendingPlayers.length === 0 ? (
-                                                <p className="no-data text-secondary">No pending registries found in system.</p>
-                                            ) : (
-                                                <div className="table-container card">
+                                {
+                                    activeTab === 'users' && (
+                                        <div className="users-section animate-fadeIn">
+                                            {/* Section 1: Pending Players */}
+                                            <div className="section-block">
+                                                <h3>Pending Approvals</h3>
+                                                {pendingPlayers.length === 0 ? (
+                                                    <p className="no-data text-secondary">No pending registries found in system.</p>
+                                                ) : (
+                                                    <div className="table-container card">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>IMG</th>
+                                                                    <th>PLAYER NAME</th>
+                                                                    <th>SPORT</th>
+                                                                    <th>YEAR</th>
+                                                                    <th>PRIMARY ROLE</th>
+                                                                    <th>ACTIONS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {pendingPlayers.map(player => (
+                                                                    <tr key={player.id}>
+                                                                        <td>
+                                                                            {player.photo_url ? (
+                                                                                <img src={player.photo_url} alt="" className="table-thumb" />
+                                                                            ) : (
+                                                                                <div className="table-placeholder">
+                                                                                    {player.name.charAt(0).toUpperCase()}
+                                                                                </div>
+                                                                            )}
+                                                                        </td>
+                                                                        <td className="font-bold">{player.name}</td>
+                                                                        <td className="uppercase">{player.sport}</td>
+                                                                        <td>{player.year}</td>
+                                                                        <td>{player.stats?.role || '-'}</td>
+                                                                        <td>
+                                                                            <button
+                                                                                onClick={() => handleApprovePlayer(player.id)}
+                                                                                className="btn btn-success"
+                                                                            >
+                                                                                Approve
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Section 2: Approved Players */}
+                                            <div className="section-block">
+                                                <h3>Approved Registrations</h3>
+                                                {approvedPlayers.length === 0 ? (
+                                                    <p className="no-data text-secondary">No verified athletes available.</p>
+                                                ) : (
+                                                    <div className="table-container card">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>IMG</th>
+                                                                    <th>NAME</th>
+                                                                    <th>SPORT</th>
+                                                                    <th>YEAR</th>
+                                                                    <th>ROLE</th>
+                                                                    <th>MARKET STATUS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {getPaginatedData(approvedPlayers, overviewPage).map(player => (
+                                                                    <tr key={player.id}>
+                                                                        <td>
+                                                                            {player.photo_url ? (
+                                                                                <img src={player.photo_url} alt="" className="table-thumb" />
+                                                                            ) : (
+                                                                                <div className="table-placeholder">
+                                                                                    {player.name.charAt(0).toUpperCase()}
+                                                                                </div>
+                                                                            )}
+                                                                        </td>
+                                                                        <td className="font-bold">{player.name}</td>
+                                                                        <td className="uppercase">{player.sport}</td>
+                                                                        <td>{player.year}</td>
+                                                                        <td>{player.stats?.role || '-'}</td>
+                                                                        <td>
+                                                                            {player.status === 'eligible'
+                                                                                ? <span className="badge badge-warning">Queued</span>
+                                                                                : <span className="badge badge-success">Approved</span>
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                        {/* Overview Pagination */}
+                                                        {approvedPlayers.length > itemsPerPage && (
+                                                            <div className="pagination-controls flex justify-center gap-4 p-6 border-t border-black/5">
+                                                                <button
+                                                                    className="btn btn-secondary"
+                                                                    onClick={() => setOverviewPage(p => Math.max(1, p - 1))}
+                                                                    disabled={overviewPage === 1}
+                                                                >
+                                                                    Prev
+                                                                </button>
+                                                                <span className="flex items-center font-bold text-xs">
+                                                                    P. {overviewPage} / {totalPages(approvedPlayers)}
+                                                                </span>
+                                                                <button
+                                                                    className="btn btn-secondary"
+                                                                    onClick={() => setOverviewPage(p => Math.min(totalPages(approvedPlayers), p + 1))}
+                                                                    disabled={overviewPage === totalPages(approvedPlayers)}
+                                                                >
+                                                                    Next
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* User Accounts Section */}
+                                            <div className="section-block">
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <h3>Access Control</h3>
+                                                    <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
+                                                        + New User
+                                                    </button>
+                                                </div>
+                                                <div className="users-table card">
                                                     <table>
                                                         <thead>
                                                             <tr>
-                                                                <th>IMG</th>
-                                                                <th>PLAYER NAME</th>
-                                                                <th>SPORT</th>
-                                                                <th>YEAR</th>
-                                                                <th>PRIMARY ROLE</th>
+                                                                <th>USER IDENTIFIER</th>
+                                                                <th>EMAIL CONTACT</th>
+                                                                <th>SECURITY ROLE</th>
+                                                                <th>TEAM ASSIGNMENT</th>
                                                                 <th>ACTIONS</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {pendingPlayers.map(player => (
-                                                                <tr key={player.id}>
+                                                            {users.map((user) => (
+                                                                <tr key={user.id}>
+                                                                    <td className="font-bold">{user.name}</td>
+                                                                    <td className="text-secondary">{user.email}</td>
                                                                     <td>
-                                                                        {player.photo_url ? (
-                                                                            <img src={player.photo_url} alt="" className="table-thumb" />
-                                                                        ) : (
-                                                                            <div className="table-placeholder">
-                                                                                {player.name.charAt(0).toUpperCase()}
-                                                                            </div>
-                                                                        )}
+                                                                        <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
+                                                                            {user.role}
+                                                                        </span>
                                                                     </td>
-                                                                    <td className="font-bold">{player.name}</td>
-                                                                    <td className="uppercase">{player.sport}</td>
-                                                                    <td>{player.year}</td>
-                                                                    <td>{player.stats?.role || '-'}</td>
                                                                     <td>
-                                                                        <button
-                                                                            onClick={() => handleApprovePlayer(player.id)}
-                                                                            className="btn btn-success"
-                                                                        >
-                                                                            Approve
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Section 2: Approved Players */}
-                                        <div className="section-block">
-                                            <h3>Approved Registrations</h3>
-                                            {approvedPlayers.length === 0 ? (
-                                                <p className="no-data text-secondary">No verified athletes available.</p>
-                                            ) : (
-                                                <div className="table-container card">
-                                                    <table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>IMG</th>
-                                                                <th>NAME</th>
-                                                                <th>SPORT</th>
-                                                                <th>YEAR</th>
-                                                                <th>ROLE</th>
-                                                                <th>MARKET STATUS</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {getPaginatedData(approvedPlayers, overviewPage).map(player => (
-                                                                <tr key={player.id}>
-                                                                    <td>
-                                                                        {player.photo_url ? (
-                                                                            <img src={player.photo_url} alt="" className="table-thumb" />
-                                                                        ) : (
-                                                                            <div className="table-placeholder">
-                                                                                {player.name.charAt(0).toUpperCase()}
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="font-bold">{player.name}</td>
-                                                                    <td className="uppercase">{player.sport}</td>
-                                                                    <td>{player.year}</td>
-                                                                    <td>{player.stats?.role || '-'}</td>
-                                                                    <td>
-                                                                        {player.status === 'eligible'
-                                                                            ? <span className="badge badge-warning">Queued</span>
-                                                                            : <span className="badge badge-success">Approved</span>
+                                                                        {user.role === 'team_owner' && user.team_id
+                                                                            ? teams.find(t => t.id === user.team_id)?.name || 'UNASSIGNED'
+                                                                            : '---'
                                                                         }
                                                                     </td>
+                                                                    <td>
+                                                                        <div className="flex gap-2">
+                                                                            <button
+                                                                                onClick={() => handleOpenUserModal(user)}
+                                                                                className="btn btn-secondary"
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => handleDeleteUser(user.id)}
+                                                                                className="btn btn-outline-danger"
+                                                                            >
+                                                                                Drop
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
                                                     </table>
-                                                    {/* Overview Pagination */}
-                                                    {approvedPlayers.length > itemsPerPage && (
-                                                        <div className="pagination-controls flex justify-center gap-4 p-6 border-t border-black/5">
-                                                            <button
-                                                                className="btn btn-secondary"
-                                                                onClick={() => setOverviewPage(p => Math.max(1, p - 1))}
-                                                                disabled={overviewPage === 1}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                }
+
+                                {
+                                    activeTab === 'players' && (
+                                        <div className="players-section animate-fadeIn">
+                                            <div className="section-block">
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <h3>Active Player Ledger</h3>
+                                                    <div className="flex gap-4">
+                                                        <button onClick={() => handleOpenPlayerModal()} className="btn btn-primary">
+                                                            + Registry Player
+                                                        </button>
+                                                        <div className="flex gap-2">
+                                                            <select
+                                                                value={exportSport}
+                                                                onChange={(e) => setExportSport(e.target.value)}
+                                                                className="input"
+                                                                style={{ width: '150px', padding: '0.4rem 0' }}
                                                             >
-                                                                Prev
-                                                            </button>
-                                                            <span className="flex items-center font-bold text-xs">
-                                                                P. {overviewPage} / {totalPages(approvedPlayers)}
-                                                            </span>
-                                                            <button
-                                                                className="btn btn-secondary"
-                                                                onClick={() => setOverviewPage(p => Math.min(totalPages(approvedPlayers), p + 1))}
-                                                                disabled={overviewPage === totalPages(approvedPlayers)}
-                                                            >
-                                                                Next
+                                                                <option value="all">All Sports</option>
+                                                                <option value="cricket">Cricket</option>
+                                                                <option value="futsal">Futsal</option>
+                                                                <option value="volleyball">Volleyball</option>
+                                                            </select>
+                                                            <button onClick={handleExportCSV} className="btn btn-secondary">
+                                                                Export CSV
                                                             </button>
                                                         </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* User Accounts Section */}
-                                        <div className="section-block">
-                                            <div className="flex justify-between items-center mb-6">
-                                                <h3>Access Control</h3>
-                                                <button onClick={() => handleOpenUserModal()} className="btn btn-primary">
-                                                    + New User
-                                                </button>
-                                            </div>
-                                            <div className="users-table card">
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>USER IDENTIFIER</th>
-                                                            <th>EMAIL CONTACT</th>
-                                                            <th>SECURITY ROLE</th>
-                                                            <th>TEAM ASSIGNMENT</th>
-                                                            <th>ACTIONS</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {users.map((user) => (
-                                                            <tr key={user.id}>
-                                                                <td className="font-bold">{user.name}</td>
-                                                                <td className="text-secondary">{user.email}</td>
-                                                                <td>
-                                                                    <span className={`badge badge-${user.role === 'admin' ? 'danger' : user.role === 'auctioneer' ? 'warning' : 'primary'}`}>
-                                                                        {user.role}
-                                                                    </span>
-                                                                </td>
-                                                                <td>
-                                                                    {user.role === 'team_owner' && user.team_id
-                                                                        ? teams.find(t => t.id === user.team_id)?.name || 'UNASSIGNED'
-                                                                        : '---'
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    <div className="flex gap-2">
-                                                                        <button
-                                                                            onClick={() => handleOpenUserModal(user)}
-                                                                            className="btn btn-secondary"
-                                                                        >
-                                                                            Edit
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteUser(user.id)}
-                                                                            className="btn btn-outline-danger"
-                                                                        >
-                                                                            Drop
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'players' && (
-                                    <div className="players-section animate-fadeIn">
-                                        <div className="section-block">
-                                            <div className="flex justify-between items-center mb-6">
-                                                <h3>Active Player Ledger</h3>
-                                                <div className="flex gap-4">
-                                                    <button onClick={() => handleOpenPlayerModal()} className="btn btn-primary">
-                                                        + Registry Player
-                                                    </button>
-                                                    <div className="flex gap-2">
-                                                        <select
-                                                            value={exportSport}
-                                                            onChange={(e) => setExportSport(e.target.value)}
-                                                            className="input"
-                                                            style={{ width: '150px', padding: '0.4rem 0' }}
-                                                        >
-                                                            <option value="all">All Sports</option>
-                                                            <option value="cricket">Cricket</option>
-                                                            <option value="futsal">Futsal</option>
-                                                            <option value="volleyball">Volleyball</option>
-                                                        </select>
-                                                        <button onClick={handleExportCSV} className="btn btn-secondary">
-                                                            Export CSV
-                                                        </button>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="players-grid">
-                                                {getPaginatedData(activePlayers).map(player => (
-                                                    <div key={player.id} className="dossier-player-card card">
-                                                        <button
-                                                            onClick={() => handleDeletePlayer(player.id)}
-                                                            className="registry-purge-btn"
-                                                            title="Purge Entry"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                        {player.photo_url ? (
-                                                            <img src={player.photo_url} alt={player.name} className="player-card-photo" />
-                                                        ) : (
-                                                            <div className="table-placeholder mb-4" style={{ height: '140px', width: '100%', borderRadius: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0e0e0', color: '#666', fontSize: '2rem', fontWeight: '900' }}>
-                                                                {player.name.charAt(0).toUpperCase()}
+                                                <div className="players-grid">
+                                                    {getPaginatedData(activePlayers).map(player => (
+                                                        <div key={player.id} className="dossier-player-card card">
+                                                            <button
+                                                                onClick={() => handleDeletePlayer(player.id)}
+                                                                className="registry-purge-btn"
+                                                                title="Purge Entry"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                            {player.photo_url ? (
+                                                                <img src={player.photo_url} alt={player.name} className="player-card-photo" />
+                                                            ) : (
+                                                                <div className="table-placeholder mb-4" style={{ height: '140px', width: '100%', borderRadius: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0e0e0', color: '#666', fontSize: '2rem', fontWeight: '900' }}>
+                                                                    {player.name.charAt(0).toUpperCase()}
+                                                                </div>
+                                                            )}
+                                                            <h4>{player.name}</h4>
+                                                            <div className="player-card-meta mb-4">
+                                                                <span className="badge badge-primary">{player.sport.toUpperCase()}</span>
+                                                                <span className="badge badge-secondary">{player.year} • MS</span>
+                                                                <span className={`badge badge-${player.status === 'sold' ? 'success' : 'warning'}`}>{player.status.toUpperCase()}</span>
                                                             </div>
-                                                        )}
-                                                        <h4>{player.name}</h4>
-                                                        <div className="player-card-meta mb-4">
-                                                            <span className="badge badge-primary">{player.sport.toUpperCase()}</span>
-                                                            <span className="badge badge-secondary">{player.year} • MS</span>
-                                                            <span className={`badge badge-${player.status === 'sold' ? 'success' : 'warning'}`}>{player.status.toUpperCase()}</span>
+                                                            <div className="player-card-actions flex-col gap-2">
+                                                                {player.status === 'approved' && (
+                                                                    <button
+                                                                        onClick={() => handleAddToQueue(player.id)}
+                                                                        className="btn btn-success w-full"
+                                                                    >
+                                                                        ACTIVATE IN QUEUE
+                                                                    </button>
+                                                                )}
+                                                                {player.status === 'eligible' && (
+                                                                    <button
+                                                                        onClick={() => handleRemoveFromQueue(player.id)}
+                                                                        className="btn btn-outline-danger w-full"
+                                                                    >
+                                                                        RETRACT QUEUE
+                                                                    </button>
+                                                                )}
+                                                                {player.status === 'unsold' && (
+                                                                    <button
+                                                                        onClick={() => handleReApprove(player.id)}
+                                                                        className="btn btn-success w-full"
+                                                                    >
+                                                                        RESTORE TO APPROVED
+                                                                    </button>
+                                                                )}
+                                                                <button
+                                                                    onClick={() => handleOpenPlayerModal(player)}
+                                                                    className="btn btn-secondary w-full"
+                                                                >
+                                                                    UPDATE PROFILE
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div className="player-card-actions flex-col gap-2">
-                                                            {player.status === 'approved' && (
-                                                                <button
-                                                                    onClick={() => handleAddToQueue(player.id)}
-                                                                    className="btn btn-success w-full"
-                                                                >
-                                                                    ACTIVATE IN QUEUE
-                                                                </button>
-                                                            )}
-                                                            {player.status === 'eligible' && (
-                                                                <button
-                                                                    onClick={() => handleRemoveFromQueue(player.id)}
-                                                                    className="btn btn-outline-danger w-full"
-                                                                >
-                                                                    RETRACT QUEUE
-                                                                </button>
-                                                            )}
-                                                            {player.status === 'unsold' && (
-                                                                <button
-                                                                    onClick={() => handleReApprove(player.id)}
-                                                                    className="btn btn-success w-full"
-                                                                >
-                                                                    RESTORE TO APPROVED
-                                                                </button>
-                                                            )}
-                                                            <button
-                                                                onClick={() => handleOpenPlayerModal(player)}
-                                                                className="btn btn-secondary w-full"
-                                                            >
-                                                                UPDATE PROFILE
-                                                            </button>
-                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Players Pagination */}
+                                                {activePlayers.length > itemsPerPage && (
+                                                    <div className="pagination-controls flex justify-center gap-4 mt-8">
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                            disabled={currentPage === 1}
+                                                        >
+                                                            Prev
+                                                        </button>
+                                                        <span className="flex items-center font-bold text-xs uppercase letter-spacing-1">
+                                                            Page {currentPage} of {totalPages(activePlayers)}
+                                                        </span>
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            onClick={() => setCurrentPage(p => Math.min(totalPages(activePlayers), p + 1))}
+                                                            disabled={currentPage === totalPages(activePlayers)}
+                                                        >
+                                                            Next
+                                                        </button>
                                                     </div>
-                                                ))}
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                }
+
+                                {
+                                    activeTab === 'teams' && (
+                                        <div className="teams-section">
+                                            <div className="section-header-row mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <h3>Active Teams</h3>
+                                                <button onClick={() => handleOpenTeamModal()} className="btn btn-primary">+ Create Team</button>
                                             </div>
 
-                                            {/* Players Pagination */}
-                                            {activePlayers.length > itemsPerPage && (
-                                                <div className="pagination-controls flex justify-center gap-4 mt-8">
-                                                    <button
-                                                        className="btn btn-secondary"
-                                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                                        disabled={currentPage === 1}
-                                                    >
-                                                        Prev
-                                                    </button>
-                                                    <span className="flex items-center font-bold text-xs uppercase letter-spacing-1">
-                                                        Page {currentPage} of {totalPages(activePlayers)}
-                                                    </span>
-                                                    <button
-                                                        className="btn btn-secondary"
-                                                        onClick={() => setCurrentPage(p => Math.min(totalPages(activePlayers), p + 1))}
-                                                        disabled={currentPage === totalPages(activePlayers)}
-                                                    >
-                                                        Next
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'teams' && (
-                                    <div className="teams-section">
-                                        <div className="section-header-row mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <h3>Active Teams</h3>
-                                            <button onClick={() => handleOpenTeamModal()} className="btn btn-primary">+ Create Team</button>
-                                        </div>
-
-                                        {Object.keys(teams.reduce((acc, team) => {
-                                            const sport = team.sport || 'Other';
-                                            if (!acc[sport]) acc[sport] = [];
-                                            acc[sport].push(team);
-                                            return acc;
-                                        }, {})).length === 0 ? (
-                                            <p className="no-data">No teams created yet.</p>
-                                        ) : (
-                                            Object.entries(teams.reduce((acc, team) => {
+                                            {Object.keys(teams.reduce((acc, team) => {
                                                 const sport = team.sport || 'Other';
                                                 if (!acc[sport]) acc[sport] = [];
                                                 acc[sport].push(team);
                                                 return acc;
-                                            }, {})).map(([sport, sportTeams]) => (
-                                                <div key={sport} className="sport-section mb-4">
-                                                    <h4 className="capitalize mb-4" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>{sport}</h4>
-                                                    <div className="teams-grid">
-                                                        {sportTeams.map(team => (
-                                                            <div key={team.id} className="team-card-admin card flex flex-col items-center text-center p-4">
-                                                                <div className="team-logo-wrapper mb-3" style={{ margin: '0 auto 1rem' }}>
-                                                                    {team.logo_url ? (
-                                                                        <img src={team.logo_url} alt={team.name} className="team-logo-small" />
-                                                                    ) : (
-                                                                        <div className="team-logo-placeholder">
-                                                                            {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="team-info w-full">
-                                                                    <h4 className="m-0 text-lg font-bold">{team.name}</h4>
-                                                                    <span className="text-sm text-secondary capitalize block mb-2">{team.sport}</span>
-                                                                    <div className="team-card-body mt-3">
-                                                                        <div className="stat-row flex justify-between text-sm mb-1">
-                                                                            <span>Budget:</span>
-                                                                            <span className="font-bold">{parseFloat(team.budget).toLocaleString()}</span>
-                                                                        </div>
-                                                                        {/* Could add player count here if available */}
+                                            }, {})).length === 0 ? (
+                                                <p className="no-data">No teams created yet.</p>
+                                            ) : (
+                                                Object.entries(teams.reduce((acc, team) => {
+                                                    const sport = team.sport || 'Other';
+                                                    if (!acc[sport]) acc[sport] = [];
+                                                    acc[sport].push(team);
+                                                    return acc;
+                                                }, {})).map(([sport, sportTeams]) => (
+                                                    <div key={sport} className="sport-section mb-4">
+                                                        <h4 className="capitalize mb-4" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>{sport}</h4>
+                                                        <div className="teams-grid">
+                                                            {sportTeams.map(team => (
+                                                                <div key={team.id} className="team-card-admin card flex flex-col items-center text-center p-4">
+                                                                    <div className="team-logo-wrapper mb-3" style={{ margin: '0 auto 1rem' }}>
+                                                                        {team.logo_url ? (
+                                                                            <img src={team.logo_url} alt={team.name} className="team-logo-small" />
+                                                                        ) : (
+                                                                            <div className="team-logo-placeholder">
+                                                                                {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                    <div className="team-card-actions mt-3 flex gap-2">
-                                                                        <button
-                                                                            onClick={() => handleOpenTeamModal(team)}
-                                                                            className="btn btn-sm btn-secondary flex-1"
-                                                                        >
-                                                                            Edit
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteTeam(team.id)}
-                                                                            className="btn btn-sm btn-danger flex-1"
-                                                                        >
-                                                                            Delete
-                                                                        </button>
+                                                                    <div className="team-info w-full">
+                                                                        <h4 className="m-0 text-lg font-bold">{team.name}</h4>
+                                                                        <span className="text-sm text-secondary capitalize block mb-2">{team.sport}</span>
+                                                                        <div className="team-card-body mt-3">
+                                                                            <div className="stat-row flex justify-between text-sm mb-1">
+                                                                                <span>Budget:</span>
+                                                                                <span className="font-bold">{parseFloat(team.budget).toLocaleString()}</span>
+                                                                            </div>
+                                                                            {/* Could add player count here if available */}
+                                                                        </div>
+                                                                        <div className="team-card-actions mt-3 flex gap-2">
+                                                                            <button
+                                                                                onClick={() => handleOpenTeamModal(team)}
+                                                                                className="btn btn-sm btn-secondary flex-1"
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => handleDeleteTeam(team.id)}
+                                                                                className="btn btn-sm btn-danger flex-1"
+                                                                            >
+                                                                                Delete
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
+                                                ))
+                                            )}
+                                        </div>
+                                    )
+                                }
                             </>
                         )}
 
-                        {activeTab === 'settings' && (
-                            <div className="settings-section animate-fadeIn">
-                                <div className="section-block">
-                                    <h3 className="mb-6">SYSTEM CONSOLE // CONFIGURATION</h3>
+                        {
+                            activeTab === 'settings' && (
+                                <div className="settings-section animate-fadeIn">
+                                    <div className="section-block">
+                                        <h3 className="mb-6">SYSTEM CONSOLE // CONFIGURATION</h3>
 
-                                    <div className="grid grid-2 gap-6 mb-8">
-                                        {/* Auction Controls */}
-                                        <div className="card glass-card p-6">
-                                            <div className="flex justify-between items-center mb-6">
-                                                <h4 className="stat-label">AUCTION PARAMETERS</h4>
-                                                <span className="badge badge-primary">LIVE</span>
-                                            </div>
-
-                                            <div className="flex-col gap-4">
-                                                <div className="control-item border-bottom pb-4 mb-4">
-                                                    <label className="stat-label mb-2 block">SOLD OVERLAY DURATION</label>
-                                                    <div className="flex gap-2 items-center">
-                                                        <input
-                                                            type="number"
-                                                            value={animationDuration}
-                                                            onChange={(e) => setAnimationDuration(parseInt(e.target.value) || 0)}
-                                                            className="input text-center w-24"
-                                                            min="5"
-                                                        />
-                                                        <span className="text-secondary font-bold text-xs">SECONDS</span>
-                                                        <button onClick={handleUpdateAnimationDuration} className="btn btn-secondary ml-auto">APPLY</button>
-                                                    </div>
+                                        <div className="grid grid-2 gap-6 mb-8">
+                                            {/* Auction Controls */}
+                                            <div className="card glass-card p-6">
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <h4 className="stat-label">AUCTION PARAMETERS</h4>
+                                                    <span className="badge badge-primary">LIVE</span>
                                                 </div>
 
-                                                <div className="control-item border-bottom pb-4 mb-4">
-                                                    <label className="stat-label mb-2 block">MINIMUM BID REGISTRY</label>
-                                                    <div className="flex gap-2 items-center">
-                                                        <select
-                                                            className="input flex-1"
-                                                            value={bulkSport}
-                                                            onChange={(e) => {
-                                                                setBulkSport(e.target.value);
-                                                                setBulkMinBid(sportMinBids[e.target.value] || 50);
-                                                            }}
+                                                <div className="flex-col gap-4">
+                                                    <div className="control-item border-bottom pb-4 mb-4">
+                                                        <label className="stat-label mb-2 block">SOLD OVERLAY DURATION</label>
+                                                        <div className="flex gap-2 items-center">
+                                                            <input
+                                                                type="number"
+                                                                value={animationDuration}
+                                                                onChange={(e) => setAnimationDuration(parseInt(e.target.value) || 0)}
+                                                                className="input text-center w-24"
+                                                                min="5"
+                                                            />
+                                                            <span className="text-secondary font-bold text-xs">SECONDS</span>
+                                                            <button onClick={handleUpdateAnimationDuration} className="btn btn-secondary ml-auto">APPLY</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="control-item border-bottom pb-4 mb-4">
+                                                        <label className="stat-label mb-2 block">MINIMUM BID REGISTRY</label>
+                                                        <div className="flex gap-2 items-center">
+                                                            <select
+                                                                className="input flex-1"
+                                                                value={bulkSport}
+                                                                onChange={(e) => {
+                                                                    setBulkSport(e.target.value);
+                                                                    setBulkMinBid(sportMinBids[e.target.value] || 50);
+                                                                }}
+                                                            >
+                                                                <option value="cricket">Cricket</option>
+                                                                <option value="futsal">Futsal</option>
+                                                                <option value="volleyball">Volley</option>
+                                                            </select>
+                                                            <input
+                                                                type="number"
+                                                                className="input w-24"
+                                                                value={bulkMinBid}
+                                                                onChange={(e) => setBulkMinBid(e.target.value)}
+                                                            />
+                                                            <button onClick={handleBulkMinBidUpdate} className="btn btn-secondary">UPDATE</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={handleBulkResetReleased}
+                                                            className="btn btn-secondary flex-1"
                                                         >
-                                                            <option value="cricket">Cricket</option>
-                                                            <option value="futsal">Futsal</option>
-                                                            <option value="volleyball">Volley</option>
-                                                        </select>
-                                                        <input
-                                                            type="number"
-                                                            className="input w-24"
-                                                            value={bulkMinBid}
-                                                            onChange={(e) => setBulkMinBid(e.target.value)}
-                                                        />
-                                                        <button onClick={handleBulkMinBidUpdate} className="btn btn-secondary">UPDATE</button>
+                                                            RESET UNSOLD
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!confirm('DANGER: RESET ALL WALLETS? This will unsold ALL players, clear ALL bids, and set ALL team budgets to 2000.')) return;
+                                                                try {
+                                                                    await adminAPI.resetAllWallets();
+                                                                    setMessage('GLOBAL RESET SUCCESSFUL');
+                                                                    loadData();
+                                                                } catch (e) {
+                                                                    setMessage('Global reset failed');
+                                                                }
+                                                            }}
+                                                            className="btn btn-outline-danger flex-1"
+                                                        >
+                                                            FACTORY RESET
+                                                        </button>
                                                     </div>
                                                 </div>
-
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={handleBulkResetReleased}
-                                                        className="btn btn-secondary flex-1"
-                                                    >
-                                                        RESET UNSOLD
-                                                    </button>
-                                                    <button
-                                                        onClick={async () => {
-                                                            if (!confirm('DANGER: RESET ALL WALLETS? This will unsold ALL players, clear ALL bids, and set ALL team budgets to 2000.')) return;
-                                                            try {
-                                                                await adminAPI.resetAllWallets();
-                                                                setMessage('GLOBAL RESET SUCCESSFUL');
-                                                                loadData();
-                                                            } catch (e) {
-                                                                setMessage('Global reset failed');
-                                                            }
-                                                        }}
-                                                        className="btn btn-outline-danger flex-1"
-                                                    >
-                                                        FACTORY RESET
-                                                    </button>
-                                                </div>
                                             </div>
-                                        </div>
 
-                                        {/* Bid Increment Rules */}
-                                        <div className="card glass-card p-6">
-                                            <h4 className="stat-label mb-6">BID INCREMENT LOGIC</h4>
-                                            <div className="config-sheet mb-4">
-                                                <table className="w-full text-left font-mono text-xs">
-                                                    <thead>
-                                                        <tr className="border-bottom">
-                                                            <th className="pb-2">THRESHOLD</th>
-                                                            <th className="pb-2">STEP</th>
-                                                            <th className="pb-2">ACTION</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {bidIncrementRules.map((rule, index) => (
-                                                            <tr key={index} className="border-bottom">
-                                                                <td className="py-2">
-                                                                    {index === 0 ? "0 (BASE)" : (
+                                            {/* Bid Increment Rules */}
+                                            <div className="card glass-card p-6">
+                                                <h4 className="stat-label mb-6">BID INCREMENT LOGIC</h4>
+                                                <div className="config-sheet mb-4">
+                                                    <table className="w-full text-left font-mono text-xs">
+                                                        <thead>
+                                                            <tr className="border-bottom">
+                                                                <th className="pb-2">THRESHOLD</th>
+                                                                <th className="pb-2">STEP</th>
+                                                                <th className="pb-2">ACTION</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {bidIncrementRules.map((rule, index) => (
+                                                                <tr key={index} className="border-bottom">
+                                                                    <td className="py-2">
+                                                                        {index === 0 ? "0 (BASE)" : (
+                                                                            <input
+                                                                                type="number"
+                                                                                className="input-minimal w-20"
+                                                                                value={rule.threshold}
+                                                                                onChange={(e) => {
+                                                                                    const newRules = [...bidIncrementRules];
+                                                                                    newRules[index].threshold = parseInt(e.target.value);
+                                                                                    setBidIncrementRules(newRules);
+                                                                                }}
+                                                                            />
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="py-2">
                                                                         <input
                                                                             type="number"
-                                                                            className="input-minimal w-20"
-                                                                            value={rule.threshold}
+                                                                            className="input-minimal w-16"
+                                                                            value={rule.increment}
                                                                             onChange={(e) => {
                                                                                 const newRules = [...bidIncrementRules];
-                                                                                newRules[index].threshold = parseInt(e.target.value);
+                                                                                newRules[index].increment = parseInt(e.target.value);
                                                                                 setBidIncrementRules(newRules);
                                                                             }}
                                                                         />
-                                                                    )}
-                                                                </td>
-                                                                <td className="py-2">
-                                                                    <input
-                                                                        type="number"
-                                                                        className="input-minimal w-16"
-                                                                        value={rule.increment}
-                                                                        onChange={(e) => {
-                                                                            const newRules = [...bidIncrementRules];
-                                                                            newRules[index].increment = parseInt(e.target.value);
-                                                                            setBidIncrementRules(newRules);
-                                                                        }}
-                                                                    />
-                                                                </td>
-                                                                <td className="py-2">
-                                                                    {index > 0 && (
-                                                                        <button
-                                                                            className="text-danger hover:underline"
-                                                                            onClick={() => {
-                                                                                const newRules = bidIncrementRules.filter((_, i) => i !== index);
-                                                                                setBidIncrementRules(newRules);
-                                                                            }}
-                                                                        >
-                                                                            DROP
-                                                                        </button>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="btn btn-secondary flex-1"
-                                                    onClick={() => setBidIncrementRules([...bidIncrementRules, { threshold: 0, increment: 10 }])}
-                                                >
-                                                    + ADD RULE
-                                                </button>
-                                                <button
-                                                    className="btn btn-primary flex-1"
-                                                    onClick={async () => {
-                                                        try {
-                                                            const cleanRules = bidIncrementRules
-                                                                .map(r => ({ threshold: parseInt(r.threshold), increment: parseInt(r.increment) }))
-                                                                .sort((a, b) => a.threshold - b.threshold);
-                                                            if (cleanRules.length === 0 || cleanRules[0].threshold !== 0) {
-                                                                alert("Must have a rule starting at 0 threshold");
-                                                                return;
+                                                                    </td>
+                                                                    <td className="py-2">
+                                                                        {index > 0 && (
+                                                                            <button
+                                                                                className="text-danger hover:underline"
+                                                                                onClick={() => {
+                                                                                    const newRules = bidIncrementRules.filter((_, i) => i !== index);
+                                                                                    setBidIncrementRules(newRules);
+                                                                                }}
+                                                                            >
+                                                                                DROP
+                                                                            </button>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        className="btn btn-secondary flex-1"
+                                                        onClick={() => setBidIncrementRules([...bidIncrementRules, { threshold: 0, increment: 10 }])}
+                                                    >
+                                                        + ADD RULE
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-primary flex-1"
+                                                        onClick={async () => {
+                                                            try {
+                                                                const cleanRules = bidIncrementRules
+                                                                    .map(r => ({ threshold: parseInt(r.threshold), increment: parseInt(r.increment) }))
+                                                                    .sort((a, b) => a.threshold - b.threshold);
+                                                                if (cleanRules.length === 0 || cleanRules[0].threshold !== 0) {
+                                                                    alert("Must have a rule starting at 0 threshold");
+                                                                    return;
+                                                                }
+                                                                await adminAPI.updateBidRules(cleanRules);
+                                                                setMessage('Bid rules updated successfully');
+                                                            } catch (err) {
+                                                                setMessage('Failed to update bid rules');
                                                             }
-                                                            await adminAPI.updateBidRules(cleanRules);
-                                                            setMessage('Bid rules updated successfully');
-                                                        } catch (err) {
-                                                            setMessage('Failed to update bid rules');
-                                                        }
-                                                    }}
-                                                >
-                                                    SAVE LOGIC
-                                                </button>
+                                                        }}
+                                                    >
+                                                        SAVE LOGIC
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        }
 
-                        {showUserModal && (
-                            <div className="modal-overlay animate-fadeIn">
-                                <div className="admin-modal glass-card">
-                                    <h2 className="stat-label mb-8">{editingUser ? 'MODIFY USER REGISTRY' : 'NEW ACCESS CREDENTIAL'}</h2>
-                                    <form onSubmit={handleSaveUser}>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">FULL LEGAL NAME</label>
-                                            <input
-                                                type="text"
-                                                className="input-minimal"
-                                                value={userData.name}
-                                                onChange={e => setUserData({ ...userData, name: e.target.value })}
-                                                required
-                                                placeholder="Enter name..."
-                                            />
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">EMAIL IDENTIFIER</label>
-                                            <input
-                                                type="email"
-                                                className="input-minimal"
-                                                value={userData.email}
-                                                onChange={e => setUserData({ ...userData, email: e.target.value })}
-                                                required
-                                                placeholder="email@system.com"
-                                            />
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">SECURE ACCESS TOKEN {editingUser && <span className="text-secondary opacity-50">(BLANK TO KEEP)</span>}</label>
-                                            <input
-                                                type="password"
-                                                className="input-minimal"
-                                                value={userData.password}
-                                                onChange={e => setUserData({ ...userData, password: e.target.value })}
-                                                required={!editingUser}
-                                                placeholder="••••••••"
-                                            />
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">SYSTEM ROLE</label>
-                                            <select
-                                                className="input-minimal"
-                                                value={userData.role}
-                                                onChange={e => setUserData({ ...userData, role: e.target.value })}
-                                            >
-                                                <option value="viewer">VIEWER</option>
-                                                <option value="auctioneer">AUCTIONEER</option>
-                                                <option value="admin">ADMINISTRATOR</option>
-                                                <option value="team_owner">TEAM OWNER</option>
-                                            </select>
-                                        </div>
-
-                                        {userData.role === 'team_owner' && (
-                                            <div className="form-group border-bottom pb-4 mb-8">
-                                                <label className="stat-label mb-2 block">ASSIGNED FRANCHISE</label>
+                        {
+                            showUserModal && (
+                                <div className="modal-overlay animate-fadeIn">
+                                    <div className="admin-modal glass-card">
+                                        <h2 className="stat-label mb-8">{editingUser ? 'MODIFY USER REGISTRY' : 'NEW ACCESS CREDENTIAL'}</h2>
+                                        <form onSubmit={handleSaveUser}>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">FULL LEGAL NAME</label>
+                                                <input
+                                                    type="text"
+                                                    className="input-minimal"
+                                                    value={userData.name}
+                                                    onChange={e => setUserData({ ...userData, name: e.target.value })}
+                                                    required
+                                                    placeholder="Enter name..."
+                                                />
+                                            </div>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">EMAIL IDENTIFIER</label>
+                                                <input
+                                                    type="email"
+                                                    className="input-minimal"
+                                                    value={userData.email}
+                                                    onChange={e => setUserData({ ...userData, email: e.target.value })}
+                                                    required
+                                                    placeholder="email@system.com"
+                                                />
+                                            </div>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">SECURE ACCESS TOKEN {editingUser && <span className="text-secondary opacity-50">(BLANK TO KEEP)</span>}</label>
+                                                <input
+                                                    type="password"
+                                                    className="input-minimal"
+                                                    value={userData.password}
+                                                    onChange={e => setUserData({ ...userData, password: e.target.value })}
+                                                    required={!editingUser}
+                                                    placeholder="••••••••"
+                                                />
+                                            </div>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">SYSTEM ROLE</label>
                                                 <select
                                                     className="input-minimal"
-                                                    value={userData.team_id}
-                                                    onChange={e => setUserData({ ...userData, team_id: e.target.value })}
-                                                    required
+                                                    value={userData.role}
+                                                    onChange={e => setUserData({ ...userData, role: e.target.value })}
                                                 >
-                                                    <option value="">SELECT A FRANCHISE...</option>
-                                                    {teams.map(team => (
-                                                        <option key={team.id} value={team.id}>
-                                                            {team.name.toUpperCase()} [{team.sport.toUpperCase()}]
-                                                        </option>
-                                                    ))}
+                                                    <option value="viewer">VIEWER</option>
+                                                    <option value="auctioneer">AUCTIONEER</option>
+                                                    <option value="admin">ADMINISTRATOR</option>
+                                                    <option value="team_owner">TEAM OWNER</option>
                                                 </select>
                                             </div>
-                                        )}
 
-                                        <div className="modal-actions flex gap-4 mt-8">
-                                            <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary flex-1">DISCARD</button>
-                                            <button type="submit" className="btn btn-primary flex-1">{editingUser ? 'COMMIT' : 'INITIALIZE'}</button>
-                                        </div>
-                                    </form>
+                                            {userData.role === 'team_owner' && (
+                                                <div className="form-group border-bottom pb-4 mb-8">
+                                                    <label className="stat-label mb-2 block">ASSIGNED FRANCHISE</label>
+                                                    <select
+                                                        className="input-minimal"
+                                                        value={userData.team_id}
+                                                        onChange={e => setUserData({ ...userData, team_id: e.target.value })}
+                                                        required
+                                                    >
+                                                        <option value="">SELECT A FRANCHISE...</option>
+                                                        {teams.map(team => (
+                                                            <option key={team.id} value={team.id}>
+                                                                {team.name.toUpperCase()} [{team.sport.toUpperCase()}]
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className="modal-actions flex gap-4 mt-8">
+                                                <button type="button" onClick={handleCloseUserModal} className="btn btn-secondary flex-1">DISCARD</button>
+                                                <button type="submit" className="btn btn-primary flex-1">{editingUser ? 'COMMIT' : 'INITIALIZE'}</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        }
 
-                        {showTeamModal && (
-                            <div className="modal-overlay animate-fadeIn">
-                                <div className="admin-modal glass-card">
-                                    <h2 className="stat-label mb-8">{editingTeam ? 'REFINE FRANCHISE' : 'NEW FRANCHISE ENTRY'}</h2>
-                                    <form onSubmit={handleSaveTeamExtended}>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">FRANCHISE NAME</label>
-                                            <input
-                                                type="text"
-                                                className="input-minimal"
-                                                value={teamForm.name}
-                                                onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
-                                                required
-                                                placeholder="Enter team name..."
-                                            />
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">BUDGET ALLOCATION (PTS)</label>
-                                            <input
-                                                type="number"
-                                                className="input-minimal"
-                                                value={teamForm.budget}
-                                                onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">SPORT CATEGORY</label>
-                                            <select
-                                                className="input-minimal"
-                                                value={teamForm.sport}
-                                                onChange={e => setTeamForm({ ...teamForm, sport: e.target.value })}
-                                                disabled={!!editingTeam}
-                                            >
-                                                <option value="cricket">CRICKET</option>
-                                                <option value="futsal">FUTSAL</option>
-                                                <option value="volleyball">VOLLEYBALL</option>
-                                            </select>
-                                        </div>
-                                        <div className="form-group border-bottom pb-4 mb-8">
-                                            <label className="stat-label mb-2 block">FRANCHISE EMBLEM</label>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={e => setTeamForm({ ...teamForm, logo: e.target.files[0] })}
-                                                className="input-minimal"
-                                            />
-                                        </div>
-                                        <div className="modal-actions flex gap-4 mt-8">
-                                            <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
-                                            <button type="submit" className="btn btn-primary flex-1">SAVE FRANCHISE</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
-
-                        {showPlayerModal && (
-                            <div className="modal-overlay animate-fadeIn">
-                                <div className="admin-modal glass-card">
-                                    <h2 className="stat-label mb-8">{editingPlayer ? 'REVISE PLAYER PROFILE' : 'NEW PLAYER REGISTRY'}</h2>
-                                    <form onSubmit={handleSavePlayerExtended}>
-                                        <div className="form-group border-bottom pb-4 mb-4">
-                                            <label className="stat-label mb-2 block">FULL NAME</label>
-                                            <input
-                                                type="text"
-                                                className="input-minimal"
-                                                value={playerForm.name}
-                                                onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })}
-                                                required
-                                                placeholder="Enter player name..."
-                                            />
-                                        </div>
-                                        <div className="grid grid-2 gap-4 mb-4">
-                                            <div className="form-group border-bottom pb-4">
-                                                <label className="stat-label mb-2 block">SPORT</label>
+                        {
+                            showTeamModal && (
+                                <div className="modal-overlay animate-fadeIn">
+                                    <div className="admin-modal glass-card">
+                                        <h2 className="stat-label mb-8">{editingTeam ? 'REFINE FRANCHISE' : 'NEW FRANCHISE ENTRY'}</h2>
+                                        <form onSubmit={handleSaveTeamExtended}>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">FRANCHISE NAME</label>
+                                                <input
+                                                    type="text"
+                                                    className="input-minimal"
+                                                    value={teamForm.name}
+                                                    onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
+                                                    required
+                                                    placeholder="Enter team name..."
+                                                />
+                                            </div>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">BUDGET ALLOCATION (PTS)</label>
+                                                <input
+                                                    type="number"
+                                                    className="input-minimal"
+                                                    value={teamForm.budget}
+                                                    onChange={e => setTeamForm({ ...teamForm, budget: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">SPORT CATEGORY</label>
                                                 <select
                                                     className="input-minimal"
-                                                    value={playerForm.sport}
-                                                    onChange={handlePlayerSportChange}
+                                                    value={teamForm.sport}
+                                                    onChange={e => setTeamForm({ ...teamForm, sport: e.target.value })}
+                                                    disabled={!!editingTeam}
                                                 >
                                                     <option value="cricket">CRICKET</option>
                                                     <option value="futsal">FUTSAL</option>
                                                     <option value="volleyball">VOLLEYBALL</option>
                                                 </select>
                                             </div>
-                                            <div className="form-group border-bottom pb-4">
-                                                <label className="stat-label mb-2 block">ACADEMIC YEAR</label>
-                                                <select
+                                            <div className="form-group border-bottom pb-4 mb-8">
+                                                <label className="stat-label mb-2 block">FRANCHISE EMBLEM</label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={e => setTeamForm({ ...teamForm, logo: e.target.files[0] })}
                                                     className="input-minimal"
-                                                    value={playerForm.year}
-                                                    onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
-                                                >
-                                                    <option value="1st">1ST YEAR</option>
-                                                    <option value="2nd">2ND YEAR</option>
-                                                    <option value="3rd">3RD YEAR</option>
-                                                    <option value="4th">4TH YEAR</option>
-                                                    <option value="Intern">INTERN</option>
-                                                </select>
+                                                />
                                             </div>
-                                        </div>
+                                            <div className="modal-actions flex gap-4 mt-8">
+                                                <button type="button" onClick={() => setShowTeamModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
+                                                <button type="submit" className="btn btn-primary flex-1">SAVE FRANCHISE</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            )
+                        }
 
-                                        {/* Conditional Stats Inputs */}
-                                        {playerForm.sport.toLowerCase() === 'cricket' && (
-                                            <div className="stats-inputs-group mb-4">
-                                                <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">CRICKET DATA</h4>
-                                                <div className="grid grid-2 gap-4">
+                        {
+                            showPlayerModal && (
+                                <div className="modal-overlay animate-fadeIn">
+                                    <div className="admin-modal glass-card">
+                                        <h2 className="stat-label mb-8">{editingPlayer ? 'REVISE PLAYER PROFILE' : 'NEW PLAYER REGISTRY'}</h2>
+                                        <form onSubmit={handleSavePlayerExtended}>
+                                            <div className="form-group border-bottom pb-4 mb-4">
+                                                <label className="stat-label mb-2 block">FULL NAME</label>
+                                                <input
+                                                    type="text"
+                                                    className="input-minimal"
+                                                    value={playerForm.name}
+                                                    onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })}
+                                                    required
+                                                    placeholder="Enter player name..."
+                                                />
+                                            </div>
+                                            <div className="grid grid-2 gap-4 mb-4">
+                                                <div className="form-group border-bottom pb-4">
+                                                    <label className="stat-label mb-2 block">SPORT</label>
+                                                    <select
+                                                        className="input-minimal"
+                                                        value={playerForm.sport}
+                                                        onChange={handlePlayerSportChange}
+                                                    >
+                                                        <option value="cricket">CRICKET</option>
+                                                        <option value="futsal">FUTSAL</option>
+                                                        <option value="volleyball">VOLLEYBALL</option>
+                                                    </select>
+                                                </div>
+                                                <div className="form-group border-bottom pb-4">
+                                                    <label className="stat-label mb-2 block">ACADEMIC YEAR</label>
+                                                    <select
+                                                        className="input-minimal"
+                                                        value={playerForm.year}
+                                                        onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
+                                                    >
+                                                        <option value="1st">1ST YEAR</option>
+                                                        <option value="2nd">2ND YEAR</option>
+                                                        <option value="3rd">3RD YEAR</option>
+                                                        <option value="4th">4TH YEAR</option>
+                                                        <option value="Intern">INTERN</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Conditional Stats Inputs */}
+                                            {playerForm.sport.toLowerCase() === 'cricket' && (
+                                                <div className="stats-inputs-group mb-4">
+                                                    <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">CRICKET DATA</h4>
+                                                    <div className="grid grid-2 gap-4">
+                                                        <div className="form-group border-bottom pb-2">
+                                                            <label className="text-xs uppercase opacity-80">ROLE</label>
+                                                            <select
+                                                                className="input-minimal"
+                                                                value={playerForm.stats.role || ''}
+                                                                onChange={e => handlePlayerStatChange('role', e.target.value)}
+                                                            >
+                                                                <option value="">SELECT ROLE</option>
+                                                                {rolesBySport.Cricket.map(role => (
+                                                                    <option key={role} value={role}>{role.toUpperCase()}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className="form-group border-bottom pb-2">
+                                                            <label className="text-xs uppercase opacity-80">BATTING</label>
+                                                            <select
+                                                                className="input-minimal"
+                                                                value={playerForm.stats.batting_style || ''}
+                                                                onChange={e => handlePlayerStatChange('batting_style', e.target.value)}
+                                                            >
+                                                                <option value="">SELECT STYLE</option>
+                                                                {battingStyles.map(style => (
+                                                                    <option key={style} value={style}>{style.toUpperCase()}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className="form-group border-bottom pb-2 span-2">
+                                                            <label className="text-xs uppercase opacity-80">BOWLING</label>
+                                                            <select
+                                                                className="input-minimal"
+                                                                value={playerForm.stats.bowling_style || ''}
+                                                                onChange={e => handlePlayerStatChange('bowling_style', e.target.value)}
+                                                            >
+                                                                <option value="">SELECT STYLE</option>
+                                                                {bowlingStyles.map(style => (
+                                                                    <option key={style} value={style}>{style.toUpperCase()}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {playerForm.sport.toLowerCase() === 'futsal' && (
+                                                <div className="stats-inputs-group mb-4">
+                                                    <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">FUTSAL DATA</h4>
                                                     <div className="form-group border-bottom pb-2">
-                                                        <label className="text-xs uppercase opacity-80">ROLE</label>
+                                                        <label className="text-xs uppercase opacity-80">POSITION</label>
                                                         <select
                                                             className="input-minimal"
                                                             value={playerForm.stats.role || ''}
                                                             onChange={e => handlePlayerStatChange('role', e.target.value)}
                                                         >
-                                                            <option value="">SELECT ROLE</option>
-                                                            {rolesBySport.Cricket.map(role => (
+                                                            <option value="">SELECT POSITION</option>
+                                                            {rolesBySport.Futsal.map(role => (
                                                                 <option key={role} value={role}>{role.toUpperCase()}</option>
                                                             ))}
                                                         </select>
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {playerForm.sport.toLowerCase() === 'volleyball' && (
+                                                <div className="stats-inputs-group mb-4">
+                                                    <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">VOLLEYBALL DATA</h4>
                                                     <div className="form-group border-bottom pb-2">
-                                                        <label className="text-xs uppercase opacity-80">BATTING</label>
+                                                        <label className="text-xs uppercase opacity-80">PREFERENCE</label>
                                                         <select
                                                             className="input-minimal"
-                                                            value={playerForm.stats.batting_style || ''}
-                                                            onChange={e => handlePlayerStatChange('batting_style', e.target.value)}
+                                                            value={playerForm.stats.role || ''}
+                                                            onChange={e => handlePlayerStatChange('role', e.target.value)}
                                                         >
-                                                            <option value="">SELECT STYLE</option>
-                                                            {battingStyles.map(style => (
-                                                                <option key={style} value={style}>{style.toUpperCase()}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                    <div className="form-group border-bottom pb-2 span-2">
-                                                        <label className="text-xs uppercase opacity-80">BOWLING</label>
-                                                        <select
-                                                            className="input-minimal"
-                                                            value={playerForm.stats.bowling_style || ''}
-                                                            onChange={e => handlePlayerStatChange('bowling_style', e.target.value)}
-                                                        >
-                                                            <option value="">SELECT STYLE</option>
-                                                            {bowlingStyles.map(style => (
-                                                                <option key={style} value={style}>{style.toUpperCase()}</option>
+                                                            <option value="">SELECT PREFERENCE</option>
+                                                            {rolesBySport.Volleyball.map(role => (
+                                                                <option key={role} value={role}>{role.toUpperCase()}</option>
                                                             ))}
                                                         </select>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {playerForm.sport.toLowerCase() === 'futsal' && (
-                                            <div className="stats-inputs-group mb-4">
-                                                <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">FUTSAL DATA</h4>
-                                                <div className="form-group border-bottom pb-2">
-                                                    <label className="text-xs uppercase opacity-80">POSITION</label>
-                                                    <select
+                                            <div className="grid grid-2 gap-4 mb-8">
+                                                <div className="form-group border-bottom pb-4">
+                                                    <label className="stat-label mb-2 block">BASE PRICE (PTS)</label>
+                                                    <input
+                                                        type="number"
                                                         className="input-minimal"
-                                                        value={playerForm.stats.role || ''}
-                                                        onChange={e => handlePlayerStatChange('role', e.target.value)}
-                                                    >
-                                                        <option value="">SELECT POSITION</option>
-                                                        {rolesBySport.Futsal.map(role => (
-                                                            <option key={role} value={role}>{role.toUpperCase()}</option>
-                                                        ))}
-                                                    </select>
+                                                        value={playerForm.base_price}
+                                                        onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="form-group border-bottom pb-4">
+                                                    <label className="stat-label mb-2 block">PLAYER PHOTO</label>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })}
+                                                        className="input-minimal"
+                                                    />
                                                 </div>
                                             </div>
-                                        )}
 
-                                        {playerForm.sport.toLowerCase() === 'volleyball' && (
-                                            <div className="stats-inputs-group mb-4">
-                                                <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">VOLLEYBALL DATA</h4>
-                                                <div className="form-group border-bottom pb-2">
-                                                    <label className="text-xs uppercase opacity-80">PREFERENCE</label>
-                                                    <select
-                                                        className="input-minimal"
-                                                        value={playerForm.stats.role || ''}
-                                                        onChange={e => handlePlayerStatChange('role', e.target.value)}
-                                                    >
-                                                        <option value="">SELECT PREFERENCE</option>
-                                                        {rolesBySport.Volleyball.map(role => (
-                                                            <option key={role} value={role}>{role.toUpperCase()}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
+                                            <div className="modal-actions flex gap-4 mt-8">
+                                                <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
+                                                <button type="submit" className="btn btn-primary flex-1">SAVE PLAYER</button>
                                             </div>
-                                        )}
-
-                                        <div className="grid grid-2 gap-4 mb-8">
-                                            <div className="form-group border-bottom pb-4">
-                                                <label className="stat-label mb-2 block">BASE PRICE (PTS)</label>
-                                                <input
-                                                    type="number"
-                                                    className="input-minimal"
-                                                    value={playerForm.base_price}
-                                                    onChange={e => setPlayerForm({ ...playerForm, base_price: e.target.value })}
-                                                />
-                                            </div>
-                                            <div className="form-group border-bottom pb-4">
-                                                <label className="stat-label mb-2 block">PLAYER PHOTO</label>
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={e => setPlayerForm({ ...playerForm, photo: e.target.files[0] })}
-                                                    className="input-minimal"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="modal-actions flex gap-4 mt-8">
-                                            <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
-                                            <button type="submit" className="btn btn-primary flex-1">SAVE PLAYER</button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+                            )
+                        }
+                    </div >
+                </div >
+            </div >
+        </div >
     );
 }
 
