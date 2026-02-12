@@ -2366,3 +2366,42 @@ tr:hover .table-thumb {
     color: var(--sage-deep);
     opacity: 0.6;
 }
+
+/* ========================================
+   PLAYERS TAB - LABELED ACTION BUTTONS
+   ======================================== */
+
+.btn-registry-edit,
+.btn-registry-delete {
+    padding: 0.6rem 1.2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-registry-edit {
+    background: var(--sage-deep);
+    color: white;
+}
+
+.btn-registry-edit:hover {
+    background: #2D4539;
+    transform: scale(1.02);
+}
+
+.btn-registry-delete {
+    background: transparent;
+    color: #DC2626;
+    border: 2px solid #DC2626;
+}
+
+.btn-registry-delete:hover {
+    background: rgba(220, 38, 38, 0.1);
+    transform: scale(1.02);
+}

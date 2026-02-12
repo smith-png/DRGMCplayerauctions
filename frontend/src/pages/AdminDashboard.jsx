@@ -1216,18 +1216,16 @@ export default function AdminDashboard() {
                                                                         </div>
                                                                         <div className="strip-actions">
                                                                             <button
-                                                                                className="action-icon edit-icon"
+                                                                                className="btn-registry-edit"
                                                                                 onClick={() => handleOpenPlayerModal(player)}
-                                                                                title="Edit Player"
                                                                             >
-                                                                                ✎
+                                                                                EDIT PLAYER
                                                                             </button>
                                                                             <button
-                                                                                className="action-icon delete-icon"
+                                                                                className="btn-registry-delete"
                                                                                 onClick={() => handleDeletePlayer(player.id)}
-                                                                                title="Delete Player"
                                                                             >
-                                                                                🗑
+                                                                                DELETE PLAYER
                                                                             </button>
                                                                         </div>
                                                                     </div>
