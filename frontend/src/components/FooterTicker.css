@@ -8,9 +8,10 @@
     }
 }
 
-/* Base shell styling - the inline styles in JSX handle the breakout */
+/* Base shell styling */
 .footer-ticker-shell {
-    padding: 12px 0;
+    padding: 6px 0;
+    /* Reduced padding */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     width: 100vw;
     overflow: hidden;
@@ -24,21 +25,23 @@
 
 .footer-ticker-track {
     display: flex !important;
-    flex-wrap: nowrap !important;
-    width: max-content !important;
-    animation: footer-scroll 30s linear infinite;
-    padding: 10px 0;
+    justify-content: center !important;
+    /* Center the static text */
+    width: 100% !important;
+    padding: 4px 0;
+    /* Reduced track padding */
 }
 
-/* Ensure the span doesn't inherit any weird wrapping from parents */
+/* Ticker text styling */
 .footer-ticker-track span {
     display: inline-block !important;
     white-space: nowrap !important;
     font-family: 'Space Grotesk', monospace;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    /* Slightly smaller for precision look */
     color: var(--accent-sage);
-    letter-spacing: 0.1em;
-    padding: 0 40px;
-    flex-shrink: 0 !important;
+    letter-spacing: 0.15rem;
+    /* Increased tracking */
+    opacity: 0.8;
 }

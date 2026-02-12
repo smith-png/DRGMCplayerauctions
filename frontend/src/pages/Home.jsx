@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Home.css';
 import TeamCarousel from '../components/TeamCarousel';
+import FooterTicker from '../components/FooterTicker';
 
 export default function Home() {
     const { user } = useAuth();
@@ -63,14 +64,7 @@ export default function Home() {
             </section>
 
             {/* THE TICKER */}
-            <div className="editorial-ticker">
-                <div className="ticker-wrap">
-                    <span className="ticker-item">• DRGMC PLAYER AUCTIONS • REGISTRATION OPEN • BIDDING STARTS SOON •</span>
-                    <span className="ticker-item">• DRGMC PLAYER AUCTIONS • REGISTRATION OPEN • BIDDING STARTS SOON •</span>
-                    <span className="ticker-item">• DRGMC PLAYER AUCTIONS • REGISTRATION OPEN • BIDDING STARTS SOON •</span>
-                    <span className="ticker-item">• DRGMC PLAYER AUCTIONS • REGISTRATION OPEN • BIDDING STARTS SOON •</span>
-                </div>
-            </div>
+            <FooterTicker />
         </div>
     );
 }

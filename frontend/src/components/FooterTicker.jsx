@@ -7,10 +7,7 @@ const FooterTicker = () => {
     return (
         <div className="footer-ticker-shell">
             <div className="footer-ticker-track">
-                {/* Repeat content for seamless loop */}
-                {[...Array(10)].map((_, i) => (
-                    <span key={i}>{tickerContent}</span>
-                ))}
+                <span>{tickerContent}</span>
             </div>
         </div>
     );

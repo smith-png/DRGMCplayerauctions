@@ -20,10 +20,29 @@ export default function PlayerProfilesBySport() {
         setLoading(true);
         try {
             const [playersRes, teamsRes] = await Promise.all([playerAPI.getAllPlayers(), teamsAPI.getAllTeams()]);
-            const sportPlayers = playersRes.data.players.filter(p => p.sport.toLowerCase() === sport.toLowerCase() && (p.status === 'approved' || p.status === 'eligible' || p.status === 'sold'));
+            const allPlayers = playersRes.data.players || [];
+
+            // Ensure stats are parsed correctly
+            const parsedPlayers = allPlayers.map(p => {
+                let stats = p.stats;
+                if (typeof stats === 'string') {
+                    try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
+                }
+                return { ...p, stats: stats || {} };
+            });
+
+            const sportPlayers = parsedPlayers.filter(p =>
+                p.sport?.toLowerCase() === sport.toLowerCase() &&
+                (p.status === 'approved' || p.status === 'eligible' || p.status === 'sold')
+            );
+
             setPlayers(sportPlayers);
             setTeams(teamsRes.data.teams || []);
-        } catch (error) { console.error(error); } finally { setLoading(false); }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const applyYearFilter = () => {

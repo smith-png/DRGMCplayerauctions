@@ -31,8 +31,18 @@ export default function AuctionStats() {
                 playerAPI.getAllPlayers(),
                 auctionAPI.getTransactions()
             ]);
+
+            const allPlayers = playersRes.data.players || [];
+            const parsedPlayers = allPlayers.map(p => {
+                let stats = p.stats;
+                if (typeof stats === 'string') {
+                    try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
+                }
+                return { ...p, stats: stats || {} };
+            });
+
             setTeams(teamsRes.data.teams);
-            setPlayers(playersRes.data.players);
+            setPlayers(parsedPlayers);
             setTransactions(transRes.data.transactions || []);
 
             // If Owner, find their specific team using team_id

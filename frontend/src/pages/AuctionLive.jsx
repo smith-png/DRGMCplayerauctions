@@ -47,6 +47,11 @@ export default function AuctionLive() {
             const stateRes = await auctionAPI.getAuctionState(); // Get state from API to be sure
 
             if (data) {
+                let stats = data.player.stats;
+                if (typeof stats === 'string') {
+                    try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
+                }
+
                 setAuction({
                     ...data.player,
                     player_name: data.player.name,
@@ -56,7 +61,7 @@ export default function AuctionLive() {
                     current_team_name: data.highestBid ? data.highestBid.team_name : 'None',
                     sport: data.player.sport,
                     year: data.player.year,
-                    stats: data.player.stats,
+                    stats: stats || {},
                     photo_url: data.player.photo_url,
                     base_price: data.player.base_price
                 });
@@ -93,7 +98,18 @@ export default function AuctionLive() {
     const loadEligiblePlayers = async () => {
         try {
             const response = await playerAPI.getEligiblePlayers();
-            setEligiblePlayers(response.data.players || []);
+            const players = response.data.players || [];
+
+            // Ensure stats are parsed
+            const parsedPlayers = players.map(p => {
+                let stats = p.stats;
+                if (typeof stats === 'string') {
+                    try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
+                }
+                return { ...p, stats: stats || {} };
+            });
+
+            setEligiblePlayers(parsedPlayers);
         } catch (err) {
             setEligiblePlayers([]);
         }
