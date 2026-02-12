@@ -9,6 +9,7 @@ import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
 import AuctionStats from './pages/AuctionStats';
 import AdminDashboard from './pages/AdminDashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
 import Teams from './pages/Teams';
 import PlayerProfilesBySport from './pages/PlayerProfilesBySport';
 // import PlayerProfiles from './pages/PlayerProfiles'; // Kept for future use
@@ -63,6 +64,14 @@ function Layout() {
                         element={
                             <ProtectedRoute requireAdmin={true}>
                                 <AdminDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/owner-dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <OwnerDashboard />
                             </ProtectedRoute>
                         }
                     />

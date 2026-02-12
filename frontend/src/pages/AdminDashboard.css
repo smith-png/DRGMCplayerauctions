@@ -279,6 +279,25 @@ input:checked+.slider-editorial:before {
     background-color: #fff;
 }
 
+/* Toggle Hover Lockdown - Prevent Pop-up Animation */
+.system-override-strip:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.editorial-toggle-wrapper:hover {
+    transform: none !important;
+}
+
+.toggle-switch-editorial:hover {
+    transform: none !important;
+}
+
+.system-status-indicator {
+    transition: opacity 0.3s ease;
+    /* Only animate opacity, not position */
+}
+
 /* Market Ledger Strip */
 .market-ledger-strip {
     background: rgba(255, 255, 255, 0.45);
@@ -1365,4 +1384,985 @@ tr:hover .table-thumb {
 
 .btn-action-secondary:hover {
     background: rgba(0, 0, 0, 0.05);
+}
+
+/* ========================================
+   HISTORY TAB - TRANSACTION TAPE
+   ======================================== */
+
+
+.history-header-glass {
+    margin-bottom: 2rem;
+}
+
+.transaction-tape-container.glass-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.tape-header-row {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
+}
+
+.tape-log-list {
+    overflow-y: auto;
+    max-height: 600px;
+    /* Custom Scrollbar for list */
+    scrollbar-width: thin;
+    scrollbar-color: var(--sage-deep) transparent;
+}
+
+.transaction-strip {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s ease;
+}
+
+.transaction-strip:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Columns */
+.col-time {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+}
+
+.col-event {
+    display: flex;
+    justify-content: center;
+}
+
+.event-tag {
+    display: inline-block;
+}
+
+.col-entity {
+    display: flex;
+    align-items: center;
+}
+
+.log-avatar {
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.col-value {
+    color: var(--text-primary);
+}
+
+/* Footer */
+.tape-footer {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+}
+
+.page-indicator {
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+}
+
+/* ========================================
+   HIGH-FIDELITY TERMINAL REDESIGN
+   ======================================== */
+
+.console-container {
+    padding: 1rem;
+}
+
+/* System Status KPI Strip */
+.console-kpi-strip {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(62, 91, 78, 0.2);
+}
+
+.console-kpi-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    opacity: 0.6;
+}
+
+.kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.kpi-divider {
+    color: rgba(62, 91, 78, 0.3);
+    font-weight: 300;
+}
+
+/* TERMINAL MODIFICATIONS */
+.console-terminal {
+    background: #0d0d0d !important;
+    border: 1px solid rgba(62, 91, 78, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-header-row {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(62, 91, 78, 0.3);
+}
+
+.terminal-header-row h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+    margin: 0;
+}
+
+.terminal-status-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    background: rgba(74, 246, 38, 0.1);
+    color: #4AF626;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(74, 246, 38, 0.3);
+}
+
+.terminal-window {
+    padding: 1.5rem;
+    max-height: 500px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    background: #0d0d0d;
+}
+
+.log-entry {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #4AF626;
+    /* Classic Terminal Green */
+}
+
+.log-time {
+    color: rgba(74, 246, 38, 0.5);
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+/* HIGH-CONTRAST TAGS */
+.tag-ok-high {
+    border: 1px solid var(--sage-deep);
+    color: var(--sage-deep);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: rgba(62, 91, 78, 0.1);
+}
+
+.tag-error-high {
+    border: 1px dashed #D32F2F;
+    color: #D32F2F;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: rgba(211, 47, 47, 0.1);
+}
+
+.terminal-cursor {
+    color: #4AF626;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* NUCLEAR OVERRIDE ALERT BOX */
+.nuclear-override-section {
+    margin-top: 3rem;
+    padding: 2.5rem;
+    border: 1px dashed #D32F2F;
+    background: rgba(211, 47, 47, 0.03);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.btn-execute-wipe {
+    background: #000 !important;
+    color: #D32F2F !important;
+    border: 1px solid #D32F2F !important;
+    border-radius: 50px !important;
+    padding: 0.8rem 2.5rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 2px !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.btn-execute-wipe:hover {
+    background: #D32F2F !important;
+    color: #000 !important;
+    box-shadow: 0 0 30px rgba(211, 47, 47, 0.4);
+}
+
+.btn-execute-wipe:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+/* TRANSACTION LEDGER ROW */
+.transaction-ledger-row {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.3);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.transaction-ledger-row:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   PLAYERS TAB - MASTER REGISTRY
+   ======================================== */
+
+/* Registry Header */
+.registry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+}
+
+.registry-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.registry-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--black);
+    text-transform: uppercase;
+}
+
+.registry-category-toggles {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.category-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: var(--black);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.category-tag:hover {
+    background: rgba(62, 91, 78, 0.1);
+    border-color: var(--sage-deep);
+}
+
+.category-tag.active {
+    background: var(--sage-deep);
+    color: white;
+    border-color: var(--sage-deep);
+}
+
+.registry-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-add-player {
+    padding: 0.75rem 1.5rem;
+    background: var(--forest-green);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-add-player:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(62, 91, 78, 0.3);
+}
+
+.btn-bulk-upload {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--black);
+    border: 2px solid var(--black);
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-bulk-upload:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Player Registry Container */
+.player-registry-container {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    min-height: 400px;
+}
+
+.player-data-strips {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-data-strip {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.4);
+    transition: background 0.2s ease;
+}
+
+.player-data-strip:last-child {
+    border-bottom: none;
+}
+
+.player-data-strip:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.player-data-strip:hover .action-icon {
+    opacity: 1;
+}
+
+.strip-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--sage-deep);
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.strip-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.player-avatar-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--sage-deep);
+}
+
+.player-avatar-small.grayscale {
+    filter: grayscale(100%);
+}
+
+.player-avatar-small.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    color: #666;
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.player-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--black);
+    text-transform: uppercase;
+}
+
+.player-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+}
+
+.strip-valuation {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--black);
+    width: 120px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.strip-actions {
+    display: flex;
+    gap: 1rem;
+    width: 100px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.action-icon {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    padding: 0.5rem;
+}
+
+.action-icon:hover {
+    transform: scale(1.1);
+}
+
+.edit-icon:hover {
+    color: var(--sage-deep);
+}
+
+.delete-icon:hover {
+    color: #D32F2F;
+}
+
+/* Registry Empty State */
+.registry-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+    opacity: 0.6;
+}
+
+/* Registry Pagination Footer */
+.registry-pagination-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid rgba(62, 91, 78, 0.2);
+}
+
+.registry-pagination-footer .btn-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--black);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.registry-pagination-footer .btn-text:hover:not(:disabled) {
+    color: var(--sage-deep);
+}
+
+.registry-pagination-footer .btn-text:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.registry-pagination-footer .page-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+    opacity: 0.8;
+}
+/* ========================================
+   FRANCHISE CARDS - HIGH-VISIBILITY DOSSIERS
+   ======================================== */
+
+/* Dossier Grid Layout */
+.dossier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+/* Franchise Card - Liquid Glass Effect */
+.dossier-franchise-card {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(62, 91, 78, 0.4);
+    border-radius: 12px;
+    padding: 2rem;
+    padding-top: 2.5rem; /* Extra breathing room at top */
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.dossier-franchise-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(62, 91, 78, 0.15);
+    border-color: var(--sage-deep);
+}
+
+/* Logo Section */
+.franchise-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.franchise-logo-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 2px solid var(--sage-deep);
+}
+
+.team-logo-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(62, 91, 78, 0.1);
+    border: 2px solid var(--sage-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--sage-deep);
+}
+
+/* Team Identity - ENHANCED TYPOGRAPHY */
+.franchise-identity {
+    text-align: center;
+}
+
+.franchise-identity h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.8rem !important; /* Significantly larger team name */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px; /* Tight spacing for headline feel */
+    line-height: 1.1;
+    margin: 0 0 0.75rem 0 !important;
+    color: #1A1A1A;
+}
+
+.sport-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sage-deep);
+    opacity: 0.8;
+}
+
+/* Dossier Divider */
+.dossier-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(62, 91, 78, 0.4), transparent);
+    margin: 0.5rem 0;
+}
+
+/* Budget Block - ENHANCED VISIBILITY */
+.franchise-budget-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.budget-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.budget-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sage-deep);
+}
+
+.budget-value-mono {
+    font-family: 'Roboto Mono', 'Courier New', monospace; /* Bold monospace */
+    font-size: 1.25rem !important; /* Larger, clearer pricing */
+    font-weight: 700;
+    color: var(--sage-deep); /* Sage green for financial value */
+    letter-spacing: 0.5px;
+}
+
+/* Budget Progress Track */
+.budget-progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(62, 91, 78, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage-deep), #5A8A6E);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* Franchise Actions */
+.franchise-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.franchise-actions .btn-action-primary {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    background: var(--sage-deep);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.franchise-actions .btn-action-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(62, 91, 78, 0.3);
+}
+
+/* Stat Pills - ENHANCED SIZE & PADDING */
+.stat-pill {
+    font-family: 'Roboto Mono', 'Courier New', monospace;
+    font-size: 0.95rem !important; /* Larger PLS/PTS tags */
+    font-weight: 700;
+    padding: 6px 12px !important;
+    letter-spacing: 1px;
+    background: rgba(62, 91, 78, 0.1);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 6px;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+}
+
+/* Player Entry Rows (if applicable in cards) */
+.player-entry-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1A1A1A;
+}
+
+.player-entry-price {
+    font-family: 'Courier New', monospace;
+    font-size: 1.25rem !important; /* Large, clear pricing */
+    font-weight: 700;
+    color: var(--sage-deep);
+}
+
+/* ========================================
+   ACTIVE PLAYERS LEDGER - USERS TAB
+   ======================================== */
+
+/* Ledger Container */
+.roster-ledger-container {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    min-height: 400px;
+    margin-bottom: 2rem;
+}
+
+.ledger-data-strips {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ledger Data Strip - Horizontal Layout */
+.ledger-data-strip {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.4);
+    transition: background 0.2s ease;
+    gap: 1.5rem;
+}
+
+.ledger-data-strip:last-child {
+    border-bottom: none;
+}
+
+.ledger-data-strip:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Photo Section */
+.strip-photo {
+    flex-shrink: 0;
+}
+
+.player-photo-ledger {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--sage-deep);
+}
+
+.player-photo-ledger.grayscale {
+    filter: grayscale(100%);
+}
+
+.player-photo-ledger.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    color: #666;
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+/* Identity Section */
+.strip-identity-ledger {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.player-name-ledger {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1A1A1A;
+}
+
+.player-ref-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: var(--sage-deep);
+    opacity: 0.8;
+}
+
+/* Metadata Section */
+.strip-metadata {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.meta-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+}
+
+.meta-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+
+/* Status Section */
+.strip-status {
+    flex-shrink: 0;
+}
+
+.status-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    background: rgba(62, 91, 78, 0.1);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    color: var(--sage-deep);
+}
+
+.status-tag.pending {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.5);
+    color: #F59E0B;
+}
+
+.status-tag.eligible {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.5);
+    color: #22C55E;
+}
+
+/* Actions Section - Labeled Buttons */
+.strip-actions-ledger {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.btn-ledger-approve,
+.btn-ledger-edit,
+.btn-ledger-delete {
+    padding: 0.6rem 1.2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-ledger-approve {
+    background: #22C55E;
+    color: white;
+}
+
+.btn-ledger-approve:hover {
+    background: #16A34A;
+    transform: scale(1.02);
+}
+
+.btn-ledger-edit {
+    background: var(--sage-deep);
+    color: white;
+}
+
+.btn-ledger-edit:hover {
+    background: #2D4539;
+    transform: scale(1.02);
+}
+
+.btn-ledger-delete {
+    background: transparent;
+    color: #DC2626;
+    border: 2px solid #DC2626;
+}
+
+.btn-ledger-delete:hover {
+    background: rgba(220, 38, 38, 0.1);
+    transform: scale(1.02);
+}
+
+/* Empty State */
+.ledger-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep);
+    opacity: 0.6;
 }
