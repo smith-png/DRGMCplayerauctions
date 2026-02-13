@@ -201,42 +201,52 @@ export async function createTeam(req, res) {
 
 export async function getAllTeams(req, res) {
     const { sport } = req.query;
+    console.log(`[AUTH_CONTEXT] UserID: ${req.user?.id || 'ANON'}, Role: ${req.user?.role || 'NONE'}`);
+    console.log(`[QUERY_PARAMS] Sport: ${sport || 'ALL'}`);
 
     try {
         // If team_owner, refresh their user data from DB to get latest team_id (token might be stale)
-        if (req.user?.role === 'team_owner') {
-            const userRes = await pool.query('SELECT team_id FROM users WHERE id = $1', [req.user.id]);
+        let userId = req.user?.id;
+        let userRole = req.user?.role;
+        let userTeamId = req.user?.team_id;
+
+        if (userRole === 'team_owner' && userId) {
+            const userRes = await pool.query('SELECT team_id FROM users WHERE id = $1', [userId]);
             if (userRes.rows.length > 0) {
-                req.user.team_id = userRes.rows[0].team_id;
+                userTeamId = userRes.rows[0].team_id;
             }
         }
 
         // Get lockdown state first
-        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
-        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
+        let isLocked = false;
+        try {
+            const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+            isLocked = stateRes.rows[0]?.testgrounds_locked || false;
+        } catch (e) {
+            console.error('[SCHEMA_ERR] auction_state.testgrounds_locked missing?', e.message);
+        }
+
+        console.log(`[SYSTEM_STATE] Lockdown: ${isLocked}`);
 
         let conditions = [];
         const params = [];
 
         // Filter by sport if provided
-        if (sport) {
-            params.push(sport);
-            conditions.push(`LOWER(t.sport) = LOWER($${params.length})`);
+        if (sport && sport.toLowerCase() !== 'all') {
+            params.push(sport.toLowerCase());
+            conditions.push(`LOWER(t.sport) = $${params.length}`);
         }
 
         // Handle Test Data Visibility
         if (isLocked) {
-            // ADMINS see everything
-            if (req.user?.role === 'admin') {
-                // No additional filter
-            }
-            // TEAM OWNERS see real data + THEIR OWN team (even if it's test data)
-            else if (req.user?.role === 'team_owner' && req.user.team_id) {
-                params.push(req.user.team_id);
+            if (userRole === 'admin') {
+                console.log('[ACCESS] Admin Override - Seeing All');
+            } else if (userRole === 'team_owner' && userTeamId) {
+                console.log('[ACCESS] Owner Context - Seeing Real + TeamID:', userTeamId);
+                params.push(userTeamId);
                 conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL OR t.id = $${params.length})`);
-            }
-            // PUBLIC / Others see only real data
-            else {
+            } else {
+                console.log('[ACCESS] Restricted Mode - Hiding Test Data');
                 conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL)`);
             }
         }
@@ -253,10 +263,13 @@ export async function getAllTeams(req, res) {
 
         query += ' ORDER BY t.name';
 
+        console.log(`[DB_QUERY] Executing: ${query} with params [${params}]`);
         const result = await pool.query(query, params);
+        console.log(`[DB_RESULT] Found ${result.rows.length} teams`);
+
         res.json({ teams: result.rows });
     } catch (error) {
-        console.error('Get teams error:', error);
+        console.error('[FATAL] Get teams error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }

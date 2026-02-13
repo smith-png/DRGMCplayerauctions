@@ -45,11 +45,41 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS teams (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        sport VARCHAR(50) NOT NULL CHECK (sport IN ('cricket', 'futsal', 'volleyball')),
+        sport VARCHAR(50) NOT NULL,
         budget INTEGER DEFAULT 2000,
         remaining_budget INTEGER DEFAULT 2000,
+        logo_url VARCHAR(500),
+        is_test_data BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Migration for logo_url if it doesn't exist
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='teams' AND column_name='logo_url') THEN
+          ALTER TABLE teams ADD COLUMN logo_url VARCHAR(500);
+        END IF;
+      END
+      $$;
+    `);
+
+    // Ensure sport column is NOT NULL but allow any value for check, then we'll add a robust one
+    await client.query(`
+      ALTER TABLE teams ALTER COLUMN sport SET NOT NULL;
+    `);
+
+    // Migration for is_test_data on teams
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='teams' AND column_name='is_test_data') THEN
+          ALTER TABLE teams ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
+          CREATE INDEX IF NOT EXISTS idx_teams_test_data ON teams(is_test_data);
+        END IF;
+      END
+      $$;
     `);
 
     // Players table
@@ -58,16 +88,29 @@ export async function initializeDatabase() {
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL,
-        sport VARCHAR(50) NOT NULL CHECK (sport IN ('cricket', 'futsal', 'volleyball')),
-        year VARCHAR(10) NOT NULL CHECK (year IN ('1st', '2nd', '3rd')),
+        sport VARCHAR(50) NOT NULL,
+        year VARCHAR(10) NOT NULL,
         photo_url VARCHAR(500),
         stats JSONB,
         base_price INTEGER DEFAULT 50,
-        status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'sold', 'unsold', 'eligible', 'auctioning')),
+        status VARCHAR(50) DEFAULT 'pending',
         team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
         sold_price INTEGER,
+        is_test_data BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Migration for is_test_data on players
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='players' AND column_name='is_test_data') THEN
+          ALTER TABLE players ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
+          CREATE INDEX IF NOT EXISTS idx_players_test_data ON players(is_test_data);
+        END IF;
+      END
+      $$;
     `);
 
     // Bids table
@@ -124,62 +167,27 @@ export async function initializeDatabase() {
       WHERE NOT EXISTS (SELECT 1 FROM auction_state LIMIT 1)
     `);
 
-    // Add sport_min_bids column to auction_state if it doesn't exist (Migration)
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='sport_min_bids') THEN
-          ALTER TABLE auction_state ADD COLUMN sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb;
-        END IF;
-      END
-      $$;
-    `);
+    // Robust Migrations for auction_state columns
+    const stateCols = [
+      { name: 'sport_min_bids', type: 'JSONB', def: "'{\"cricket\": 50, \"futsal\": 50, \"volleyball\": 50}'::jsonb" },
+      { name: 'is_registration_open', type: 'BOOLEAN', def: 'true' },
+      { name: 'animation_duration', type: 'INTEGER', def: '25' },
+      { name: 'animation_type', type: 'VARCHAR(50)', def: "'confetti'" },
+      { name: 'testgrounds_locked', type: 'BOOLEAN', def: 'FALSE' },
+      { name: 'bid_increment_rules', type: 'JSONB', def: "'[{\"threshold\": 0, \"increment\": 10}, {\"threshold\": 200, \"increment\": 50}, {\"threshold\": 500, \"increment\": 100}]'::jsonb" }
+    ];
 
-    // Add is_registration_open column to auction_state if it doesn't exist (Migration)
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='is_registration_open') THEN
-          ALTER TABLE auction_state ADD COLUMN is_registration_open BOOLEAN DEFAULT true;
-        END IF;
-      END
-      $$;
-    `);
-
-    // Add animation_duration column to auction_state if it doesn't exist (Migration)
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='animation_duration') THEN
-          ALTER TABLE auction_state ADD COLUMN animation_duration INTEGER DEFAULT 25;
-        END IF;
-      END
-      $$;
-    `);
-
-    // Add is_test_data column to players table (Migration)
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='players' AND column_name='is_test_data') THEN
-          ALTER TABLE players ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
-          CREATE INDEX idx_players_test_data ON players(is_test_data);
-        END IF;
-      END
-      $$;
-    `);
-
-    // Add is_test_data column to teams table (Migration)
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='teams' AND column_name='is_test_data') THEN
-          ALTER TABLE teams ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
-          CREATE INDEX idx_teams_test_data ON teams(is_test_data);
-        END IF;
-      END
-      $$;
-    `);
+    for (const col of stateCols) {
+      await client.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='auction_state' AND column_name='${col.name}') THEN
+            ALTER TABLE auction_state ADD COLUMN ${col.name} ${col.type} DEFAULT ${col.def};
+          END IF;
+        END
+        $$;
+      `);
+    }
 
     // Add is_test_data column to users table (Migration)
     await client.query(`
@@ -187,15 +195,10 @@ export async function initializeDatabase() {
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='is_test_data') THEN
           ALTER TABLE users ADD COLUMN is_test_data BOOLEAN DEFAULT FALSE;
-          CREATE INDEX idx_users_test_data ON users(is_test_data);
+          CREATE INDEX IF NOT EXISTS idx_users_test_data ON users(is_test_data);
         END IF;
       END
       $$;
-    `);
-
-    // Add testgrounds_locked column to auction_state (Migration)
-    await client.query(`
-      ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS testgrounds_locked BOOLEAN DEFAULT FALSE;
     `);
 
     // Add animation_type column to auction_state (Migration)

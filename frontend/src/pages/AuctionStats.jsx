@@ -90,12 +90,16 @@ export default function AuctionStats() {
             }
 
             const results = await Promise.all(promises);
+            console.log('[STATS_API] Results received:', results.map(r => r.status));
+
             const teamsRes = results[0];
             const playersRes = results[1];
             const transRes = results[2];
             const queueRes = user.role === 'team_owner' ? results[3] : { data: { queue: [] } };
 
             const allPlayers = playersRes.data.players || playersRes.data || [];
+            console.log(`[STATS_API] Players count: ${allPlayers.length}`);
+
             const parsedPlayers = allPlayers.map(p => {
                 let stats = p.stats;
                 if (typeof stats === 'string') {
@@ -104,17 +108,25 @@ export default function AuctionStats() {
                 return { ...p, stats: stats || {} };
             });
 
-            setTeams(teamsRes.data.teams);
+            const teamList = teamsRes.data.teams || [];
+            console.log(`[STATS_API] Teams for ${activeSport}: ${teamList.length}`);
+
+            setTeams(teamList);
             setPlayers(parsedPlayers);
             setTransactions(transRes.data.transactions || transRes.data.bids || []);
             setUpcomingQueue(queueRes.data.queue || []);
 
             // If Owner, find their specific team using team_id
             if (user?.role === 'team_owner' && user?.team_id) {
-                const foundTeam = teamsRes.data.teams.find(t => t.id == user.team_id);
+                const foundTeam = teamList.find(t => t.id == user.team_id);
                 setMyTeam(foundTeam);
+                console.log('[STATS_API] My Team:', foundTeam?.name);
             }
-        } catch (err) { console.error("Stats Load Failed", err); }
+        } catch (err) {
+            console.error("Stats Load Failed:", err.response?.data || err.message);
+            console.error("Full Error:", err);
+            setTeams([]);
+        }
         finally { setLoading(false); }
     };
 
