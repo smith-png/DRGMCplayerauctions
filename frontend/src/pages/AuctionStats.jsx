@@ -76,28 +76,38 @@ export default function AuctionStats() {
 
     const fetchData = async () => {
         try {
-            const normalizedSport = activeSport.toLowerCase();
-            const teamsFilter = user.role === 'team_owner' ? '' : normalizedSport;
+            console.log('[STATS_API] Starting full sync...');
 
+            // We'll fetch everything and filter local to be 100% sure we handle PR variations
             const promises = [
-                teamsAPI.getAllTeams(teamsFilter),
-                playerAPI.getAllPlayers(),
+                teamsAPI.getAllTeams('').catch(err => {
+                    console.error("Teams fetch failed", err);
+                    return { data: { teams: [] } };
+                }),
+                playerAPI.getAllPlayers().catch(err => {
+                    console.error("Players fetch failed", err);
+                    return { data: { players: [] } };
+                }),
                 auctionAPI.getTransactions().catch(err => {
-                    console.warn("[STATS_API] Primary transactions endpoint failed, testing fallback...", err.message);
-                    return auctionAPI.getRecentBids();
+                    console.warn("Transactions failed, trying fallback...", err.message);
+                    return auctionAPI.getRecentBids().catch(() => ({ data: { transactions: [] } }));
                 })
             ];
 
-            if (user.role === 'team_owner') promises.push(auctionAPI.getUpcomingQueue());
+            if (user.role === 'team_owner') {
+                promises.push(auctionAPI.getUpcomingQueue().catch(() => ({ data: { queue: [] } })));
+            }
 
-            const results = await Promise.all(promises);
-            const teamsRes = results[0];
-            const playersRes = results[1];
-            const transRes = results[2];
-            const queueRes = user.role === 'team_owner' ? results[3] : { data: { queue: [] } };
+            const [teamsRes, playersRes, transRes, queueRes] = await Promise.all(promises);
 
-            const allPlayers = playersRes.data.players || playersRes.data || [];
-            const parsedPlayers = allPlayers.map(p => {
+            const rawTeams = teamsRes.data.teams || [];
+            const rawPlayers = playersRes.data.players || playersRes.data || [];
+            const rawTrans = transRes.data.transactions || transRes.data.bids || transRes.data.recentBids || [];
+            const rawQueue = queueRes?.data?.queue || [];
+
+            console.log(`[STATS_API] Received: ${rawTeams.length} teams, ${rawPlayers.length} players`);
+
+            const parsedPlayers = rawPlayers.map(p => {
                 let stats = p.stats;
                 if (typeof stats === 'string') {
                     try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
@@ -105,23 +115,20 @@ export default function AuctionStats() {
                 return { ...p, stats: stats || {} };
             });
 
-            const teamList = teamsRes.data.teams || [];
-            console.log(`[STATS_API] Fetched ${teamList.length} teams for ${normalizedSport}`);
-
-            setTeams(teamList);
+            setTeams(rawTeams);
             setPlayers(parsedPlayers);
-            setTransactions(transRes.data.transactions || transRes.data.bids || transRes.data.recentBids || []);
-            setUpcomingQueue(queueRes.data.queue || []);
+            setTransactions(rawTrans);
+            setUpcomingQueue(rawQueue);
 
             if (user?.role === 'team_owner' && user?.team_id) {
-                const foundTeam = teamList.find(t => t.id == user.team_id);
+                const foundTeam = rawTeams.find(t => t.id == user.team_id);
                 setMyTeam(foundTeam);
             }
         } catch (err) {
-            console.error("[STATS_API] Global Sync Error:", err.response?.data || err.message);
-            setTeams([]);
+            console.error("[STATS_FATAL] Sync logic failed:", err);
+        } finally {
+            setLoading(false);
         }
-        finally { setLoading(false); }
     };
 
     useEffect(() => { if (user) fetchData(); }, [user, activeSport]);
