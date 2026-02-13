@@ -70,7 +70,7 @@ export default function Teams() {
                                     {/* Identity Column */}
                                     <div className="strip-identity">
                                         <div className="team-name-main">{team.name}</div>
-                                        <div className="owner-subtitle">PRINCIPAL OWNER: {team.owner_name || 'N/A'}</div>
+                                        <div className="owner-subtitle">OWNER: {team.owner_name || 'N/A'}</div>
                                     </div>
 
                                     {/* Visual Budget Column */}
@@ -87,7 +87,11 @@ export default function Teams() {
                                     {/* Roster Badge Column */}
                                     <div className="strip-roster">
                                         <div className="roster-badge">
-                                            {team.player_count || 0}/15
+                                            {team.player_count || 0}/{
+                                                activeSport === 'Futsal' ? 8 :
+                                                    activeSport === 'Volleyball' ? 7 :
+                                                        15 // Default for Cricket
+                                            }
                                         </div>
                                     </div>
                                 </div>

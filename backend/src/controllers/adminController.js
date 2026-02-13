@@ -230,7 +230,20 @@ export async function getAllTeams(req, res) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
 
-        query += ' ORDER BY name';
+        // query += ' ORDER BY name'; // Moved to end
+
+        // Modified query to include owner_name
+        query = `
+            SELECT t.*, u.name as owner_name 
+            FROM teams t
+            LEFT JOIN users u ON t.id = u.team_id AND u.role = 'team_owner'
+        `;
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.map(c => c.replace('total_players', 't.total_players').replace('sport', 't.sport').replace('is_test_data', 't.is_test_data')).join(' AND ');
+        }
+
+        query += ' ORDER BY t.name';
 
         const result = await pool.query(query, params);
 
