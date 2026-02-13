@@ -238,47 +238,6 @@ export async function createTeam(req, res) {
 }
 
 
-export async function getAllTeams(req, res) {
-    const { sport } = req.query;
-
-    try {
-        // Get lockdown state first
-        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
-        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
-
-        let query = 'SELECT * FROM teams';
-        const params = [];
-        let conditions = [];
-
-        // Filter by sport if provided
-        if (sport) {
-            params.push(sport);
-            conditions.push(`sport = $${params.length}`);
-        }
-
-        // Handle Test Data Visibility
-        // If locked: HIDE test teams (is_test_data = FALSE)
-        // If unlocked: SHOW ALL (is_test_data = TRUE OR FALSE)
-        // Note: Ideally admins should see them regardless, but this is a public endpoint.
-        // For strictness: If locked, show only real data.
-        if (isLocked) {
-            conditions.push(`(is_test_data = FALSE OR is_test_data IS NULL)`);
-        }
-
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
-
-        query += ' ORDER BY name';
-
-        const result = await pool.query(query, params);
-
-        res.json({ teams: result.rows });
-    } catch (error) {
-        console.error('Get teams error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
 
 
 
