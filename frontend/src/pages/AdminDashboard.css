@@ -2902,7 +2902,8 @@ tr:hover .table-thumb {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 0.95rem;
-    color: #fff;
+    color: #000;
+    /* Black text as requested */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2911,7 +2912,8 @@ tr:hover .table-thumb {
 .player-ref-id {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.6);
+    /* Dark grey for ID */
     letter-spacing: 1px;
 }
 
@@ -2930,15 +2932,17 @@ tr:hover .table-thumb {
 .meta-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.5);
+    /* Darker label */
     text-transform: uppercase;
 }
 
 .meta-value {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
-    color: var(--sage-light);
-    font-weight: 600;
+    color: var(--sage-deep);
+    /* Deep sage for value */
+    font-weight: 700;
     text-transform: capitalize;
 }
 
@@ -2967,14 +2971,20 @@ tr:hover .table-thumb {
 .btn-ledger-edit,
 .btn-ledger-delete {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #000;
+    /* distinct black border */
+    color: #000;
+    /* distinct black text */
+    font-weight: 700;
+    /* bold text */
+    opacity: 0.8;
 }
 
 .btn-ledger-edit:hover,
 .btn-ledger-delete:hover {
-    border-color: #fff;
-    color: #fff;
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+    transform: translateY(-1px);
 }
 
 .btn-ledger-approve {
