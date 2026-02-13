@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post('/', authenticateToken, upload.single('photo'), createPlayer);
 router.get('/', getAllPlayers);
-router.get('/eligible', authenticateToken, authorizeRoles('admin', 'auctioneer', 'team_owner'), getEligiblePlayers);
+router.get('/eligible', authenticateToken, getEligiblePlayers);
 router.put('/:id/eligible', authenticateToken, authorizeRoles('admin'), markEligible);
 router.get('/:id', getPlayerById);
 router.put('/:id', authenticateToken, authorizeRoles('admin'), updatePlayer);

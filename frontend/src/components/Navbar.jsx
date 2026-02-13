@@ -61,9 +61,7 @@ export default function Navbar() {
                             <NavLink to="/auction" className="nav-link">LIVE AUCTION</NavLink>
                             <NavLink to="/teams" className="nav-link">TEAMS</NavLink>
 
-                            {user && (
-                                <NavLink to="/auction-stats" className="nav-link">AUCTION STATS</NavLink>
-                            )}
+
 
                             {user && (
                                 <NavLink to="/register-player" className="nav-link">REGISTER</NavLink>
