@@ -12,6 +12,7 @@ export default function Teams() {
     const [user, setUser] = useState(null);
     const [myTeam, setMyTeam] = useState(null);
     const [expandedTeam, setExpandedTeam] = useState(null);
+    const [walletModal, setWalletModal] = useState({ show: false, teamId: null, teamName: '', action: '' });
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -59,9 +60,17 @@ export default function Teams() {
                         }
                     }
 
-                    if (user.role === 'team_owner' && user.team_id) {
-                        const foundTeam = teamsList.find(t => t.id == user.team_id);
-                        setMyTeam(foundTeam);
+                    if (user.role === 'team_owner') {
+                        console.log('[TEAMS] Team Owner detected:', user.name, 'Team ID:', user.team_id);
+                        console.log('[TEAMS] Available teams:', teamsList.map(t => ({ id: t.id, name: t.name })));
+
+                        if (user.team_id) {
+                            const foundTeam = teamsList.find(t => String(t.id) === String(user.team_id));
+                            console.log('[TEAMS] Found team:', foundTeam);
+                            setMyTeam(foundTeam);
+                        } else {
+                            console.log('[TEAMS] No team_id on user object');
+                        }
                     }
                 }
             } catch (error) {
@@ -312,19 +321,13 @@ export default function Teams() {
                                                 <div className="ledger-team-details">
                                                     <div className="wallet-controls">
                                                         <button
-                                                            onClick={() => {
-                                                                const amt = prompt('Enter amount to add:');
-                                                                if (amt) handleWalletAdjust(team.id, 'add', parseInt(amt));
-                                                            }}
+                                                            onClick={() => setWalletModal({ show: true, teamId: team.id, teamName: team.name, action: 'add' })}
                                                             className="wallet-btn add"
                                                         >
                                                             + ADD FUNDS
                                                         </button>
                                                         <button
-                                                            onClick={() => {
-                                                                const amt = prompt('Enter amount to deduct:');
-                                                                if (amt) handleWalletAdjust(team.id, 'deduct', parseInt(amt));
-                                                            }}
+                                                            onClick={() => setWalletModal({ show: true, teamId: team.id, teamName: team.name, action: 'deduct' })}
                                                             className="wallet-btn deduct"
                                                         >
                                                             − DEDUCT FUNDS
@@ -351,22 +354,18 @@ export default function Teams() {
 
                             <div className="logs-sidebar">
                                 <h3 className="logs-title">RECENT TRANSACTIONS</h3>
-                                {transactions.slice(0, 20).map((trans, idx) => {
-                                    const player = players.find(p => p.id === trans.player_id);
-                                    const team = teams.find(t => t.id === trans.team_id);
-                                    return (
-                                        <div key={idx} className="log-entry">
-                                            <span className="log-player">{player?.name || 'Unknown Player'}</span>
-                                            {' → '}
-                                            <span className="log-team">{team?.name || 'Unknown Team'}</span>
-                                            <br />
-                                            <span className="log-price">{trans.bid_amount?.toLocaleString() || trans.amount?.toLocaleString()} PTS</span>
-                                            <span className="log-time">
-                                                {trans.created_at ? new Date(trans.created_at).toLocaleTimeString() : ''}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
+                                {transactions.slice(0, 20).map((trans, idx) => (
+                                    <div key={idx} className="log-entry">
+                                        <span className="log-player">{trans.player_name || 'Unknown Player'}</span>
+                                        {' → '}
+                                        <span className="log-team">{trans.team_name || 'Unknown Team'}</span>
+                                        <br />
+                                        <span className="log-price">{trans.amount?.toLocaleString()} PTS</span>
+                                        <span className="log-time">
+                                            {trans.created_at ? new Date(trans.created_at).toLocaleTimeString() : ''}
+                                        </span>
+                                    </div>
+                                ))}
                                 {transactions.length === 0 && (
                                     <div className="empty-state" style={{ padding: '2rem 0', fontSize: '0.7rem' }}>
                                         NO TRANSACTIONS YET
@@ -378,6 +377,64 @@ export default function Teams() {
 
                     {teamsWithRosters.length === 0 && !loading && (
                         <div className="empty-state">NO TEAMS FOUND FOR {activeSport.toUpperCase()}</div>
+                    )}
+
+                    {/* Wallet Adjustment Modal */}
+                    {walletModal.show && (
+                        <div className="modal-overlay" onClick={() => setWalletModal({ ...walletModal, show: false })}>
+                            <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h3 className="modal-title">
+                                        {walletModal.action === 'add' ? 'ADD FUNDS' : 'DEDUCT FUNDS'}
+                                    </h3>
+                                    <button
+                                        className="modal-close"
+                                        onClick={() => setWalletModal({ ...walletModal, show: false })}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="modal-team-info">
+                                        <span className="modal-label">TEAM:</span>
+                                        <span className="modal-value">{walletModal.teamName}</span>
+                                    </div>
+                                    <div className="modal-input-group">
+                                        <label className="modal-label">AMOUNT (PTS)</label>
+                                        <input
+                                            type="number"
+                                            className="modal-input"
+                                            placeholder="Enter amount..."
+                                            id="wallet-amount"
+                                            min="1"
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+                                <div className="modal-footer">
+                                    <button
+                                        className="modal-btn cancel"
+                                        onClick={() => setWalletModal({ ...walletModal, show: false })}
+                                    >
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        className={`modal-btn confirm ${walletModal.action}`}
+                                        onClick={() => {
+                                            const amount = parseInt(document.getElementById('wallet-amount').value);
+                                            if (amount && amount > 0) {
+                                                handleWalletAdjust(walletModal.teamId, walletModal.action, amount);
+                                                setWalletModal({ ...walletModal, show: false });
+                                            } else {
+                                                alert('Please enter a valid amount');
+                                            }
+                                        }}
+                                    >
+                                        {walletModal.action === 'add' ? '+ ADD' : '− DEDUCT'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
