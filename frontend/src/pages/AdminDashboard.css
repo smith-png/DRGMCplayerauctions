@@ -3050,3 +3050,97 @@ tr:hover .table-thumb {
     border-radius: 4px;
     letter-spacing: 1px;
 }
+
+/* ========================================
+   SYSTEM NOTIFICATION BANNER
+   ======================================== */
+.system-notification-banner {
+    position: fixed;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    /* Success Green */
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4ade80;
+}
+
+.pulsing {
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.btn-dismiss-notification {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-dismiss-notification:hover {
+    color: #fff;
+}
+
+.animate-slideInTop {
+    animation: slideInTop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}

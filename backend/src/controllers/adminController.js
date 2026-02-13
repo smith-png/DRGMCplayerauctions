@@ -582,6 +582,60 @@ export async function updatePlayer(req, res) {
     }
 }
 
+export async function adjustTeamWallet(req, res) {
+    const { id } = req.params;
+    const { action, amount } = req.body;
+
+    const client = await pool.connect();
+    try {
+        if (!['add', 'remove'].includes(action) || !amount || isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid action or amount' });
+        }
+
+        const value = parseInt(amount);
+        const operator = action === 'add' ? '+' : '-';
+        const logType = action === 'add' ? 'CREDIT' : 'DEBIT';
+
+        await client.query('BEGIN');
+
+        // 1. Update team budget
+        const result = await client.query(
+            `UPDATE teams 
+             SET budget = budget ${operator} $1, 
+                 remaining_budget = remaining_budget ${operator} $1 
+             WHERE id = $2 
+             RETURNING *`,
+            [value, id]
+        );
+
+        if (result.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        // 2. Log to bid_logs for history
+        await client.query(
+            'INSERT INTO bid_logs (team_id, amount, type) VALUES ($1, $2, $3)',
+            [id, value, logType]
+        );
+
+        await client.query('COMMIT');
+
+        if (req.io) {
+            req.io.emit('refresh-leaderboard');
+            req.io.emit('refresh-data');
+        }
+
+        res.json({ message: 'Wallet adjusted successfully', team: result.rows[0] });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Adjust wallet error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
+    }
+}
+
 export async function removeFromQueue(req, res) {
     const { id } = req.params;
     try {

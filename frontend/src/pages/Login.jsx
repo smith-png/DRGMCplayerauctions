@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import socketService from '../services/socket';
+import { auctionAPI } from '../services/api';
 import './Login.css';
 
 export default function Login() {

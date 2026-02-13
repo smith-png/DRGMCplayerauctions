@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, register } from '../controllers/authController.js';
+import { login, register, changePassword } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -18,5 +18,8 @@ router.get('/me', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to get user info' });
     }
 });
+
+router.post('/change-password', authenticateToken, changePassword);
+
 
 export default router;

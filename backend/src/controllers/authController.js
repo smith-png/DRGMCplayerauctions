@@ -36,7 +36,8 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id // Add team_id to token
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
@@ -48,7 +49,8 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                team_id: user.team_id // Add team_id to response
             }
         });
     } catch (error) {
@@ -141,5 +143,35 @@ export const verifyToken = (req, res, next) => {
         next();
     } catch (error) {
         return res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+export const changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ error: 'Old and new passwords are required' });
+        }
+
+        // Get user for password check
+        const result = await pool.query('SELECT password FROM users WHERE id = $1', [userId]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        const user = result.rows[0];
+        const validPassword = await bcrypt.compare(oldPassword, user.password);
+        if (!validPassword) {
+            return res.status(401).json({ error: 'Incorrect old password' });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, userId]);
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ error: 'Failed to update password' });
     }
 };

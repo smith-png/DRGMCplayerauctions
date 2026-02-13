@@ -23,7 +23,8 @@ api.interceptors.request.use((config) => {
 export const authAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
-    getCurrentUser: () => api.get('/auth/me')
+    getCurrentUser: () => api.get('/auth/me'),
+    changePassword: (data) => api.post('/auth/change-password', data)
 };
 
 // Player API
@@ -54,7 +55,8 @@ export const auctionAPI = {
     skipPlayer: (playerId) => api.post('/auction/skip', { playerId }),
     resetCurrentBid: () => api.post('/auction/reset-bid', {}),
     toggleRegistrationState: (isOpen) => api.post('/auction/state/registration', { isOpen }),
-    getTransactions: () => api.get('/auction/transactions')
+    getTransactions: () => api.get('/auction/transactions'),
+    getUpcomingQueue: () => api.get('/auction/queue/upcoming')
 };
 
 // Admin API

@@ -88,9 +88,15 @@ export async function initializeDatabase() {
         player_id INTEGER REFERENCES players(id),
         team_id INTEGER REFERENCES teams(id),
         amount INTEGER NOT NULL,
+        type VARCHAR(50) DEFAULT 'BID',
         created_at TIMESTAMPTZ DEFAULT NOW(),
         auction_context VARCHAR(50) DEFAULT 'main'
       )
+    `);
+
+    // Migration: Add type column to bid_logs if it doesn't exist
+    await client.query(`
+      ALTER TABLE bid_logs ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'BID';
     `);
 
     // Auction state table

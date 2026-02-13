@@ -18,11 +18,11 @@ import {
     addToQueueById,
     releasePlayer,
     resetTeamWallet,
+    adjustTeamWallet,
     resetAllWallets,
     exportPlayersToCSV
 } from '../controllers/adminController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
-
 import { upload } from '../controllers/playerController.js';
 
 const router = express.Router();
@@ -32,7 +32,7 @@ router.use(authenticateToken, authorizeRoles('admin'));
 
 // User management
 router.get('/users', getAllUsers);
-router.post('/users', authenticateToken, authorizeRoles('admin'), createUser); // Changed to include middleware explicitly as reminder, though router.use already covers it
+router.post('/users', authenticateToken, authorizeRoles('admin'), createUser);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
@@ -41,6 +41,7 @@ router.post('/teams', upload.single('logo'), createTeam);
 router.get('/teams', getAllTeams);
 router.put('/teams/:id', upload.single('logo'), updateTeam);
 router.delete('/teams/:id', deleteTeam);
+router.post('/teams/:id/wallet/adjust', adjustTeamWallet); // New route
 router.post('/teams/:id/reset', resetTeamWallet);
 router.post('/teams/reset-all', resetAllWallets);
 

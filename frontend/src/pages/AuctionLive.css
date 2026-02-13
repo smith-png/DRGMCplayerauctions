@@ -574,6 +574,23 @@
     border: 1px solid var(--border-color);
 }
 
+@keyframes pulse-red {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(255, 68, 68, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+    }
+}
+
 .status-dot {
     width: 8px;
     height: 8px;
@@ -581,12 +598,13 @@
 }
 
 .status-dot.live {
-    background: #00FF00;
-    box-shadow: 0 0 10px #00FF00;
+    background: #FF4444;
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 1);
+    animation: pulse-red 2s infinite;
 }
 
 .status-dot.offline {
-    background: #FF0000;
+    background: #999;
 }
 
 /* responsiveness */

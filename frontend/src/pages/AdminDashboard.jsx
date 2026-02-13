@@ -641,9 +641,14 @@ export default function AdminDashboard() {
                     </div>
 
                     {message && (
-                        <div className="alert alert-info">
-                            {message}
-                            <button onClick={() => setMessage('')} className="alert-close">×</button>
+                        <div className="system-notification-banner animate-slideInTop">
+                            <div className="notification-content">
+                                <span className="status-dot pulsing"></span>
+                                <span className="notification-text text-mono">{message.toUpperCase()}</span>
+                            </div>
+                            <button onClick={() => setMessage('')} className="btn-dismiss-notification">
+                                [DISMISS]
+                            </button>
                         </div>
                     )}
 
@@ -1040,100 +1045,123 @@ export default function AdminDashboard() {
                                             </div>
 
                                             {/* PLAYERS TABLE */}
-                                            <div className="player-table-container glass-card p-0">
-                                                <table className="player-table w-full">
-                                                    <thead>
-                                                        <tr>
-                                                            <th className="player-th">ID</th>
-                                                            <th className="player-th">NAME</th>
-                                                            <th className="player-th">YEAR</th>
-                                                            <th className="player-th">SPORT</th>
-                                                            <th className="player-th">STATUS</th>
-                                                            <th className="player-th text-center">ACTION</th>
-                                                            <th className="player-th text-center">AUCTION</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
+                                            <div className="roster-ledger-container glass-card">
+                                                {getPaginatedData(activePlayers).length === 0 ? (
+                                                    <div className="ledger-empty-state">
+                                                        NO PLAYERS FOUND
+                                                    </div>
+                                                ) : (
+                                                    <div className="ledger-data-strips">
                                                         {getPaginatedData(activePlayers).map(player => (
-                                                            <tr key={player.id} className="player-tr">
-                                                                <td className="player-td font-mono opacity-60">#{player.id}</td>
-                                                                <td className="player-td font-bold text-lg">{player.name}</td>
-                                                                <td className="player-td font-mono">{player.year}</td>
-                                                                <td className="player-td uppercase tracking-wide text-xs">{player.sport}</td>
-                                                                <td className="player-td">
-                                                                    <span className={`status-badge status-${player.status}`}>
-                                                                        {player.status.toUpperCase()}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="player-td text-center">
-                                                                    <div className="flex gap-2 justify-center">
-                                                                        <button
-                                                                            onClick={() => handleOpenPlayerModal(player)}
-                                                                            className="btn-table-action"
-                                                                        >
-                                                                            EDIT
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeletePlayer(player.id)}
-                                                                            className="btn-table-delete"
-                                                                        >
-                                                                            DELETE
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="player-td text-center">
-                                                                    <div className="flex gap-2 justify-center">
-                                                                        {player.status === 'approved' && (
-                                                                            <button
-                                                                                onClick={() => handleAddToQueue(player.id)}
-                                                                                className="btn-table-queue"
-                                                                            >
-                                                                                + QUEUE
-                                                                            </button>
-                                                                        )}
-                                                                        {player.status === 'eligible' && ( // Eligible means in queue
-                                                                            <button
-                                                                                onClick={() => handleRemoveFromQueue(player.id)}
-                                                                                className="btn-table-queue"
-                                                                                style={{ borderColor: '#f59e0b', color: '#f59e0b' }}
-                                                                            >
-                                                                                RETRACT
-                                                                            </button>
-                                                                        )}
-                                                                        <button
-                                                                            className="btn-table-reset"
-                                                                            // Reset functionality to be implemented or linked to existing re-approve
-                                                                            onClick={() => {
-                                                                                if (player.status === 'unsold') handleReApprove(player.id);
-                                                                                // For other states, maybe just a placeholder or specific reset logic
-                                                                            }}
-                                                                            disabled={player.status !== 'unsold' && player.status !== 'sold'}
-                                                                            style={{ opacity: (player.status !== 'unsold' && player.status !== 'sold') ? 0.3 : 1 }}
-                                                                        >
-                                                                            RESET
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                            <div key={player.id} className="ledger-data-strip">
+                                                                <div className="strip-photo">
+                                                                    {player.photo_url ? (
+                                                                        <img src={player.photo_url} alt={player.name} className="player-photo-ledger grayscale" />
+                                                                    ) : (
+                                                                        <div className="player-photo-ledger placeholder">
+                                                                            {player.name.charAt(0)}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
 
-                                                {/* Players Pagination */}
+                                                                <div className="strip-identity-ledger">
+                                                                    <span className="player-name-ledger">{player.name}</span>
+                                                                    <span className="player-ref-id">REF.{player.id?.toString().padStart(4, '0') || '0000'}</span>
+                                                                </div>
+
+                                                                <div className="strip-metadata">
+                                                                    <div className="meta-item">
+                                                                        <span className="meta-label">SPORT:</span>
+                                                                        <span className="meta-value">{player.sport}</span>
+                                                                    </div>
+                                                                    <div className="meta-item">
+                                                                        <span className="meta-label">YEAR:</span>
+                                                                        <span className="meta-value">{player.year}</span>
+                                                                    </div>
+                                                                    <div className="meta-item">
+                                                                        <span className="meta-label">ROLE:</span>
+                                                                        <span className="meta-value">{player.stats?.role || '-'}</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="strip-status">
+                                                                    <span className={`status-tag ${player.status === 'pending' ? 'pending' : player.status === 'eligible' ? 'eligible' : ''}`}>
+                                                                        [ {player.status === 'eligible' ? 'QUEUED' : player.status?.toUpperCase()} ]
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="strip-actions-ledger">
+                                                                    <button
+                                                                        onClick={() => handleOpenPlayerModal(player)}
+                                                                        className="btn-ledger-edit"
+                                                                    >
+                                                                        EDIT
+                                                                    </button>
+
+                                                                    <button
+                                                                        onClick={() => handleDeletePlayer(player.id)}
+                                                                        className="btn-ledger-delete"
+                                                                    >
+                                                                        DELETE
+                                                                    </button>
+
+                                                                    {player.status === 'approved' && (
+                                                                        <button
+                                                                            onClick={() => handleAddToQueue(player.id)}
+                                                                            className="btn-ledger-approve"
+                                                                        >
+                                                                            + QUEUE
+                                                                        </button>
+                                                                    )}
+
+                                                                    {player.status === 'eligible' && (
+                                                                        <button
+                                                                            onClick={() => handleRemoveFromQueue(player.id)}
+                                                                            className="btn-ledger-delete"
+                                                                            style={{ borderColor: '#f59e0b', color: '#f59e0b' }}
+                                                                        >
+                                                                            RETRACT
+                                                                        </button>
+                                                                    )}
+
+                                                                    <button
+                                                                        className="btn-ledger-delete"
+                                                                        onClick={() => {
+                                                                            if (player.status === 'unsold') handleReApprove(player.id);
+                                                                        }}
+                                                                        disabled={player.status !== 'unsold' && player.status !== 'sold'}
+                                                                        style={{
+                                                                            borderColor: '#60A5FA',
+                                                                            color: '#60A5FA',
+                                                                            opacity: (player.status !== 'unsold' && player.status !== 'sold') ? 0.3 : 1,
+                                                                            cursor: (player.status !== 'unsold' && player.status !== 'sold') ? 'not-allowed' : 'pointer'
+                                                                        }}
+                                                                    >
+                                                                        RESET
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Pagination */}
                                                 {activePlayers.length > itemsPerPage && (
-                                                    <div className="pagination-controls flex justify-end gap-4 p-4 border-top" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                                    <div className="pagination-footer">
                                                         <button
-                                                            className="btn-text"
+                                                            className="page-nav-link"
                                                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                                             disabled={currentPage === 1}
                                                         >
                                                             &lt; PREV
                                                         </button>
-                                                        <span className="flex items-center font-mono text-xs opacity-60">
+
+                                                        <span className="pagination-info">
                                                             PAGE {currentPage} OF {totalPages(activePlayers)}
                                                         </span>
+
                                                         <button
-                                                            className="btn-text"
+                                                            className="page-nav-link"
                                                             onClick={() => setCurrentPage(p => Math.min(totalPages(activePlayers), p + 1))}
                                                             disabled={currentPage === totalPages(activePlayers)}
                                                         >
@@ -1629,7 +1657,7 @@ export default function AdminDashboard() {
                                 {
                                     showTeamModal && (
                                         <div className="modal-overlay animate-fadeIn">
-                                            <div className="admin-modal-content card">
+                                            <div className="glass-terminal-modal">
                                                 <h2 className="terminal-header">{editingTeam ? 'REFINE TEAM DOSSIER' : 'NEW ACTIVE TEAM ENTRY'}</h2>
                                                 <form onSubmit={handleSaveTeamExtended}>
                                                     <div className="form-group-terminal">
@@ -1692,102 +1720,100 @@ export default function AdminDashboard() {
                                 {
                                     showPlayerModal && (
                                         <div className="modal-overlay animate-fadeIn">
-                                            <div className="admin-modal glass-card">
-                                                <h2 className="stat-label mb-8">{editingPlayer ? 'REVISE PLAYER PROFILE' : 'NEW PLAYER REGISTRY'}</h2>
+                                            <div className="glass-terminal-modal">
+                                                <h2 className="terminal-header">{editingPlayer ? 'REVISE PLAYER PROFILE' : 'NEW PLAYER REGISTRY'}</h2>
                                                 <form onSubmit={handleSavePlayerExtended}>
-                                                    <div className="form-group border-bottom pb-4 mb-4">
-                                                        <label className="stat-label mb-2 block">FULL NAME</label>
+                                                    <div className="form-group-terminal">
+                                                        <label className="terminal-label">FULL LEGAL NAME</label>
                                                         <input
                                                             type="text"
                                                             className="input-minimal"
                                                             value={playerForm.name}
                                                             onChange={e => setPlayerForm({ ...playerForm, name: e.target.value })}
                                                             required
-                                                            placeholder="Enter player name..."
+                                                            placeholder="ENTER PLAYER NAME..."
                                                         />
                                                     </div>
-                                                    <div className="grid grid-2 gap-4 mb-4">
-                                                        <div className="form-group border-bottom pb-4">
-                                                            <label className="stat-label mb-2 block">SPORT</label>
-                                                            <select
-                                                                className="input-minimal"
-                                                                value={playerForm.sport}
-                                                                onChange={handlePlayerSportChange}
-                                                            >
-                                                                <option value="cricket">CRICKET</option>
-                                                                <option value="futsal">FUTSAL</option>
-                                                                <option value="volleyball">VOLLEYBALL</option>
-                                                            </select>
-                                                        </div>
-                                                        <div className="form-group border-bottom pb-4">
-                                                            <label className="stat-label mb-2 block">ACADEMIC YEAR</label>
-                                                            <select
-                                                                className="input-minimal"
-                                                                value={playerForm.year}
-                                                                onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
-                                                            >
-                                                                <option value="1st">1ST YEAR</option>
-                                                                <option value="2nd">2ND YEAR</option>
-                                                                <option value="3rd">3RD YEAR</option>
-                                                                <option value="4th">4TH YEAR</option>
-                                                                <option value="Intern">INTERN</option>
-                                                            </select>
-                                                        </div>
+
+                                                    <div className="form-group-terminal">
+                                                        <label className="terminal-label">SPORT DISCIPLINE</label>
+                                                        <select
+                                                            className="input-minimal"
+                                                            value={playerForm.sport}
+                                                            onChange={handlePlayerSportChange}
+                                                        >
+                                                            <option value="cricket">CRICKET</option>
+                                                            <option value="futsal">FUTSAL</option>
+                                                            <option value="volleyball">VOLLEYBALL</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div className="form-group-terminal">
+                                                        <label className="terminal-label">ACADEMIC YEAR</label>
+                                                        <select
+                                                            className="input-minimal"
+                                                            value={playerForm.year}
+                                                            onChange={e => setPlayerForm({ ...playerForm, year: e.target.value })}
+                                                        >
+                                                            <option value="1st">1ST YEAR</option>
+                                                            <option value="2nd">2ND YEAR</option>
+                                                            <option value="3rd">3RD YEAR</option>
+                                                            <option value="4th">4TH YEAR</option>
+                                                            <option value="Intern">INTERN</option>
+                                                        </select>
                                                     </div>
 
                                                     {/* Conditional Stats Inputs */}
                                                     {playerForm.sport.toLowerCase() === 'cricket' && (
-                                                        <div className="stats-inputs-group mb-4">
-                                                            <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">CRICKET DATA</h4>
-                                                            <div className="grid grid-2 gap-4">
-                                                                <div className="form-group border-bottom pb-2">
-                                                                    <label className="text-xs uppercase opacity-80">ROLE</label>
-                                                                    <select
-                                                                        className="input-minimal"
-                                                                        value={playerForm.stats.role || ''}
-                                                                        onChange={e => handlePlayerStatChange('role', e.target.value)}
-                                                                    >
-                                                                        <option value="">SELECT ROLE</option>
-                                                                        {rolesBySport.Cricket.map(role => (
-                                                                            <option key={role} value={role}>{role.toUpperCase()}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
-                                                                <div className="form-group border-bottom pb-2">
-                                                                    <label className="text-xs uppercase opacity-80">BATTING</label>
-                                                                    <select
-                                                                        className="input-minimal"
-                                                                        value={playerForm.stats.batting_style || ''}
-                                                                        onChange={e => handlePlayerStatChange('batting_style', e.target.value)}
-                                                                    >
-                                                                        <option value="">SELECT STYLE</option>
-                                                                        {battingStyles.map(style => (
-                                                                            <option key={style} value={style}>{style.toUpperCase()}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
-                                                                <div className="form-group border-bottom pb-2 span-2">
-                                                                    <label className="text-xs uppercase opacity-80">BOWLING</label>
-                                                                    <select
-                                                                        className="input-minimal"
-                                                                        value={playerForm.stats.bowling_style || ''}
-                                                                        onChange={e => handlePlayerStatChange('bowling_style', e.target.value)}
-                                                                    >
-                                                                        <option value="">SELECT STYLE</option>
-                                                                        {bowlingStyles.map(style => (
-                                                                            <option key={style} value={style}>{style.toUpperCase()}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
+                                                        <>
+                                                            <div className="form-divider-dashed"></div>
+                                                            <div className="form-group-terminal">
+                                                                <label className="terminal-label">PLAYER ROLE</label>
+                                                                <select
+                                                                    className="input-minimal"
+                                                                    value={playerForm.stats.role || ''}
+                                                                    onChange={e => handlePlayerStatChange('role', e.target.value)}
+                                                                >
+                                                                    <option value="">SELECT ROLE</option>
+                                                                    {rolesBySport.Cricket.map(role => (
+                                                                        <option key={role} value={role}>{role.toUpperCase()}</option>
+                                                                    ))}
+                                                                </select>
                                                             </div>
-                                                        </div>
+                                                            <div className="form-group-terminal">
+                                                                <label className="terminal-label">BATTING STYLE</label>
+                                                                <select
+                                                                    className="input-minimal"
+                                                                    value={playerForm.stats.batting_style || ''}
+                                                                    onChange={e => handlePlayerStatChange('batting_style', e.target.value)}
+                                                                >
+                                                                    <option value="">SELECT STYLE</option>
+                                                                    {battingStyles.map(style => (
+                                                                        <option key={style} value={style}>{style.toUpperCase()}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                            <div className="form-group-terminal">
+                                                                <label className="terminal-label">BOWLING STYLE</label>
+                                                                <select
+                                                                    className="input-minimal"
+                                                                    value={playerForm.stats.bowling_style || ''}
+                                                                    onChange={e => handlePlayerStatChange('bowling_style', e.target.value)}
+                                                                >
+                                                                    <option value="">SELECT STYLE</option>
+                                                                    {bowlingStyles.map(style => (
+                                                                        <option key={style} value={style}>{style.toUpperCase()}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        </>
                                                     )}
 
                                                     {playerForm.sport.toLowerCase() === 'futsal' && (
-                                                        <div className="stats-inputs-group mb-4">
-                                                            <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">FUTSAL DATA</h4>
-                                                            <div className="form-group border-bottom pb-2">
-                                                                <label className="text-xs uppercase opacity-80">POSITION</label>
+                                                        <>
+                                                            <div className="form-divider-dashed"></div>
+                                                            <div className="form-group-terminal">
+                                                                <label className="terminal-label">FIELD POSITION</label>
                                                                 <select
                                                                     className="input-minimal"
                                                                     value={playerForm.stats.role || ''}
@@ -1799,14 +1825,14 @@ export default function AdminDashboard() {
                                                                     ))}
                                                                 </select>
                                                             </div>
-                                                        </div>
+                                                        </>
                                                     )}
 
                                                     {playerForm.sport.toLowerCase() === 'volleyball' && (
-                                                        <div className="stats-inputs-group mb-4">
-                                                            <h4 className="text-secondary text-xs font-bold uppercase mb-3 opacity-60">VOLLEYBALL DATA</h4>
-                                                            <div className="form-group border-bottom pb-2">
-                                                                <label className="text-xs uppercase opacity-80">PREFERENCE</label>
+                                                        <>
+                                                            <div className="form-divider-dashed"></div>
+                                                            <div className="form-group-terminal">
+                                                                <label className="terminal-label">COURT POSITION</label>
                                                                 <select
                                                                     className="input-minimal"
                                                                     value={playerForm.stats.role || ''}
@@ -1818,12 +1844,12 @@ export default function AdminDashboard() {
                                                                     ))}
                                                                 </select>
                                                             </div>
-                                                        </div>
+                                                        </>
                                                     )}
 
-                                                    <div className="modal-actions flex gap-4 mt-8">
-                                                        <button type="button" onClick={() => setShowPlayerModal(false)} className="btn btn-secondary flex-1">DISCARD</button>
-                                                        <button type="submit" className="btn btn-primary flex-1">SAVE PLAYER</button>
+                                                    <div className="terminal-actions">
+                                                        <button type="button" onClick={() => setShowPlayerModal(false)} className="btn-discard">DISCARD</button>
+                                                        <button type="submit" className="btn-commit">{editingPlayer ? 'COMMIT REVISION' : 'REGISTER PLAYER'}</button>
                                                     </div>
                                                 </form>
                                             </div>

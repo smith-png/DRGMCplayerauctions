@@ -312,8 +312,9 @@ export default function PlayerRegistration() {
                                     <div className="input-group">
                                         <label className="input-label">POSITION</label>
                                         <select
-                                            value={formData.stats.playingRole || ''}
-                                            onChange={(e) => handleStatChange('playingRole', e.target.value)}
+                                            name="role"
+                                            value={formData.stats.role || ''}
+                                            onChange={handleStatsChange}
                                             className="input"
                                             required
                                         >
@@ -322,6 +323,27 @@ export default function PlayerRegistration() {
                                             <option value="Defender">DF</option>
                                             <option value="Mid-fielder">MF</option>
                                             <option value="Attacker">AT</option>
+                                        </select>
+                                    </div>
+                                )}
+
+                                {formData.sport === 'volleyball' && (
+                                    <div className="input-group">
+                                        <label className="input-label">POSITION</label>
+                                        <select
+                                            name="role"
+                                            value={formData.stats.role || ''}
+                                            onChange={handleStatsChange}
+                                            className="input"
+                                            required
+                                        >
+                                            <option value="">SELECT POSITION</option>
+                                            <option value="Setter">Setter</option>
+                                            <option value="Libero">Libero</option>
+                                            <option value="Middle Blocker">Middle Blocker</option>
+                                            <option value="Outside Hitter">Outside Hitter</option>
+                                            <option value="Opposite Hitter">Opposite Hitter</option>
+                                            <option value="Universal">Universal</option>
                                         </select>
                                     </div>
                                 )}

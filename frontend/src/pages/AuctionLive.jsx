@@ -26,6 +26,8 @@ export default function AuctionLive() {
 
     const [eligiblePlayers, setEligiblePlayers] = useState([]); // Queue
     const [soldPlayers, setSoldPlayers] = useState([]);
+    const [allPlayers, setAllPlayers] = useState([]); // Store full registry for search
+    const [queueSearchQuery, setQueueSearchQuery] = useState(''); // Search state
     const [showSoldPlayers, setShowSoldPlayers] = useState(false);
     const [bidHistory, setBidHistory] = useState([]);
 
@@ -36,6 +38,7 @@ export default function AuctionLive() {
 
     // --- Refs and Sounds ---
     const soldTimeoutRef = useRef(null);
+    const animationDurationRef = useRef(5); // Default 5s
     const [playBid] = useSound(BID_SFX, { volume: 0.5 });
     const [playSold] = useSound(SOLD_SFX, { volume: 0.5 });
 
@@ -78,6 +81,10 @@ export default function AuctionLive() {
             }
 
             setIsAuctionActive(stateRes.data.isActive ?? response.data.isAuctionActive ?? true);
+            // Update animation duration ref
+            if (stateRes.data.animationDuration) {
+                animationDurationRef.current = parseInt(stateRes.data.animationDuration);
+            }
 
         } catch (err) {
             console.error('Failed to load auction:', err);
@@ -118,8 +125,12 @@ export default function AuctionLive() {
     const loadSoldPlayers = async () => {
         try {
             const response = await playerAPI.getAllPlayers();
-            const allPlayers = response.data.players || response.data || [];
-            const sold = allPlayers.filter(p => p.status === 'sold');
+            const fetchedPlayers = response.data.players || response.data || [];
+
+            // Set for search
+            setAllPlayers(fetchedPlayers);
+
+            const sold = fetchedPlayers.filter(p => p.status === 'sold');
 
             const groupedByTeam = sold.reduce((acc, player) => {
                 const teamId = player.team_id;
@@ -270,6 +281,16 @@ export default function AuctionLive() {
         }
     };
 
+    const handleQueuePlayer = async (playerId) => {
+        try {
+            await adminAPI.addToQueueById(playerId);
+            setQueueSearchQuery('');
+            await loadEligiblePlayers();
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to queue player');
+        }
+    };
+
     // --- EFFECTS ---
     useEffect(() => {
         loadAuction();
@@ -319,12 +340,13 @@ export default function AuctionLive() {
 
                 // Auto-refresh after delay
                 if (soldTimeoutRef.current) clearTimeout(soldTimeoutRef.current);
+                const duration = (animationDurationRef.current || 5) * 1000;
                 soldTimeoutRef.current = setTimeout(() => {
                     setSoldAnimation(null);
                     setAuction(null);
                     loadAuction();
                     loadSoldPlayers();
-                }, 5000);
+                }, duration);
             } else if (data.type === 'unsold' || data.type === 'state-change') {
                 loadAuction();
             }
@@ -349,6 +371,78 @@ export default function AuctionLive() {
                 <div className="queue-header">
                     <span className="queue-label">UP NEXT IN QUEUE</span>
                 </div>
+
+                {/* SEARCH BAR (Admin Only) */}
+                {(isAuctioneer || isAdmin) && (
+                    <div style={{ padding: '0 1rem 0.5rem', position: 'relative', zIndex: 20 }}>
+                        <input
+                            type="text"
+                            placeholder="SEARCH/ADD PLAYER..."
+                            value={queueSearchQuery}
+                            onChange={(e) => setQueueSearchQuery(e.target.value)}
+                            style={{
+                                width: '100%',
+                                background: 'rgba(0, 0, 0, 0.2)',
+                                border: '1px solid rgba(62, 91, 78, 0.4)',
+                                padding: '0.6rem',
+                                color: '#e2e8f0',
+                                fontSize: '0.8rem',
+                                fontFamily: 'monospace',
+                                outline: 'none'
+                            }}
+                        />
+                        {queueSearchQuery && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: '1rem',
+                                right: '1rem',
+                                background: '#111815',
+                                border: '1px solid #3E5B4E',
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
+                            }}>
+                                {allPlayers
+                                    .filter(p =>
+                                        (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) &&
+                                        !eligiblePlayers.find(ep => ep.id === p.id) &&
+                                        p.status !== 'sold' && p.status !== 'auctioning'
+                                    )
+                                    .slice(0, 10)
+                                    .map(p => (
+                                        <div
+                                            key={p.id}
+                                            onClick={() => handleQueuePlayer(p.id)}
+                                            style={{
+                                                padding: '0.5rem',
+                                                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                fontSize: '0.75rem',
+                                                color: '#ccc'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(62, 91, 78, 0.3)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <span style={{ fontWeight: 'bold' }}>{p.name}</span>
+                                                <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>{p.sport} • {p.year}</span>
+                                            </div>
+                                            <span style={{ fontFamily: 'monospace', color: '#8b9d96' }}>#{String(p.id).padStart(3, '0')}</span>
+                                        </div>
+                                    ))
+                                }
+                                {allPlayers.filter(p => (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) && !eligiblePlayers.find(ep => ep.id === p.id) && p.status !== 'sold' && p.status !== 'auctioning').length === 0 && (
+                                    <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>NO MATCHES</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className="queue-list-container custom-scrollbar">
                     {eligiblePlayers.length === 0 ? (
                         <div className="empty-queue-msg">NO ASSETS PENDING DEPLOYMENT</div>
@@ -388,53 +482,59 @@ export default function AuctionLive() {
         );
     };
 
-    // 2. Gavel Slam Overlay - High-Impact SOLD Animation
+    // Dismiss Sold Animation
+    const handleDismissSoldAnimation = () => {
+        if (soldTimeoutRef.current) clearTimeout(soldTimeoutRef.current);
+        setSoldAnimation(null);
+        setAuction(null);
+        loadAuction();
+        loadSoldPlayers();
+    };
+
+    // 2. Horizontal Sold Banner Overlay
     const renderGavelSlamOverlay = () => {
         if (!soldAnimation) return null;
 
         const team = teams.find(t => t.id === soldAnimation.team_id);
 
         return (
-            <div className="gavel-slam-overlay">
-                <div className="gavel-slam-content">
-                    {/* Phase 1: The SOLD Stamp */}
-                    <div className="sold-stamp">SOLD</div>
+            <div className="sold-banner-overlay">
+                <div className="sold-banner-strip">
+                    {/* Col 1: Label */}
+                    <div className="sold-col-label">SOLD!</div>
 
-                    {/* Phase 2: The Reveal - Player Info */}
-                    <div className="gavel-player-card">
+                    {/* Col 2: Player Identity */}
+                    <div className="sold-col-player">
                         {soldAnimation.photo_url ? (
-                            <img src={soldAnimation.photo_url} alt={soldAnimation.name} className="gavel-player-photo" />
+                            <img src={soldAnimation.photo_url} alt={soldAnimation.name} className="banner-player-photo" />
                         ) : (
-                            <div className="gavel-player-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', fontWeight: 900, background: '#f1f5f9' }}>
+                            <div className="banner-player-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', background: '#e2e8f0', color: '#64748b' }}>
                                 {soldAnimation.name?.[0] || '?'}
                             </div>
                         )}
-                        <div className="gavel-player-info">
-                            <h2 className="gavel-player-name">{soldAnimation.name}</h2>
-                            <div style={{ color: '#64748b', fontSize: '1.2rem' }}>
-                                {soldAnimation.year} • {soldAnimation.sport}
-                            </div>
+                        <div className="banner-player-info">
+                            <span className="banner-player-name">{soldAnimation.name}</span>
+                            <span className="banner-player-role">{soldAnimation.year} / {soldAnimation.sport}</span>
                         </div>
                     </div>
 
-                    {/* Team Info */}
-                    <div className="gavel-team-card">
-                        {team?.logo_url ? (
-                            <img src={team.logo_url} alt={team.name} className="gavel-team-logo" />
-                        ) : (
-                            <div className="gavel-team-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 800, background: '#f1f5f9', color: '#64748b' }}>
-                                {team?.name?.[0] || 'T'}
-                            </div>
-                        )}
-                        <div className="gavel-team-info">
-                            <h3 className="gavel-team-name">{team?.name || `Team ${soldAnimation.team_id}`}</h3>
-                        </div>
+                    {/* Col 3: Buyer */}
+                    <div className="sold-col-team">
+                        <span>TO: {team?.name || 'UNKNOWN'}</span>
+                        {team?.logo_url && <img src={team.logo_url} alt={team.name} className="banner-team-logo" />}
                     </div>
 
-                    {/* Final Price */}
-                    <div className="gavel-final-price">
-                        {soldAnimation.sold_price?.toLocaleString()} PTS
+                    {/* Col 4: Price */}
+                    <div className="sold-col-price">
+                        PTS {soldAnimation.sold_price?.toLocaleString()}
                     </div>
+
+                    {/* Col 5: Dismiss */}
+                    {(isAuctioneer || isAdmin) && (
+                        <button className="sold-dismiss-btn" onClick={handleDismissSoldAnimation} title="Dismiss">
+                            ×
+                        </button>
+                    )}
                 </div>
             </div>
         );
@@ -521,8 +621,6 @@ export default function AuctionLive() {
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
                 <div className="auction-terminal">
-                    {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#3E5B4E', '#ffffff', '#000000']} />}
-
                     {/* LEFT: THE ARENA (75%) */}
                     <div className="showcase-side">
                         {auction ? (
@@ -672,6 +770,9 @@ export default function AuctionLive() {
             </div>
 
             {/* Overlays moved outside editorial-glass-stage to prevent containing block (blur filter) issues */}
+            <div className="confetti-wrapper">
+                {soldAnimation && <Confetti recycle={false} numberOfPieces={500} colors={['#3E5B4E', '#ffffff', '#000000']} />}
+            </div>
             {renderGavelSlamOverlay()}
             {renderSoldOverlay()}
         </>
