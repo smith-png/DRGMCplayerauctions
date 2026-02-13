@@ -1,33 +1,22 @@
 import { useState, useEffect } from 'react';
-import { teamsAPI, playerAPI, authAPI, adminAPI, auctionAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { teamsAPI, playerAPI, adminAPI, auctionAPI } from '../services/api';
 import './Teams.css';
 
 export default function Teams() {
+    const { user } = useAuth();
     const [teams, setTeams] = useState([]);
     const [players, setPlayers] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [filteredTeams, setFilteredTeams] = useState([]);
     const [activeSport, setActiveSport] = useState('Cricket');
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
-    const [myTeam, setMyTeam] = useState(null);
+    // user state is now from context
+    // myTeam state is derived or managed differently if needed
     const [expandedTeam, setExpandedTeam] = useState(null);
     const [walletModal, setWalletModal] = useState({ show: false, teamId: null, teamName: '', action: '' });
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    const response = await authAPI.getCurrentUser();
-                    setUser(response.data.user);
-                }
-            } catch (error) {
-                console.log('Not authenticated');
-            }
-        };
-        fetchUser();
-    }, []);
+    // Removed manual user fetch useEffect
 
     useEffect(() => {
         const fetchData = async () => {
@@ -61,16 +50,7 @@ export default function Teams() {
                     }
 
                     if (user.role === 'team_owner') {
-                        console.log('[TEAMS] Team Owner detected:', user.name, 'Team ID:', user.team_id);
-                        console.log('[TEAMS] Available teams:', teamsList.map(t => ({ id: t.id, name: t.name })));
-
-                        if (user.team_id) {
-                            const foundTeam = teamsList.find(t => String(t.id) === String(user.team_id));
-                            console.log('[TEAMS] Found team:', foundTeam);
-                            setMyTeam(foundTeam);
-                        } else {
-                            console.log('[TEAMS] No team_id on user object');
-                        }
+                        // Team owner specific logic if needed in future
                     }
                 }
             } catch (error) {
@@ -281,83 +261,7 @@ export default function Teams() {
 
 
     // ADMIN VIEW (removed team owner section to save time)
-    if (false) {
-        if (!myTeam) {
-            return (
-                <div className="editorial-glass-stage">
-                    <div className="phantom-nav-spacer"></div>
-                    <div className="teams-page">
-                        <div className="stats-error" style={{ flexDirection: 'column', gap: '1rem', textAlign: 'center', padding: '4rem' }}>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>TEAM NOT LINKED</div>
-                            <div style={{ fontSize: '0.9rem', color: '#666' }}>USER: {user.name}</div>
-                            <div>CONTACT ADMIN FOR TEAM ASSIGNMENT</div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
 
-        const myPlayers = players.filter(p => p.team_id == myTeam.id && p.status === 'sold');
-        const budgetUsed = (myTeam.budget || 2000) - (myTeam.remaining_budget || 0);
-        const burnRate = myTeam.budget ? (budgetUsed / myTeam.budget) * 100 : 0;
-
-        return (
-            <div className="editorial-glass-stage">
-                <div className="phantom-nav-spacer"></div>
-                <div className="teams-page owner-view">
-                    <div className="teams-header">
-                        <div className="header-left">
-                            <div className="header-meta">PORTFOLIO /// {myTeam.name.toUpperCase()}</div>
-                            <h1 className="header-title">TEAM<br />REPORT</h1>
-                        </div>
-                        <div className="header-right">
-                            <div className="header-meta">SPORT: {myTeam.sport?.toUpperCase()}</div>
-                        </div>
-                    </div>
-
-                    <div className="kpi-grid">
-                        <div className="kpi-card">
-                            <span className="kpi-label">REMAINING POINTS</span>
-                            <span className="kpi-value highlight">{(myTeam.remaining_budget || 0).toLocaleString()} PTS</span>
-                            <div className="kpi-bar-bg">
-                                <div className="kpi-bar-fill" style={{ width: `${Math.max(0, 100 - burnRate)}%` }}></div>
-                            </div>
-                        </div>
-                        <div className="kpi-card">
-                            <span className="kpi-label">SPENT POINTS</span>
-                            <span className="kpi-value">{budgetUsed.toLocaleString()} PTS</span>
-                        </div>
-                        <div className="kpi-card">
-                            <span className="kpi-label">ROSTER SIZE</span>
-                            <span className="kpi-value">{myPlayers.length} PLAYERS</span>
-                        </div>
-                    </div>
-
-                    <div className="roster-section">
-                        <h2 className="section-title">SQUAD ROSTER</h2>
-                        <div className="players-grid">
-                            {myPlayers.map(player => (
-                                <div key={player.id} className="player-card-compact">
-                                    <div className="player-card-header">
-                                        <span className="player-name">{player.name}</span>
-                                        <span className="player-price">{player.sold_price?.toLocaleString()} PTS</span>
-                                    </div>
-                                    <div className="player-card-meta">
-                                        <span>{player.year}</span>
-                                        <span>•</span>
-                                        <span>{player.sport}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        {myPlayers.length === 0 && (
-                            <div className="empty-state">NO PLAYERS ACQUIRED YET</div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     // ADMIN VIEW
     if (user.role === 'admin') {
