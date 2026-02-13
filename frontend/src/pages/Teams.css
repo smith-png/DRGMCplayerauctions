@@ -259,3 +259,410 @@
         font-size: 1.1rem;
     }
 }
+
+/* ========================================
+   TEAM OWNER VIEW - PORTFOLIO
+   ======================================== */
+
+.owner-view .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 3rem;
+}
+
+.kpi-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.kpi-label {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.kpi-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-black);
+}
+
+.kpi-value.highlight {
+    color: var(--sage-deep);
+}
+
+.kpi-bar-bg {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.kpi-bar-fill {
+    height: 100%;
+    background: var(--sage-deep);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.roster-section {
+    margin-top: 3rem;
+}
+
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    color: var(--text-black);
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.player-card-compact {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+}
+
+.player-card-compact:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--sage-deep);
+    transform: translateY(-2px);
+}
+
+.player-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.player-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-black);
+}
+
+.player-price {
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: var(--sage-deep);
+}
+
+.player-card-meta {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
+    display: flex;
+    gap: 8px;
+}
+
+/* ========================================
+   ADMIN VIEW - LEDGER
+   ======================================== */
+
+.admin-view {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+
+.admin-ledger {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ledger-team-block {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.ledger-team-block:hover {
+    border-color: var(--sage-deep);
+}
+
+.ledger-team-header {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.ledger-team-header:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.ledger-team-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ledger-team-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--text-black);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.ledger-team-owner {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.ledger-team-stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.ledger-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+}
+
+.ledger-stat-label {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.65rem;
+    color: var(--sage-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.ledger-stat-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-black);
+}
+
+.expand-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--sage-deep);
+    background: transparent;
+    color: var(--sage-deep);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.expand-btn:hover {
+    background: var(--sage-deep);
+    color: white;
+}
+
+.ledger-team-details {
+    padding: 0 24px 24px 24px;
+    border-top: 1px solid rgba(62, 91, 78, 0.1);
+}
+
+.wallet-controls {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.wallet-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wallet-btn.add {
+    color: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.wallet-btn.add:hover {
+    background: #2e7d32;
+    color: white;
+}
+
+.wallet-btn.deduct {
+    color: #c62828;
+    border-color: #c62828;
+}
+
+.wallet-btn.deduct:hover {
+    background: #c62828;
+    color: white;
+}
+
+.roster-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.roster-player-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.85rem;
+}
+
+.roster-player-name {
+    font-weight: 700;
+    color: var(--text-black);
+}
+
+.roster-player-year {
+    color: var(--sage-deep);
+}
+
+.roster-player-price {
+    font-weight: 700;
+    color: var(--sage-deep);
+    text-align: right;
+}
+
+.empty-roster {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.75rem;
+    color: var(--sage-deep);
+    opacity: 0.6;
+}
+
+/* ========================================
+   TRANSACTION LOGS SIDEBAR
+   ======================================== */
+
+.logs-sidebar {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    height: fit-content;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: sticky;
+    top: 100px;
+}
+
+.logs-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    color: var(--text-black);
+}
+
+.log-entry {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+.log-player {
+    font-weight: 700;
+    color: var(--text-black);
+}
+
+.log-team {
+    color: var(--sage-deep);
+    font-weight: 700;
+}
+
+.log-price {
+    color: var(--sage-deep);
+    font-weight: 900;
+}
+
+.log-time {
+    font-size: 0.65rem;
+    color: var(--sage-deep);
+    opacity: 0.7;
+    margin-top: 4px;
+    display: block;
+}
+
+.stats-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    font-family: 'Space Grotesk', monospace;
+    color: var(--sage-deep);
+}
+
+/* Responsive for admin view */
+@media (max-width: 1200px) {
+    .admin-view {
+        grid-template-columns: 1fr;
+    }
+
+    .logs-sidebar {
+        position: relative;
+        top: 0;
+        max-height: 400px;
+    }
+}
