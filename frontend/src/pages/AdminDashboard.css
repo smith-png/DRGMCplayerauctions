@@ -1872,6 +1872,100 @@ tr:hover .table-thumb {
     box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 }
 
+/* --- MIN BID STANDALONE CARD (Requested Redesign) --- */
+.min-bid-standalone-card {
+    background: #4a4a4a;
+    /* Dark gray as per screenshot */
+    padding: 2.5rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 450px;
+    max-width: 500px;
+}
+
+.card-header-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+}
+
+.card-body-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sport-selector-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sport-select-minimal {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+}
+
+.chevron-icon::after {
+    content: 'v';
+    font-size: 1rem;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    opacity: 0.8;
+}
+
+.min-bid-value-display {
+    text-align: right;
+    position: relative;
+}
+
+.value-input-large {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    width: 120px;
+    text-align: right;
+    outline: none;
+}
+
+.display-underline {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    width: 100%;
+}
+
+.btn-update-minimal {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-update-minimal:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #fff;
+    color: #fff;
+}
+
 .btn-global-reset-sm {
     border: 1px solid #ef4444;
     color: #ef4444;

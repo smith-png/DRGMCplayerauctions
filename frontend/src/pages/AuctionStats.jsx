@@ -118,7 +118,7 @@ export default function AuctionStats() {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { if (user) fetchData(); }, [user]);
+    useEffect(() => { if (user) fetchData(); }, [user, activeSport]);
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -228,7 +228,6 @@ export default function AuctionStats() {
 
                         {/* UPCOMING QUEUE */}
                         <div className="glass-card" style={{ padding: '1.5rem' }}>
-                            <div className="meta-tag" style={{ marginBottom: '1rem' }}>MARKET PIPELINE</div>
                             <h3 className="section-title-small">UP NEXT</h3>
                             <div className="queue-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '1rem' }}>
                                 {upcomingQueue.length === 0 ? (
@@ -249,19 +248,24 @@ export default function AuctionStats() {
 
                         {/* RECENT ACTIVITY */}
                         <div className="glass-card" style={{ padding: '1.5rem' }}>
-                            <div className="meta-tag" style={{ marginBottom: '1rem' }}>MARKET DATA</div>
                             <h3 className="section-title-small">RECENT BIDS</h3>
-                            <div className="activity-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
-                                {transactions.slice(0, 5).map(t => (
-                                    <div key={t.id} style={{ fontSize: '0.8rem', padding: '0.5rem', borderBottom: '1px dashed rgba(255,255,255,0.1)' }}>
-                                        <span style={{ color: '#4ADE80' }}>{t.team_name || 'UNKNOWN'}</span>
-                                        <span style={{ opacity: 0.7 }}> bid </span>
-                                        <span style={{ fontWeight: 'bold' }}>{t.amount}</span>
-                                        <span style={{ opacity: 0.7 }}> on </span>
-                                        <span>{t.player_name}</span>
+                            <div className="bid-activity-feed" style={{ marginTop: '1.5rem' }}>
+                                {transactions.slice(0, 6).map(t => (
+                                    <div key={t.id} className="bid-activity-row">
+                                        <div className="bid-time-col">
+                                            {t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                                        </div>
+                                        <div className="bid-details-col">
+                                            <div className="bid-main-line">
+                                                <span className="bid-team-name">{t.team_name || 'UNKNOWN'}</span>
+                                                <span className="bid-action">PLACED</span>
+                                                <span className="bid-amount">{t.amount?.toLocaleString()} PTS</span>
+                                            </div>
+                                            <div className="bid-player-line">FOR {t.player_name}</div>
+                                        </div>
                                     </div>
                                 ))}
-                                {transactions.length === 0 && <div className="dim-text">NO RECENT BIDS</div>}
+                                {transactions.length === 0 && <div className="dim-text">NO RECENT ACTIVITY DETECTED</div>}
                             </div>
                         </div>
 

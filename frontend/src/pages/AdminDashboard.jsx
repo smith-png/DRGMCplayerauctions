@@ -57,9 +57,7 @@ export default function AdminDashboard() {
     ]);
 
     // History Tab State
-    const [historySearch, setHistorySearch] = useState('');
-    const [historyPage, setHistoryPage] = useState(1);
-    const [historyLogs, setHistoryLogs] = useState([]);
+
 
     const rolesBySport = {
         Cricket: [
@@ -180,9 +178,6 @@ export default function AdminDashboard() {
             } else if (activeTab === 'teams') {
                 const response = await adminAPI.getAllTeams();
                 setTeams(response.data.teams);
-            } else if (activeTab === 'history') {
-                const response = await auctionAPI.getTransactions();
-                setHistoryLogs(response.data.transactions || []);
             }
         } catch (err) {
             console.error('Failed to load data:', err);
@@ -677,12 +672,7 @@ export default function AdminDashboard() {
                         >
                             Teams
                         </button>
-                        <button
-                            className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('history')}
-                        >
-                            HISTORY
-                        </button>
+
                         <button
                             className={`tab-btn ${activeTab === 'console' ? 'active' : ''}`}
                             onClick={() => setActiveTab('console')}
@@ -1266,99 +1256,7 @@ export default function AdminDashboard() {
 
 
 
-                                {
-                                    activeTab === 'history' && (
-                                        <div className="history-section animate-fadeIn">
-                                            <div className="history-header-glass mb-6 flex justify-between items-center">
-                                                <h2 className="text-2xl font-bold tracking-wider" style={{ letterSpacing: '2px' }}>MASTER AUCTION LOG // TRANSACTION TAPE</h2>
-                                                <div className="search-pill glass-pill flex items-center px-4 py-2 gap-3" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(62, 91, 78, 0.3)', borderRadius: '30px' }}>
-                                                    <span className="search-icon opacity-50">⌕</span>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="SEARCH TAPE..."
-                                                        className="bg-transparent border-none outline-none text-sm font-mono uppercase w-48 text-primary"
-                                                        value={historySearch}
-                                                        onChange={(e) => {
-                                                            setHistorySearch(e.target.value);
-                                                            setHistoryPage(1);
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
 
-                                            <div className="transaction-tape-container glass-card" style={{ minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
-                                                <div className="tape-header-row flex uppercase text-xs font-bold tracking-widest opacity-60 border-bottom pb-4 mb-4 px-4" style={{ borderBottom: '1px dashed rgba(62, 91, 78, 0.3)' }}>
-                                                    <span className="col-time w-24">TIMESTAMP</span>
-                                                    <span className="col-event w-32 text-center">EVENT_TAG</span>
-                                                    <span className="col-entity flex-1 pl-8">ENTITY_DETAILS</span>
-                                                    <span className="col-value w-32 text-right">VALUE (PTS)</span>
-                                                </div>
-
-                                                <div className="tape-log-list flex-1">
-                                                    {historyLogs
-                                                        .filter(log =>
-                                                            historySearch === '' ||
-                                                            (log.player_name || '').toLowerCase().includes(historySearch.toLowerCase()) ||
-                                                            (log.team_name || '').toLowerCase().includes(historySearch.toLowerCase())
-                                                        )
-                                                        .slice((historyPage - 1) * 10, historyPage * 10)
-                                                        .map(log => (
-                                                            <div key={log.id} className="transaction-ledger-row">
-                                                                <div className="col-time w-24 font-mono text-xs opacity-70">
-                                                                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                                                </div>
-                                                                <div className="col-event w-32 flex justify-center">
-                                                                    <span className={`event-tag px-3 py-1 rounded-full text-xs font-mono font-bold ${log.type === 'SOLD' ? 'bg-black text-white' : 'bg-sage/20 text-sage border border-sage'}`}>
-                                                                        [{log.type}]
-                                                                    </span>
-                                                                </div>
-                                                                <div className="col-entity flex-1 pl-8 flex items-center gap-4">
-                                                                    <div className="flex flex-col">
-                                                                        <span className="font-bold text-sm uppercase tracking-wide">{log.player_name || `PLAYER_${log.player_id}`}</span>
-                                                                        <span className="text-xs font-mono text-sage">{log.team_name || '---'}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="col-value w-32 text-right font-mono font-bold text-lg">
-                                                                    {log.type === 'NO_SALE' ? '---' : `PTS ${(log.amount || log.final_bid || 0).toLocaleString()}`}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-
-                                                    {historyLogs.filter(log =>
-                                                        historySearch === '' ||
-                                                        (log.player_name || '').toLowerCase().includes(historySearch.toLowerCase()) ||
-                                                        (log.team_name || '').toLowerCase().includes(historySearch.toLowerCase())
-                                                    ).length === 0 && (
-                                                            <div className="text-center p-12 opacity-40 font-mono tracking-widest">
-                                                                // NO DATA FOUND ON TAPE
-                                                            </div>
-                                                        )}
-                                                </div>
-
-                                                {/* Pagination Footer */}
-                                                <div className="tape-footer mt-auto pt-4 border-top flex justify-between items-center px-4" style={{ borderTop: '1px solid rgba(62, 91, 78, 0.2)' }}>
-                                                    <button
-                                                        className="btn-text text-xs font-bold uppercase tracking-widest hover:text-sage transition-colors disabled:opacity-30"
-                                                        disabled={historyPage === 1}
-                                                        onClick={() => setHistoryPage(p => p - 1)}
-                                                    >
-                                                        &lt; PREV
-                                                    </button>
-                                                    <span className="page-indicator font-mono text-xs opacity-60">
-                                                        PAGE {historyPage} OF {Math.ceil(historyLogs.length / 10) || 1}
-                                                    </span>
-                                                    <button
-                                                        className="btn-text text-xs font-bold uppercase tracking-widest hover:text-sage transition-colors disabled:opacity-30"
-                                                        disabled={historyPage >= Math.ceil(historyLogs.length / 10)}
-                                                        onClick={() => setHistoryPage(p => p + 1)}
-                                                    >
-                                                        NEXT &gt;
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )
-                                }
 
                                 {
                                     activeTab === 'console' && (
@@ -1410,13 +1308,16 @@ export default function AdminDashboard() {
                                                                 <button onClick={handleUpdateAnimationDuration} className="btn-settings-action">SET</button>
                                                             </div>
 
-                                                            {/* 2. Min Bids */}
-                                                            <div className="control-box">
-                                                                <div>
-                                                                    <label className="control-label">MIN BIDS ({bulkMinBid})</label>
-                                                                    <div className="control-input-group justify-between w-full">
+                                                            {/* 2. Min Bids (Enhanced Editorial UI) */}
+                                                            <div className="min-bid-standalone-card">
+                                                                <div className="card-header-mono">
+                                                                    MIN BIDS ({bulkMinBid})
+                                                                </div>
+
+                                                                <div className="card-body-flex">
+                                                                    <div className="sport-selector-wrapper">
                                                                         <select
-                                                                            className="settings-select"
+                                                                            className="sport-select-minimal"
                                                                             value={bulkSport}
                                                                             onChange={(e) => {
                                                                                 setBulkSport(e.target.value);
@@ -1425,18 +1326,25 @@ export default function AdminDashboard() {
                                                                         >
                                                                             <option value="cricket">Cricket</option>
                                                                             <option value="futsal">Futsal</option>
-                                                                            <option value="volleyball">Volley</option>
+                                                                            <option value="volleyball">Volleyball</option>
                                                                         </select>
+                                                                        <span className="chevron-icon"></span>
+                                                                    </div>
+
+                                                                    <div className="min-bid-value-display">
                                                                         <input
                                                                             type="number"
-                                                                            className="settings-input"
-                                                                            style={{ width: '50px', textAlign: 'right' }}
+                                                                            className="value-input-large"
                                                                             value={bulkMinBid}
                                                                             onChange={(e) => setBulkMinBid(e.target.value)}
                                                                         />
+                                                                        <div className="display-underline"></div>
                                                                     </div>
                                                                 </div>
-                                                                <button onClick={handleBulkMinBidUpdate} className="btn-settings-action">UPDATE</button>
+
+                                                                <button onClick={handleBulkMinBidUpdate} className="btn-update-minimal">
+                                                                    UPDATE
+                                                                </button>
                                                             </div>
 
                                                             {/* 3. Resets */}

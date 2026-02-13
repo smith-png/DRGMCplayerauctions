@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, register, changePassword } from '../controllers/authController.js';
+import { login, register, changePassword, getMe } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -11,13 +11,7 @@ router.post('/login', login);
 router.post('/register', register);
 
 // GET /api/auth/me - Get current user
-router.get('/me', authenticateToken, async (req, res) => {
-    try {
-        res.json({ user: req.user });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get user info' });
-    }
-});
+router.get('/me', authenticateToken, getMe);
 
 router.post('/change-password', authenticateToken, changePassword);
 

@@ -676,6 +676,13 @@ export default function AuctionLive() {
                             </div>
                         )}
 
+                        {/* Persistent Queue Dock for Admins during Active Auction */}
+                        {(isAdmin || isAuctioneer) && auction && (
+                            <div className="persistent-queue-wrapper mt-12 border-t border-border-color pt-12">
+                                {renderQueueDock()}
+                            </div>
+                        )}
+
                         {/* Status Badges */}
                         <div className="session-badges">
                             <div className="session-badge">

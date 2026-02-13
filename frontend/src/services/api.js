@@ -105,7 +105,7 @@ export const adminAPI = {
 
 // Teams API
 export const teamsAPI = {
-    getAllTeams: () => api.get('/teams'),
+    getAllTeams: (sport) => api.get('/teams', { params: { sport } }),
 };
 
 // Team Owner API

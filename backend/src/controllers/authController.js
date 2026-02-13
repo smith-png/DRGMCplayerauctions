@@ -129,6 +129,26 @@ export const register = async (req, res) => {
     }
 };
 
+// Get current user info from DB
+export const getMe = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const result = await pool.query(
+            'SELECT id, name, email, role, team_id, created_at FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ user: result.rows[0] });
+    } catch (error) {
+        console.error('Get me error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 // Verify token middleware
 export const verifyToken = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];

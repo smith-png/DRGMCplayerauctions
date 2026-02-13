@@ -203,6 +203,14 @@ export async function getAllTeams(req, res) {
     const { sport } = req.query;
 
     try {
+        // If team_owner, refresh their user data from DB to get latest team_id (token might be stale)
+        if (req.user?.role === 'team_owner') {
+            const userRes = await pool.query('SELECT team_id FROM users WHERE id = $1', [req.user.id]);
+            if (userRes.rows.length > 0) {
+                req.user.team_id = userRes.rows[0].team_id;
+            }
+        }
+
         // Get lockdown state first
         const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
         const isLocked = stateRes.rows[0]?.testgrounds_locked || false;

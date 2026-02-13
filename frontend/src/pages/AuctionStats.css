@@ -843,30 +843,178 @@
     }
 }
 
-.glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+/* KPI GRID & CARDS */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
+.kpi-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    padding: 2rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+}
+
+.kpi-label {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #5c7a6b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.kpi-value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1a2e25;
+}
+
+.kpi-value.highlight {
+    color: #3E5B4E;
+}
+
+.kpi-bar-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(62, 91, 78, 0.1);
+    border-radius: 2px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.kpi-bar-fill {
+    height: 100%;
+    background: #3E5B4E;
+    transition: width 1s ease-out;
+}
+
+/* CARDS & PANELS */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(62, 91, 78, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+.ledger-container {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+}
+
+.ledger-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #1a2e25;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+}
+
+.empty-ledger {
+    padding: 4rem;
+    text-align: center;
+    font-family: 'Space Grotesk', monospace;
+    color: #5c7a6b;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+/* WIDGETS */
 .section-title-small {
     font-family: 'Manrope', sans-serif;
     font-weight: 800;
-    font-size: 1.2rem;
-    color: #fff;
-    margin: 0;
-    text-transform: uppercase;
+    font-size: 1.25rem;
+    color: #1a2e25;
+    letter-spacing: -0.02em;
 }
 
 .dim-text {
     font-family: 'Space Grotesk', monospace;
-    color: #444;
     font-size: 0.8rem;
-    font-style: italic;
-    padding: 1rem 0;
+    color: #5c7a6b;
+    opacity: 0.7;
+    margin-top: 1rem;
+}
+
+.queue-item {
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.queue-item:hover {
+    background: rgba(62, 91, 78, 0.05) !important;
+}
+
+/* TABLE OVERWRITE */
+.editorial-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.editorial-table th {
+    text-align: left;
+    padding: 1rem;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: #5c7a6b;
+    border-bottom: 1px solid rgba(62, 91, 78, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.editorial-table td {
+    padding: 1.25rem 1rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(62, 91, 78, 0.05);
+}
+
+.editorial-table .bold {
+    font-weight: 700;
+    color: #1a2e25;
+}
+
+.editorial-table .mono {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.editorial-table .highlight {
+    color: #3E5B4E;
+}
+
+@media (max-width: 900px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Side scrolling container for better table view on small screens */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
 }
 
 /* PASSWORD MODAL STYLES (Reusing Terminal Styles) */
@@ -883,7 +1031,7 @@
 .terminal-header {
     font-family: 'Space Grotesk', monospace;
     font-weight: 700;
-    color: var(--accent-sage);
+    color: #3E5B4E;
     border-bottom: 1px dashed #333;
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
@@ -913,7 +1061,7 @@
 }
 
 .input-minimal:focus {
-    border-color: var(--accent-sage);
+    border-color: #3E5B4E;
     background: #000;
 }
 
@@ -941,9 +1089,9 @@
 }
 
 .btn-commit {
-    background: var(--accent-sage);
+    background: #3E5B4E;
     border: none;
-    color: #000;
+    color: #fff;
     padding: 0.8rem 1.5rem;
     font-family: 'Space Grotesk', monospace;
     font-weight: 700;
@@ -955,4 +1103,92 @@
 
 .btn-commit:hover {
     background: #fff;
+    color: #000;
+}
+
+/* BID ACTIVITY FEED */
+.bid-activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.bid-activity-row {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.15);
+}
+
+.bid-activity-row:last-child {
+    border-bottom: none;
+}
+
+.bid-time-col {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.7rem;
+    color: #5c7a6b;
+    opacity: 0.6;
+    padding-top: 0.2rem;
+    min-width: 45px;
+}
+
+.bid-details-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.bid-main-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.bid-team-name {
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #3E5B4E;
+    text-transform: uppercase;
+}
+
+.bid-action {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.65rem;
+    color: #5c7a6b;
+    opacity: 0.5;
+}
+
+.bid-amount {
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #1a2e25;
+    margin-left: auto;
+}
+
+.bid-player-line {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #1a2e25;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 900px) {
+    .bid-main-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+    }
+
+    .bid-amount {
+        margin-left: 0;
+        margin-top: 0.2rem;
+    }
 }
