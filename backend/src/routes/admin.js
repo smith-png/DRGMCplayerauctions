@@ -18,6 +18,7 @@ import {
     addToQueueById,
     releasePlayer,
     resetTeamWallet,
+    adjustTeamWallet, // Added import
     resetAllWallets,
     exportPlayersToCSV
 } from '../controllers/adminController.js';
@@ -42,6 +43,7 @@ router.get('/teams', getAllTeams);
 router.put('/teams/:id', upload.single('logo'), updateTeam);
 router.delete('/teams/:id', deleteTeam);
 router.post('/teams/:id/reset', resetTeamWallet);
+router.post('/teams/:id/wallet/adjust', adjustTeamWallet); // Added route
 router.post('/teams/reset-all', resetAllWallets);
 
 // Player management (Admin Crud)

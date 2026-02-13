@@ -1,0 +1,47 @@
+@keyframes footer-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Base shell styling */
+.footer-ticker-shell {
+    padding: 6px 0;
+    /* Reduced padding */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100vw;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.footer-ticker-track {
+    display: flex !important;
+    justify-content: center !important;
+    /* Center the static text */
+    width: 100% !important;
+    padding: 4px 0;
+    /* Reduced track padding */
+}
+
+/* Ticker text styling */
+.footer-ticker-track span {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 700;
+    font-size: 0.7rem;
+    /* Slightly smaller for precision look */
+    color: var(--accent-sage);
+    letter-spacing: 0.15rem;
+    /* Increased tracking */
+    opacity: 0.8;
+}

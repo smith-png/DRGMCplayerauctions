@@ -15,7 +15,8 @@ import {
     updateAnimationDuration,
     updateAnimationType,
     updateBidRules,
-    getRecentBids
+    getRecentBids,
+    getUpcomingQueue,
 } from '../controllers/auctionController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
@@ -44,6 +45,12 @@ router.put('/animation-type', authenticateToken, authorizeRoles('admin'), update
 
 // Update Bid Increment Rules
 router.put('/state/bid-rules', authenticateToken, authorizeRoles('admin'), updateBidRules);
-router.get('/bids/recent', authenticateToken, authorizeRoles('admin'), getRecentBids);
+router.post('/bid-rules', authenticateToken, authorizeRoles('admin'), updateBidRules); // Alias for easier access
+router.get('/bids/recent', authenticateToken, authorizeRoles('admin', 'team_owner'), getRecentBids);
+router.get('/transactions', authenticateToken, authorizeRoles('admin', 'team_owner'), (req, res, next) => {
+    console.log('[GET_TRANSACTIONS] Route hit. Redirecting to getRecentBids.');
+    getRecentBids(req, res, next);
+});
+router.get('/queue/upcoming', getUpcomingQueue);
 
 export default router;

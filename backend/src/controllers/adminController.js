@@ -57,6 +57,50 @@ export async function createUser(req, res) {
     }
 }
 
+export async function getAllTeams(req, res) {
+    const { sport } = req.query;
+
+    try {
+        // Get lockdown state first
+        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
+
+        // JOIN with users to get owner details
+        let query = `
+            SELECT t.*, u.id as owner_id, u.name as owner_name 
+            FROM teams t 
+            LEFT JOIN users u ON t.id = u.team_id AND u.role = 'team_owner'
+        `;
+        const params = [];
+        let conditions = [];
+
+        // Filter by sport if provided
+        if (sport && sport.toLowerCase() !== 'all') {
+            params.push(sport.toLowerCase());
+            conditions.push(`LOWER(t.sport) = $${params.length}`);
+        }
+
+        // Lockdown logic: If locked, hide test data
+        if (isLocked) {
+            conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL)`);
+        }
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        query += ' ORDER BY t.name';
+
+        const result = await pool.query(query, params);
+
+        res.json({ teams: result.rows });
+    } catch (error) {
+        console.error('Get teams error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
 export async function updateUser(req, res) {
     const { id } = req.params;
     const { name, email, role, password } = req.body;
@@ -199,54 +243,13 @@ export async function createTeam(req, res) {
 }
 
 
-export async function getAllTeams(req, res) {
-    const { sport } = req.query;
-
-    try {
-        // Get lockdown state first
-        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
-        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
-
-        let query = 'SELECT * FROM teams';
-        const params = [];
-        let conditions = [];
-
-        // Filter by sport if provided
-        if (sport) {
-            params.push(sport);
-            conditions.push(`sport = $${params.length}`);
-        }
-
-        // Handle Test Data Visibility
-        // If locked: HIDE test teams (is_test_data = FALSE)
-        // If unlocked: SHOW ALL (is_test_data = TRUE OR FALSE)
-        // Note: Ideally admins should see them regardless, but this is a public endpoint.
-        // For strictness: If locked, show only real data.
-        if (isLocked) {
-            conditions.push(`(is_test_data = FALSE OR is_test_data IS NULL)`);
-        }
-
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
-
-        query += ' ORDER BY name';
-
-        const result = await pool.query(query, params);
-
-        res.json({ teams: result.rows });
-    } catch (error) {
-        console.error('Get teams error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
 
 
 
 // Re-implementing updateTeam with correct logic
 export async function updateTeam(req, res) {
     const { id } = req.params;
-    const { name, budget } = req.body;
+    const { name, budget, owner_id } = req.body; // Added owner_id
 
     const client = await pool.connect();
 
@@ -271,20 +274,24 @@ export async function updateTeam(req, res) {
             paramCount++;
         }
 
+        // Handle Budget Updates
         if (budget !== undefined) {
             const newBudget = parseInt(budget);
             const oldBudget = parseInt(currentTeam.budget);
-            const difference = newBudget - oldBudget;
 
-            updates.push(`budget = $${paramCount}`);
-            params.push(newBudget);
-            paramCount++;
+            // Only update if changed
+            if (newBudget !== oldBudget) {
+                const difference = newBudget - oldBudget;
 
-            // Update remaining budget by the SAME difference
-            // stored as part of the update query
-            updates.push(`remaining_budget = remaining_budget + $${paramCount}`);
-            params.push(difference);
-            paramCount++;
+                updates.push(`budget = $${paramCount}`);
+                params.push(newBudget);
+                paramCount++;
+
+                // Update remaining budget by the SAME difference
+                updates.push(`remaining_budget = remaining_budget + $${paramCount}`);
+                params.push(difference);
+                paramCount++;
+            }
         }
 
         if (req.file) {
@@ -294,15 +301,38 @@ export async function updateTeam(req, res) {
             paramCount++;
         }
 
-        if (updates.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(400).json({ error: 'No fields to update' });
+        // --- Team Owner Assignment Logic ---
+        if (owner_id) {
+            // Verify user exists and is a team_owner
+            const userCheck = await client.query('SELECT id, role FROM users WHERE id = $1', [owner_id]);
+            if (userCheck.rows.length === 0 || userCheck.rows[0].role !== 'team_owner') {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: 'Invalid owner selected. User must be a Team Owner.' });
+            }
+
+            // 1. Clear any existing owners for THIS team (Enforce strict 1 owner per team)
+            await client.query("UPDATE users SET team_id = NULL WHERE team_id = $1 AND role = 'team_owner'", [id]);
+
+            // 2. Assign NEW owner
+            // Note: This might overwrite if the user owned another team. 
+            // If we want 1 Team per Owner:
+            // await client.query("UPDATE users SET team_id = NULL WHERE id = $1", [owner_id]); // Not strictly needed as next update overwrites
+
+            await client.query('UPDATE users SET team_id = $1 WHERE id = $2', [id, owner_id]);
+        }
+        // -----------------------------------
+
+        let result;
+        if (updates.length > 0) {
+            params.push(id);
+            const query = `UPDATE teams SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+            result = await client.query(query, params);
+        } else {
+            // No team updates? Just return current.
+            // But we might have updated the owner in users table.
+            result = { rows: [currentTeam] };
         }
 
-        params.push(id);
-        const query = `UPDATE teams SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
-
-        const result = await client.query(query, params);
         await client.query('COMMIT');
 
         // Broadcast update
@@ -319,6 +349,67 @@ export async function updateTeam(req, res) {
         await client.query('ROLLBACK');
         console.error('Update team error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
+    }
+}
+
+export async function adjustTeamWallet(req, res) {
+    const { id } = req.params;
+    const { action, amount } = req.body;
+
+    if (!['add', 'deduct', 'set'].includes(action) || isNaN(amount)) {
+        return res.status(400).json({ error: 'Invalid action or amount' });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const teamRes = await client.query('SELECT * FROM teams WHERE id = $1 FOR UPDATE', [id]);
+        if (teamRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        let query = '';
+        let params = [];
+
+        if (action === 'add') {
+            query = 'UPDATE teams SET remaining_budget = remaining_budget + $1, budget = budget + $1 WHERE id = $2 RETURNING *';
+            params = [amount, id];
+        } else if (action === 'deduct') {
+            query = 'UPDATE teams SET remaining_budget = remaining_budget - $1, budget = budget - $1 WHERE id = $2 RETURNING *';
+            params = [amount, id];
+        } else if (action === 'set') {
+            // Reset/Set Logic: Sets remaining to Amount, and adjusts Budget to match the delta?
+            // Or just blindly sets both? Usually we want to set the TOTAL budget.
+            // Let's assume 'set' means setting the Total Budget, and recalculating remaining based on spent?
+            // Or simpler: User wants to force the wallet to a specific value.
+            // Let's stick to simplest interpretation: Update Budget to X, Update Remaining to (X - Spent).
+            // S = Total - Rem => Rem = Total - S.
+            // We need to know spent. 
+            // Spent = Budget - Remaining.
+            // NewRemaining = NewBudget - (OldBudget - OldRemaining).
+            // Actually, simpler: Admin likely wants to "Fix" the remaining amount.
+            // But 'reset' usually means 'Back to Original'.
+            // Let's implement 'resetTeamWallet' separately (already exists).
+            // This function handles manual adjustments.
+            // If action is set-remaining? 
+            // Let's stick to add/deduct for now as they are safer.
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'Set action not yet supported via this endpoint' });
+        }
+
+        const result = await client.query(query, params);
+        await client.query('COMMIT');
+
+        res.json({ message: 'Wallet adjusted', team: result.rows[0] });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ error: 'Internal Error' });
     } finally {
         client.release();
     }
@@ -692,20 +783,54 @@ export async function addToQueueById(req, res) {
 // Release player (make unsold) and refund budget
 export async function releasePlayer(req, res) {
     const { id } = req.params;
+    const client = await pool.connect();
+
     try {
-        const result = await pool.query(
+        await client.query('BEGIN');
+
+        // 1. Get player info to know sold_price and team_id
+        const playerRes = await client.query('SELECT * FROM players WHERE id = $1', [id]);
+        if (playerRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Player not found' });
+        }
+        const player = playerRes.rows[0];
+
+        if (player.status !== 'sold' || !player.team_id || !player.sold_price) {
+            // If not sold, just reset status to approved/eligible without budget impact
+            await client.query("UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE id = $1", [id]);
+            await client.query('COMMIT');
+            return res.json({ message: 'Player released (was not sold)', player });
+        }
+
+        // 2. Refund Team Budget
+        const refundAmount = parseInt(player.sold_price);
+        await client.query(
+            'UPDATE teams SET remaining_budget = remaining_budget + $1 WHERE id = $2',
+            [refundAmount, player.team_id]
+        );
+
+        // 3. Mark player as unsold
+        const result = await client.query(
             "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE id = $1 RETURNING *",
             [id]
         );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Player not found' });
+        await client.query('COMMIT');
+
+        // Broadcast
+        if (req.io) {
+            req.io.emit('refresh-data');
+            req.io.emit('refresh-leaderboard');
         }
 
-        res.json({ message: 'Player released successfully', player: result.rows[0] });
+        res.json({ message: 'Player released and budget refunded', player: result.rows[0] });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Release player error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
     }
 }
 // Export players to CSV

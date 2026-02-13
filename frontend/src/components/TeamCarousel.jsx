@@ -17,63 +17,29 @@ export default function TeamCarousel() {
                 setLoading(false);
             }
         };
-
         fetchTeams();
     }, []);
 
-    // Duplicate the teams list to create seamless infinite scroll
-    // Ensure we have enough items for scrolling even if teams list is short
-    const displayTeams = teams.length > 0
-        ? [...teams, ...teams, ...teams, ...teams]
-        : [];
+    if (loading || teams.length === 0) return null;
 
-    if (loading) return null;
-    if (teams.length === 0) return null;
+    // Duplicate the list 4 times to ensure it's long enough to scroll infinitely
+    const displayList = [...teams, ...teams, ...teams, ...teams];
 
     return (
-        <section className="team-carousel-section">
-            <h2 className="section-title">Participating Teams</h2>
+        <div className="ticker-shell">
+            {/* STATIC TITLE OVERLAY */}
+            <div className="ticker-static-title">PARTICIPATING TEAMS</div>
 
-            <div className="carousel-wrapper-new">
-                <div className="carousel-track-new">
-                    {displayTeams.map((team, index) => (
-                        <div key={`${team.id}-${index}`} className="team-carousel-card">
-                            <div className="team-logo-wrapper-carousel" style={{ position: 'relative' }}>
-                                <div
-                                    className="team-logo-placeholder"
-                                    style={{
-                                        '--team-color': '#2563EB',
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        width: '100%',
-                                        height: '100%',
-                                        zIndex: 1
-                                    }}
-                                >
-                                    {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
-                                </div>
-                                {team.logo_url && (
-                                    <img
-                                        src={team.logo_url}
-                                        alt={team.name}
-                                        className="team-logo-carousel"
-                                        style={{
-                                            position: 'relative',
-                                            zIndex: 2,
-                                            background: 'var(--bg-primary)'
-                                        }}
-                                        onError={(e) => {
-                                            e.target.style.opacity = '0';
-                                        }}
-                                    />
-                                )}
-                            </div>
-                            <h3 className="team-name">{team.name}</h3>
-                        </div>
-                    ))}
-                </div>
+            {/* MOVING TRACK (Must be transparent) */}
+            <div className="ticker-track">
+                {displayList.map((team, index) => (
+                    <div key={`${team.id}-${index}`} className="ticker-item">
+                        <div className="ticker-dot"></div>
+                        <span className="ticker-name">{team.name || "TEAM NAME"}</span>
+                        <span className="ticker-divider">///</span>
+                    </div>
+                ))}
             </div>
-        </section>
+        </div>
     );
 }

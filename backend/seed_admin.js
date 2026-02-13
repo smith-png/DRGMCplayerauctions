@@ -35,9 +35,5 @@ async function seedAdmin() {
     }
 }
 
-// Only run if executed directly
-if (process.argv[1] === import.meta.url) {
-    seedAdmin().then(() => pool.end());
-}
-
+// Export
 export default seedAdmin;
