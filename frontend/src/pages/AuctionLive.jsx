@@ -35,6 +35,7 @@ export default function AuctionLive() {
     const [soldAnimation, setSoldAnimation] = useState(null);
     const [isBidding, setIsBidding] = useState(false);
     const [customBid, setCustomBid] = useState(''); // For Team Owner input if needed
+    const [bidRules, setBidRules] = useState([]); // Store bid increment rules
 
     // --- Refs and Sounds ---
     const soldTimeoutRef = useRef(null);
@@ -84,6 +85,10 @@ export default function AuctionLive() {
             // Update animation duration ref
             if (stateRes.data.animationDuration) {
                 animationDurationRef.current = parseInt(stateRes.data.animationDuration);
+            }
+            // Set bid rules
+            if (stateRes.data.bidIncrementRules) {
+                setBidRules(stateRes.data.bidIncrementRules);
             }
 
         } catch (err) {
@@ -358,9 +363,32 @@ export default function AuctionLive() {
         };
     }, []);
 
-    // Calculate next bid
+    // Calculate next bid based on rules
     const currentPrice = auction?.current_bid || 0;
-    const nextBidAmount = currentPrice + (currentPrice < 100 ? 10 : currentPrice < 1000 ? 50 : 100); // Simple increment logic or fetch rules
+
+    const calculateNextBid = (current) => {
+        if (!bidRules || bidRules.length === 0) {
+            // Fallback default logic if no rules
+            return current + (current < 100 ? 10 : current < 1000 ? 50 : 100);
+        }
+
+        // Find applicable rule: largest threshold <= current
+        // Rules should be sorted by threshold ascending
+        // We find the last rule where threshold <= current
+
+        let applicableRule = bidRules[0]; // Default to first (usually 0)
+        for (let i = 0; i < bidRules.length; i++) {
+            if (current >= bidRules[i].threshold) {
+                applicableRule = bidRules[i];
+            } else {
+                break; // Since sorted, if current < threshold, no further rules apply
+            }
+        }
+
+        return current + (applicableRule ? applicableRule.increment : 50);
+    };
+
+    const nextBidAmount = calculateNextBid(currentPrice);
 
     // --- RENDER HELPERS ---
 

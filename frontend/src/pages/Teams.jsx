@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { teamsAPI, playerAPI, adminAPI, auctionAPI } from '../services/api';
+import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
 
 export default function Teams() {
@@ -50,7 +50,18 @@ export default function Teams() {
                     }
 
                     if (user.role === 'team_owner') {
-                        // Team owner specific logic if needed in future
+                        try {
+                            // Fetch specific team owner data
+                            const myTeamRes = await teamOwnerAPI.getMyTeam();
+                            const myPlayersRes = await teamOwnerAPI.getMyTeamPlayers();
+                            const myBidsRes = await teamOwnerAPI.getMyTeamBids();
+
+                            setTeams([myTeamRes.data.team]); // Only show my team
+                            setPlayers(myPlayersRes.data.players);
+                            setTransactions(myBidsRes.data.bids);
+                        } catch (err) {
+                            console.error("Failed to load Team Owner dashboard:", err);
+                        }
                     }
                 }
             } catch (error) {
@@ -165,8 +176,8 @@ export default function Teams() {
         );
     }
 
-    // VIEWER & TEAM OWNER ROLE - Show team rosters with players
-    if (user && (user.role === 'viewer' || user.role === 'team_owner')) {
+    // VIEWER ROLE
+    if (user && user.role === 'viewer') {
         const teamsWithRosters = filteredTeams.map(team => {
             const teamRoster = players.filter(p =>
                 p.team_id == team.id &&
@@ -202,7 +213,7 @@ export default function Teams() {
                     {loading ? <div className="loading-state">SYNCHRONIZING DATA...</div> : (
                         <div className="viewer-teams-grid">
                             {teamsWithRosters.map(team => {
-                                const budgetRemaining = team.remaining_budget || team.budget || 0;
+                                const budgetRemaining = team.remaining_budget ?? team.budget ?? 0;
                                 const isExpanded = expandedTeam === team.id;
 
                                 return (
@@ -253,6 +264,114 @@ export default function Teams() {
                     {teamsWithRosters.length === 0 && !loading && (
                         <div className="empty-state">NO TEAMS FOUND FOR {activeSport.toUpperCase()}</div>
                     )}
+                </div>
+            </div>
+        );
+    }
+
+    // TEAM OWNER DASHBOARD VIEW
+    if (user && user.role === 'team_owner') {
+        // Should only be one team in state, but logic holds
+        const myTeam = teams[0];
+
+        if (!myTeam) {
+            return (
+                <div className="editorial-glass-stage">
+                    <div className="phantom-nav-spacer"></div>
+                    <div className="teams-page">
+                        <div className="empty-state">NO TEAM ASSIGNED. CONTACT ADMINISTRATOR.</div>
+                    </div>
+                </div>
+            );
+        }
+
+        const budgetTotal = myTeam.budget || 0;
+        const budgetRemaining = myTeam.remaining_budget ?? budgetTotal;
+        const budgetSpent = myTeam.total_spent || (budgetTotal - budgetRemaining);
+
+        return (
+            <div className="editorial-glass-stage">
+                <div className="phantom-nav-spacer"></div>
+                <div className="teams-page">
+                    <div className="teams-header">
+                        <div className="header-left">
+                            <div className="header-meta">FRANCHISE CONTROL // OWNER MODE</div>
+                            <h1 className="header-title">{myTeam.name.toUpperCase()}</h1>
+                        </div>
+                        <div className="header-right">
+                            <img src={myTeam.logo_url} className="owner-team-logo-large" alt="Logo" onError={(e) => e.target.style.display = 'none'} />
+                        </div>
+                    </div>
+
+                    <div className="admin-view">
+                        {/* Reuse Admin Layout Structure for Dashboard feel */}
+
+                        <div className="admin-ledger"> {/* Left Column: Stats & Roster */}
+
+                            {/* 1. KEY STATS CARDS */}
+                            <div className="owner-stats-grid">
+                                <div className="owner-stat-card">
+                                    <div className="stat-label">TOTAL BUDGET</div>
+                                    <div className="stat-value">{budgetTotal.toLocaleString()}</div>
+                                </div>
+                                <div className="owner-stat-card">
+                                    <div className="stat-label">SPENT</div>
+                                    <div className="stat-value">{budgetSpent.toLocaleString()}</div>
+                                </div>
+                                <div className="owner-stat-card highlight">
+                                    <div className="stat-label">REMAINING</div>
+                                    <div className="stat-value">{budgetRemaining.toLocaleString()}</div>
+                                </div>
+                                <div className="owner-stat-card">
+                                    <div className="stat-label">SQUAD SIZE</div>
+                                    <div className="stat-value">{players.length}</div>
+                                </div>
+                            </div>
+
+                            {/* 2. MY ROSTER */}
+                            <div className="ledger-team-block expanded" style={{ marginTop: '2rem' }}>
+                                <div className="ledger-team-header">
+                                    <h3 className="ledger-team-name">ACTIVE ROSTER</h3>
+                                </div>
+                                <div className="ledger-team-details">
+                                    <div className="roster-list">
+                                        {players.length > 0 ? players.map(player => (
+                                            <div key={player.id} className="roster-player-row">
+                                                <div className="player-info-cell">
+                                                    {player.photo_url && <img src={player.photo_url} className="roster-thumb" />}
+                                                    <div>
+                                                        <span className="roster-player-name">{player.name}</span>
+                                                        <span className="roster-player-meta">{player.year} • {player.sport}</span>
+                                                    </div>
+                                                </div>
+                                                <span className="roster-player-price">{player.sold_price?.toLocaleString()} PTS</span>
+                                            </div>
+                                        )) : (
+                                            <div className="empty-roster">NO PLAYERS ACQUIRED YET</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Transaction Logs */}
+                        <div className="logs-sidebar">
+                            <h3 className="logs-title">MY BID HISTORY</h3>
+                            {transactions.length > 0 ? transactions.map((bid) => (
+                                <div key={bid.id} className="log-entry">
+                                    <span className="log-player">{bid.player_name}</span>
+                                    <br />
+                                    <span className="log-price">{bid.amount?.toLocaleString()} PTS</span>
+                                    <span className="log-time">
+                                        {new Date(bid.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                </div>
+                            )) : (
+                                <div className="empty-state" style={{ fontSize: '0.7rem' }}>NO BIDS PLACED</div>
+                            )}
+                        </div>
+
+                    </div>
                 </div>
             </div>
         );

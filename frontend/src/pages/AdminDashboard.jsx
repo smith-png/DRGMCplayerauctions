@@ -180,6 +180,9 @@ export default function AdminDashboard() {
             } else if (activeTab === 'teams') {
                 const response = await adminAPI.getAllTeams();
                 setTeams(response.data.teams);
+                // Also fetch users to populate Owner dropdown
+                const usersRes = await adminAPI.getAllUsers();
+                setUsers(usersRes.data.users);
             }
         } catch (err) {
             console.error('Failed to load data:', err);
@@ -452,10 +455,10 @@ export default function AdminDashboard() {
     const handleOpenTeamModal = (team = null) => {
         if (team) {
             setEditingTeam(team);
-            setTeamForm({ name: team.name, sport: team.sport, budget: team.budget, logo: null }); // Don't preload file
+            setTeamForm({ name: team.name, sport: team.sport, budget: team.budget, logo: null, owner_id: team.owner_id || '' }); // Include owner_id
         } else {
             setEditingTeam(null);
-            setTeamForm({ name: '', sport: 'cricket', budget: 100000, logo: null });
+            setTeamForm({ name: '', sport: 'cricket', budget: 100000, logo: null, owner_id: '' });
         }
         setShowTeamModal(true);
     };
@@ -466,6 +469,7 @@ export default function AdminDashboard() {
             const formData = new FormData();
             formData.append('name', teamForm.name);
             formData.append('budget', teamForm.budget);
+            if (teamForm.owner_id) formData.append('owner_id', teamForm.owner_id); // Append owner_id
             if (!editingTeam) formData.append('sport', teamForm.sport); // Sport usually fixed on creation or editable? API allows updates.
             if (teamForm.logo) formData.append('logo', teamForm.logo);
 
@@ -583,10 +587,6 @@ export default function AdminDashboard() {
     const handleExportCSV = async () => {
         try {
             const params = exportSport !== 'all' ? { sport: exportSport } : {};
-            // Assuming adminAPI.exportPlayers can accept params or we modify it to. 
-            // If api.js doesn't support arg, we need to check.
-            // Based on previous context, `adminAPI.exportPlayers` might need update if it doesn't take args.
-            // But let's assume we pass it.
             const response = await adminAPI.exportPlayers(exportSport !== 'all' ? exportSport : null);
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -604,6 +604,35 @@ export default function AdminDashboard() {
             console.error(err);
             setMessage('Failed to export players');
         }
+    };
+
+    // Bid Rules Handlers
+    const handleUpdateBidRules = async () => {
+        try {
+            // Sort by threshold
+            const sorted = [...bidIncrementRules].sort((a, b) => a.threshold - b.threshold);
+            await adminAPI.updateBidRules(sorted);
+            setMessage('Bid increment rules updated');
+            setBidIncrementRules(sorted);
+        } catch (err) {
+            setMessage('Failed to update bid rules');
+        }
+    };
+
+    const addBidRule = () => {
+        setBidIncrementRules([...bidIncrementRules, { threshold: 0, increment: 10 }]);
+    };
+
+    const removeBidRule = (index) => {
+        const newRules = [...bidIncrementRules];
+        newRules.splice(index, 1);
+        setBidIncrementRules(newRules);
+    };
+
+    const updateBidRule = (index, field, value) => {
+        const newRules = [...bidIncrementRules];
+        newRules[index] = { ...newRules[index], [field]: parseInt(value) || 0 };
+        setBidIncrementRules(newRules);
     };
 
 

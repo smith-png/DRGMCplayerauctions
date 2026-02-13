@@ -45,6 +45,7 @@ router.put('/animation-type', authenticateToken, authorizeRoles('admin'), update
 
 // Update Bid Increment Rules
 router.put('/state/bid-rules', authenticateToken, authorizeRoles('admin'), updateBidRules);
+router.post('/bid-rules', authenticateToken, authorizeRoles('admin'), updateBidRules); // Alias for easier access
 router.get('/bids/recent', authenticateToken, authorizeRoles('admin', 'team_owner'), getRecentBids);
 router.get('/transactions', authenticateToken, authorizeRoles('admin', 'team_owner'), (req, res, next) => {
     console.log('[GET_TRANSACTIONS] Route hit. Redirecting to getRecentBids.');
