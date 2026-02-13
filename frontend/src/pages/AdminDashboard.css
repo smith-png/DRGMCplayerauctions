@@ -1202,7 +1202,7 @@ tr:hover .table-thumb {
     font-weight: 700;
 }
 
-/* --- FRANCHISE DOSSIER GRID --- */
+/* --- TEAM DOSSIER GRID --- */
 
 .dossier-grid {
     display: grid;
@@ -1211,7 +1211,7 @@ tr:hover .table-thumb {
     margin-top: 2rem;
 }
 
-.dossier-franchise-card {
+.dossier-team-card {
     background: rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1227,14 +1227,14 @@ tr:hover .table-thumb {
     overflow: hidden;
 }
 
-.dossier-franchise-card:hover {
+.dossier-team-card:hover {
     transform: translateY(-8px);
     background: rgba(255, 255, 255, 0.6);
     border-color: var(--sage-deep);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-.franchise-logo-wrapper {
+.team-logo-wrapper {
     width: 100px;
     height: 100px;
     border-radius: 50%;
@@ -1247,11 +1247,11 @@ tr:hover .table-thumb {
     transition: box-shadow 0.3s ease;
 }
 
-.dossier-franchise-card:hover .franchise-logo-wrapper {
+.dossier-team-card:hover {
     box-shadow: 0 0 30px rgba(62, 91, 78, 0.4);
 }
 
-.franchise-logo-img {
+.team-logo-img {
     width: 100%;
     height: 100%;
     border-radius: 50%;
@@ -1260,11 +1260,11 @@ tr:hover .table-thumb {
     transition: filter 0.3s ease;
 }
 
-.dossier-franchise-card:hover .franchise-logo-img {
+.dossier-team-card:hover .team-logo-img {
     filter: grayscale(0);
 }
 
-.franchise-identity h4 {
+.team-identity h4 {
     font-family: 'Manrope', sans-serif;
     font-size: 1.25rem;
     font-weight: 800;
@@ -1275,7 +1275,7 @@ tr:hover .table-thumb {
     line-height: 1.1;
 }
 
-.franchise-identity .sport-tag {
+.team-identity .sport-tag {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
     letter-spacing: 2px;
@@ -1294,7 +1294,7 @@ tr:hover .table-thumb {
 }
 
 /* Budget Visualization */
-.franchise-budget-block {
+.team-budget-block {
     width: 100%;
     margin-bottom: 2rem;
 }
@@ -2378,7 +2378,7 @@ tr:hover .table-thumb {
 }
 
 /* ========================================
-   FRANCHISE CARDS - HIGH-VISIBILITY DOSSIERS
+   TEAM CARDS - HIGH-VISIBILITY DOSSIERS
    ======================================== */
 
 /* Dossier Grid Layout */
@@ -2388,8 +2388,8 @@ tr:hover .table-thumb {
     gap: 2rem;
 }
 
-/* Franchise Card - Liquid Glass Effect */
-.dossier-franchise-card {
+/* Team Card - Liquid Glass Effect */
+.dossier-team-card {
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(15px);
     border: 1px solid rgba(62, 91, 78, 0.4);
@@ -2403,20 +2403,20 @@ tr:hover .table-thumb {
     gap: 1.5rem;
 }
 
-.dossier-franchise-card:hover {
+.dossier-team-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(62, 91, 78, 0.15);
     border-color: var(--sage-deep);
 }
 
 /* Logo Section */
-.franchise-logo-wrapper {
+.team-logo-wrapper {
     display: flex;
     justify-content: center;
     margin-bottom: 0.5rem;
 }
 
-.franchise-logo-img {
+.team-logo-img {
     width: 80px;
     height: 80px;
     object-fit: contain;
@@ -2440,11 +2440,11 @@ tr:hover .table-thumb {
 }
 
 /* Team Identity - ENHANCED TYPOGRAPHY */
-.franchise-identity {
+.team-identity {
     text-align: center;
 }
 
-.franchise-identity h4 {
+.team-identity h4 {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.8rem !important;
     /* Significantly larger team name */
@@ -2475,7 +2475,7 @@ tr:hover .table-thumb {
 }
 
 /* Budget Block - ENHANCED VISIBILITY */
-.franchise-budget-block {
+.team-budget-block {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -3056,7 +3056,7 @@ tr:hover .table-thumb {
    ======================================== */
 .system-notification-banner {
     position: fixed;
-    top: 2rem;
+    top: 6.5rem;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;

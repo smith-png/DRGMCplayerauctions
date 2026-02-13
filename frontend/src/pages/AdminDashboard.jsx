@@ -1214,10 +1214,10 @@ export default function AdminDashboard() {
                                                                 const percentUsed = (budgetUsed / maxBudget) * 100;
 
                                                                 return (
-                                                                    <div key={team.id} className="dossier-franchise-card">
-                                                                        <div className="franchise-logo-wrapper">
+                                                                    <div key={team.id} className="dossier-team-card">
+                                                                        <div className="team-logo-wrapper">
                                                                             {team.logo_url ? (
-                                                                                <img src={team.logo_url} alt={team.name} className="franchise-logo-img" />
+                                                                                <img src={team.logo_url} alt={team.name} className="team-logo-img" />
                                                                             ) : (
                                                                                 <div className="team-logo-placeholder">
                                                                                     {team.name ? team.name.substring(0, 2).toUpperCase() : '??'}
@@ -1225,14 +1225,14 @@ export default function AdminDashboard() {
                                                                             )}
                                                                         </div>
 
-                                                                        <div className="franchise-identity">
+                                                                        <div className="team-identity">
                                                                             <h4 className="m-0">{team.name}</h4>
                                                                             <span className="sport-tag">{team.sport}</span>
                                                                         </div>
 
                                                                         <div className="dossier-divider"></div>
 
-                                                                        <div className="franchise-budget-block">
+                                                                        <div className="team-budget-block">
                                                                             <div className="budget-meta">
                                                                                 <span className="budget-label">BUDGET REMAINING</span>
                                                                                 <span className="budget-value-mono">PTS {parseFloat(budgetRemaining).toLocaleString()}</span>
@@ -1245,12 +1245,12 @@ export default function AdminDashboard() {
                                                                             </div>
                                                                         </div>
 
-                                                                        <div className="franchise-actions">
+                                                                        <div className="team-actions">
                                                                             <button
                                                                                 onClick={() => handleOpenTeamModal(team)}
                                                                                 className="btn-action-primary"
                                                                             >
-                                                                                EDIT FRANCHISE
+                                                                                EDIT TEAM
                                                                             </button>
                                                                         </div>
                                                                     </div>
