@@ -204,13 +204,16 @@ export default function AuctionLive() {
         setIsBidding(true);
         setError('');
 
-        // Find matches
-        let myTeam = teams.find(t => t.id == user.team_id);
-        if (!myTeam && user.name) {
-            myTeam = teams.find(t => t.owner_name?.toLowerCase() === user.name?.toLowerCase());
+        // Use direct team_id from user context if available (most reliable)
+        let teamId = user.team_id;
+
+        // Fallback: Find by name if team_id missing
+        if (!teamId && user.name) {
+            const myTeam = teams.find(t => t.owner_name?.toLowerCase() === user.name?.toLowerCase());
+            if (myTeam) teamId = myTeam.id;
         }
 
-        if (!myTeam) {
+        if (!teamId) {
             setError(`Team not linked to user: ${user.name}`);
             setIsBidding(false);
             return;
@@ -219,7 +222,7 @@ export default function AuctionLive() {
         // Artificial delay for UX
         setTimeout(async () => {
             try {
-                await auctionAPI.placeBid(auction.current_player_id, myTeam.id, amount);
+                await auctionAPI.placeBid(auction.current_player_id, teamId, amount);
                 setCustomBid('');
             } catch (err) {
                 setError(err.response?.data?.error || 'Bid Failed');
