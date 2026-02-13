@@ -57,6 +57,45 @@ export async function createUser(req, res) {
     }
 }
 
+export async function getAllTeams(req, res) {
+    const { sport } = req.query;
+
+    try {
+        // Get lockdown state first
+        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
+
+        let query = 'SELECT * FROM teams';
+        const params = [];
+        let conditions = [];
+
+        // Filter by sport if provided
+        if (sport && sport.toLowerCase() !== 'all') {
+            params.push(sport.toLowerCase());
+            conditions.push(`LOWER(sport) = $${params.length}`);
+        }
+
+        // Lockdown logic: If locked, hide test data
+        if (isLocked) {
+            conditions.push(`(is_test_data = FALSE OR is_test_data IS NULL)`);
+        }
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        query += ' ORDER BY name';
+
+        const result = await pool.query(query, params);
+
+        res.json({ teams: result.rows });
+    } catch (error) {
+        console.error('Get teams error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
 export async function updateUser(req, res) {
     const { id } = req.params;
     const { name, email, role, password } = req.body;
@@ -201,74 +240,42 @@ export async function createTeam(req, res) {
 
 export async function getAllTeams(req, res) {
     const { sport } = req.query;
-    console.log(`[GET_ALL_TEAMS] Start. Sport: ${sport || 'ALL'}`);
-    console.log(`[GET_ALL_TEAMS] User: ${req.user?.id || 'ANON'}, Role: ${req.user?.role || 'NONE'}`);
 
     try {
-        // If team_owner, refresh their user data from DB to get latest team_id (token might be stale)
-        let userId = req.user?.id;
-        let userRole = req.user?.role;
-        let userTeamId = req.user?.team_id;
-
-        if (userRole === 'team_owner' && userId) {
-            const userRes = await pool.query('SELECT team_id FROM users WHERE id = $1', [userId]);
-            if (userRes.rows.length > 0) {
-                userTeamId = userRes.rows[0].team_id;
-            }
-        }
-
         // Get lockdown state first
-        let isLocked = false;
-        try {
-            const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
-            isLocked = stateRes.rows[0]?.testgrounds_locked || false;
-            console.log(`[GET_ALL_TEAMS] Lockdown status: ${isLocked}`);
-        } catch (e) {
-            console.warn(`[GET_ALL_TEAMS] auction_state table issue: ${e.message}`);
-        }
+        const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
+        const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
 
-        let conditions = [];
+        let query = 'SELECT * FROM teams';
         const params = [];
+        let conditions = [];
 
         // Filter by sport if provided
-        if (sport && sport.toLowerCase() !== 'all') {
-            params.push(sport.toLowerCase());
-            conditions.push(`LOWER(t.sport) = $${params.length}`);
+        if (sport) {
+            params.push(sport);
+            conditions.push(`sport = $${params.length}`);
         }
 
         // Handle Test Data Visibility
+        // If locked: HIDE test teams (is_test_data = FALSE)
+        // If unlocked: SHOW ALL (is_test_data = TRUE OR FALSE)
+        // Note: Ideally admins should see them regardless, but this is a public endpoint.
+        // For strictness: If locked, show only real data.
         if (isLocked) {
-            if (userRole === 'admin') {
-                console.log('[ACCESS] Admin Override - Seeing All');
-            } else if (userRole === 'team_owner' && userTeamId) {
-                console.log('[ACCESS] Owner Context - Seeing Real + TeamID:', userTeamId);
-                params.push(userTeamId);
-                conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL OR t.id = $${params.length})`);
-            } else {
-                console.log('[ACCESS] Restricted Mode - Hiding Test Data');
-                conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL)`);
-            }
+            conditions.push(`(is_test_data = FALSE OR is_test_data IS NULL)`);
         }
-
-        let query = `
-            SELECT t.*, u.name as owner_name 
-            FROM teams t
-            LEFT JOIN users u ON t.id = u.team_id AND u.role = 'team_owner'
-        `;
 
         if (conditions.length > 0) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
 
-        query += ' ORDER BY t.name';
+        query += ' ORDER BY name';
 
-        console.log(`[DB_QUERY] Executing: ${query} with params [${params}]`);
         const result = await pool.query(query, params);
-        console.log(`[DB_RESULT] Found ${result.rows.length} teams`);
 
         res.json({ teams: result.rows });
     } catch (error) {
-        console.error('[FATAL] Get teams error:', error);
+        console.error('Get teams error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -598,60 +605,6 @@ export async function updatePlayer(req, res) {
     } catch (error) {
         console.error('Admin update player error:', error);
         res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-export async function adjustTeamWallet(req, res) {
-    const { id } = req.params;
-    const { action, amount } = req.body;
-
-    const client = await pool.connect();
-    try {
-        if (!['add', 'remove'].includes(action) || !amount || isNaN(amount) || amount <= 0) {
-            return res.status(400).json({ error: 'Invalid action or amount' });
-        }
-
-        const value = parseInt(amount);
-        const operator = action === 'add' ? '+' : '-';
-        const logType = action === 'add' ? 'CREDIT' : 'DEBIT';
-
-        await client.query('BEGIN');
-
-        // 1. Update team budget
-        const result = await client.query(
-            `UPDATE teams 
-             SET budget = budget ${operator} $1, 
-                 remaining_budget = remaining_budget ${operator} $1 
-             WHERE id = $2 
-             RETURNING *`,
-            [value, id]
-        );
-
-        if (result.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ error: 'Team not found' });
-        }
-
-        // 2. Log to bid_logs for history
-        await client.query(
-            'INSERT INTO bid_logs (team_id, amount, type) VALUES ($1, $2, $3)',
-            [id, value, logType]
-        );
-
-        await client.query('COMMIT');
-
-        if (req.io) {
-            req.io.emit('refresh-leaderboard');
-            req.io.emit('refresh-data');
-        }
-
-        res.json({ message: 'Wallet adjusted successfully', team: result.rows[0] });
-    } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Adjust wallet error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    } finally {
-        client.release();
     }
 }
 
