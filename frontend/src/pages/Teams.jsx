@@ -81,13 +81,15 @@ export default function Teams() {
     }, [activeSport, teams]);
 
     const handleWalletAdjust = async (teamId, action, amount) => {
+        console.log('Adjusting wallet:', { teamId, action, amount });
         if (!amount || amount <= 0) return alert('Invalid amount');
         try {
             await adminAPI.adjustTeamWallet(teamId, action, amount);
             alert(`Wallet ${action}ed successfully`);
             window.location.reload();
         } catch (err) {
-            alert('Failed to adjust wallet');
+            console.error('Wallet adjustment failed:', err);
+            alert(err.response?.data?.error || 'Failed to adjust wallet');
         }
     };
 

@@ -781,12 +781,14 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(209, 224, 215, 0.2);
+    /* Light sage to match AdminDashboard */
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 1000;
+    /* Lower z-index to match AdminDashboard default */
     animation: fadeIn 0.2s ease;
 }
 
