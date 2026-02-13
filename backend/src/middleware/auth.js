@@ -38,10 +38,29 @@ export const authorizeRoles = (...allowedRoles) => {
     };
 };
 
-// Optional: Middleware to check if user is admin
+// Middleware to check if user is admin
 export const isAdmin = (req, res, next) => {
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Admin access required' });
     }
     next();
+};
+
+// Optional authentication - populates req.user if token exists, but doesn't block if missing
+export const optionalAuthenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return next();
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        // If token is invalid, we still treat it as unauthenticated
+        next();
+    }
 };

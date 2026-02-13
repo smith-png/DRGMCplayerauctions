@@ -207,46 +207,45 @@ export async function getAllTeams(req, res) {
         const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
         const isLocked = stateRes.rows[0]?.testgrounds_locked || false;
 
-        let query = 'SELECT * FROM teams';
-        const params = [];
         let conditions = [];
+        const params = [];
 
         // Filter by sport if provided
         if (sport) {
             params.push(sport);
-            conditions.push(`sport = $${params.length}`);
+            conditions.push(`t.sport = $${params.length}`);
         }
 
         // Handle Test Data Visibility
-        // If locked: HIDE test teams (is_test_data = FALSE)
-        // If unlocked: SHOW ALL (is_test_data = TRUE OR FALSE)
-        // Note: Ideally admins should see them regardless, but this is a public endpoint.
-        // For strictness: If locked, show only real data.
         if (isLocked) {
-            conditions.push(`(is_test_data = FALSE OR is_test_data IS NULL)`);
+            // ADMINS see everything
+            if (req.user?.role === 'admin') {
+                // No additional filter
+            }
+            // TEAM OWNERS see real data + THEIR OWN team (even if it's test data)
+            else if (req.user?.role === 'team_owner' && req.user.team_id) {
+                params.push(req.user.team_id);
+                conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL OR t.id = $${params.length})`);
+            }
+            // PUBLIC / Others see only real data
+            else {
+                conditions.push(`(t.is_test_data = FALSE OR t.is_test_data IS NULL)`);
+            }
         }
 
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
-
-        // query += ' ORDER BY name'; // Moved to end
-
-        // Modified query to include owner_name
-        query = `
+        let query = `
             SELECT t.*, u.name as owner_name 
             FROM teams t
             LEFT JOIN users u ON t.id = u.team_id AND u.role = 'team_owner'
         `;
 
         if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.map(c => c.replace('total_players', 't.total_players').replace('sport', 't.sport').replace('is_test_data', 't.is_test_data')).join(' AND ');
+            query += ' WHERE ' + conditions.join(' AND ');
         }
 
         query += ' ORDER BY t.name';
 
         const result = await pool.query(query, params);
-
         res.json({ teams: result.rows });
     } catch (error) {
         console.error('Get teams error:', error);
