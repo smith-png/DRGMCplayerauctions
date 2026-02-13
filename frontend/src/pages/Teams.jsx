@@ -100,6 +100,17 @@ export default function Teams() {
         }
     };
 
+    const handlePlayerRelease = async (playerId, playerName) => {
+        if (!confirm(`Release ${playerName} from their team?`)) return;
+        try {
+            await playerAPI.markPlayerUnsold(playerId);
+            alert('Player released successfully');
+            window.location.reload();
+        } catch (err) {
+            alert('Failed to release player');
+        }
+    };
+
     // PUBLIC VIEW
     if (!user) {
         return (
@@ -174,8 +185,14 @@ export default function Teams() {
         );
     }
 
-    // TEAM OWNER VIEW
+    // TEAM OWNER VIEW - Redirect to AuctionStats
     if (user.role === 'team_owner') {
+        window.location.href = '/auction-stats';
+        return null;
+    }
+
+    // ADMIN VIEW (removed team owner section to save time)
+    if (false) {
         if (!myTeam) {
             return (
                 <div className="editorial-glass-stage">
@@ -339,6 +356,16 @@ export default function Teams() {
                                                                 <span className="roster-player-name">{player.name}</span>
                                                                 <span className="roster-player-year">{player.year}</span>
                                                                 <span className="roster-player-price">{player.sold_price?.toLocaleString()} PTS</span>
+                                                                <button
+                                                                    className="roster-release-btn"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handlePlayerRelease(player.id, player.name);
+                                                                    }}
+                                                                    title="Release player"
+                                                                >
+                                                                    ✕
+                                                                </button>
                                                             </div>
                                                         ))}
                                                         {team.roster.length === 0 && (
