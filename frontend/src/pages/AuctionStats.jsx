@@ -76,30 +76,27 @@ export default function AuctionStats() {
 
     const fetchData = async () => {
         try {
-            // If Owner, fetch ALL teams to find their specific one, else filter by activeSport
-            const teamsFilter = user.role === 'team_owner' ? '' : activeSport.toLowerCase();
+            const normalizedSport = activeSport.toLowerCase();
+            const teamsFilter = user.role === 'team_owner' ? '' : normalizedSport;
 
             const promises = [
                 teamsAPI.getAllTeams(teamsFilter),
                 playerAPI.getAllPlayers(),
-                auctionAPI.getTransactions()
+                auctionAPI.getTransactions().catch(err => {
+                    console.warn("[STATS_API] Primary transactions endpoint failed, testing fallback...", err.message);
+                    return auctionAPI.getRecentBids();
+                })
             ];
 
-            if (user.role === 'team_owner') {
-                promises.push(auctionAPI.getUpcomingQueue());
-            }
+            if (user.role === 'team_owner') promises.push(auctionAPI.getUpcomingQueue());
 
             const results = await Promise.all(promises);
-            console.log('[STATS_API] Results received:', results.map(r => r.status));
-
             const teamsRes = results[0];
             const playersRes = results[1];
             const transRes = results[2];
             const queueRes = user.role === 'team_owner' ? results[3] : { data: { queue: [] } };
 
             const allPlayers = playersRes.data.players || playersRes.data || [];
-            console.log(`[STATS_API] Players count: ${allPlayers.length}`);
-
             const parsedPlayers = allPlayers.map(p => {
                 let stats = p.stats;
                 if (typeof stats === 'string') {
@@ -109,22 +106,19 @@ export default function AuctionStats() {
             });
 
             const teamList = teamsRes.data.teams || [];
-            console.log(`[STATS_API] Teams for ${activeSport}: ${teamList.length}`);
+            console.log(`[STATS_API] Fetched ${teamList.length} teams for ${normalizedSport}`);
 
             setTeams(teamList);
             setPlayers(parsedPlayers);
-            setTransactions(transRes.data.transactions || transRes.data.bids || []);
+            setTransactions(transRes.data.transactions || transRes.data.bids || transRes.data.recentBids || []);
             setUpcomingQueue(queueRes.data.queue || []);
 
-            // If Owner, find their specific team using team_id
             if (user?.role === 'team_owner' && user?.team_id) {
                 const foundTeam = teamList.find(t => t.id == user.team_id);
                 setMyTeam(foundTeam);
-                console.log('[STATS_API] My Team:', foundTeam?.name);
             }
         } catch (err) {
-            console.error("Stats Load Failed:", err.response?.data || err.message);
-            console.error("Full Error:", err);
+            console.error("[STATS_API] Global Sync Error:", err.response?.data || err.message);
             setTeams([]);
         }
         finally { setLoading(false); }

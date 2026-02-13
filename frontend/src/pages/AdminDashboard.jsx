@@ -27,6 +27,7 @@ export default function AdminDashboard() {
         { threshold: 500, increment: 100 }
     ]); // Cosmetic bid rules state to fix crash
     const [nuclearArmed, setNuclearArmed] = useState(false); // Nuclear toggle state
+    const [testgroundsLocked, setTestgroundsLocked] = useState(false); // Lockdown state
 
     // Roster Tab State
     const [rosterFilter, setRosterFilter] = useState('ALL');
@@ -150,6 +151,7 @@ export default function AdminDashboard() {
                 setAnimationDuration(stateResponse.data.animationDuration || 25);
                 setAnimationType(stateResponse.data.animationType || 'confetti');
                 setBidIncrementRules(stateResponse.data.bidIncrementRules || []);
+                setTestgroundsLocked(stateResponse.data.testgrounds_locked || false);
             } else if (activeTab === 'users') {
                 try {
                     const usersRes = await adminAPI.getAllUsers();
@@ -337,6 +339,17 @@ export default function AdminDashboard() {
         } catch (err) {
             console.error(err);
             setMessage('Failed to update animation style');
+        }
+    };
+
+    const handleToggleLockdown = async () => {
+        try {
+            const newState = !testgroundsLocked;
+            await adminAPI.toggleTestgroundsLockdown(newState);
+            setTestgroundsLocked(newState);
+            setMessage(`System is now ${newState ? 'LOCKED (Hiding Test Teams)' : 'UNLOCKED (Showing All Teams)'}`);
+        } catch (err) {
+            setMessage('Failed to update lockdown state');
         }
     };
 

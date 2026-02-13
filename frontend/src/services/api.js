@@ -98,7 +98,8 @@ export const adminAPI = {
     updateAnimationType: (type) => api.put('/auction/animation-type', { type }),
     exportPlayers: (sport) => api.get('/admin/players/export', { params: { sport }, responseType: 'blob' }),
     updateBidRules: (rules) => api.put('/auction/state/bid-rules', { rules }),
-    getRecentBids: () => api.get('/auction/bids/recent')
+    getRecentBids: () => api.get('/auction/bids/recent'),
+    toggleTestgroundsLockdown: (isLocked) => api.post('/admin/lockdown', { isLocked })
 };
 
 

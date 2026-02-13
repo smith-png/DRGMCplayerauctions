@@ -201,8 +201,8 @@ export async function createTeam(req, res) {
 
 export async function getAllTeams(req, res) {
     const { sport } = req.query;
-    console.log(`[AUTH_CONTEXT] UserID: ${req.user?.id || 'ANON'}, Role: ${req.user?.role || 'NONE'}`);
-    console.log(`[QUERY_PARAMS] Sport: ${sport || 'ALL'}`);
+    console.log(`[GET_ALL_TEAMS] Start. Sport: ${sport || 'ALL'}`);
+    console.log(`[GET_ALL_TEAMS] User: ${req.user?.id || 'ANON'}, Role: ${req.user?.role || 'NONE'}`);
 
     try {
         // If team_owner, refresh their user data from DB to get latest team_id (token might be stale)
@@ -222,11 +222,10 @@ export async function getAllTeams(req, res) {
         try {
             const stateRes = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
             isLocked = stateRes.rows[0]?.testgrounds_locked || false;
+            console.log(`[GET_ALL_TEAMS] Lockdown status: ${isLocked}`);
         } catch (e) {
-            console.error('[SCHEMA_ERR] auction_state.testgrounds_locked missing?', e.message);
+            console.warn(`[GET_ALL_TEAMS] auction_state table issue: ${e.message}`);
         }
-
-        console.log(`[SYSTEM_STATE] Lockdown: ${isLocked}`);
 
         let conditions = [];
         const params = [];

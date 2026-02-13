@@ -56,6 +56,15 @@ router.post('/players/:id/release', releasePlayer);
 // Bulk operations
 router.post('/bulk/min-bid', bulkUpdateMinBid);
 router.post('/bulk/reset-released', bulkResetReleasedBids);
+router.post('/lockdown', async (req, res) => {
+    const { isLocked } = req.body;
+    try {
+        await pool.query('UPDATE auction_state SET testgrounds_locked = $1', [isLocked]);
+        res.json({ message: `Testgrounds ${isLocked ? 'Locked' : 'Unlocked'}`, isLocked });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to toggle lockdown' });
+    }
+});
 
 // Dashboard stats
 router.get('/stats', getDashboardStats);
