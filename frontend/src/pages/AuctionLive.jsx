@@ -347,7 +347,54 @@ export default function AuctionLive() {
             });
         }, 5000);
 
-        loadAuction();
+        const loadTeams = async () => {
+            try {
+                const response = await teamsAPI.getAllTeams();
+                setTeams(response?.data?.teams || []);
+            } catch (err) {
+                console.error('Failed to load teams:', err);
+            }
+        };
+
+        const loadSoldPlayers = async () => {
+            try {
+                const response = await playerAPI.getAllPlayers();
+                const allPlayers = response?.data?.players || response?.data || [];
+                const sold = allPlayers.filter(p => p.status === 'sold');
+
+                const groupedByTeam = sold.reduce((acc, player) => {
+                    const tid = player.team_id;
+                    if (!acc[tid]) acc[tid] = [];
+                    acc[tid].push(player);
+                    return acc;
+                }, {});
+                setSoldPlayers(groupedByTeam);
+            } catch (err) {
+                console.error('Failed to load sold players:', err);
+            }
+        };
+
+        const loadEligiblePlayers = async () => {
+            try {
+                const response = await playerAPI.getEligiblePlayers();
+                setEligiblePlayers(response.data.players || []);
+            } catch (err) {
+                console.error('Failed to load eligible players:', err);
+            }
+        };
+
+        // Safety Trigger: Never let the page stay on a spinner forever
+        const safetyTimeout = setTimeout(() => {
+            setLoading(prev => {
+                if (prev) {
+                    console.warn('AuctionLive: Loading safety timeout triggered.');
+                    return false;
+                }
+                return prev;
+            });
+        }, 10000);
+
+        loadAuction().finally(() => clearTimeout(safetyTimeout));
         loadTeams();
         loadSoldPlayers();
         if (isAuctioneer) loadEligiblePlayers();

@@ -174,6 +174,17 @@ export default function AuctionStats() {
     };
 
     const loadUserAndData = async () => {
+        // Safety timeout for whole page
+        const safetyTimeout = setTimeout(() => {
+            setLoading(prev => {
+                if (prev) {
+                    console.warn('AuctionStats: Loading safety timeout triggered.');
+                    return false;
+                }
+                return prev;
+            });
+        }, 10000);
+
         try {
             const userResponse = await authAPI.getCurrentUser();
             setUser(userResponse.data.user);
@@ -188,6 +199,7 @@ export default function AuctionStats() {
             console.error('Failed to load user:', err);
         } finally {
             setLoading(false);
+            clearTimeout(safetyTimeout);
         }
     };
 
