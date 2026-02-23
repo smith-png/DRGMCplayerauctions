@@ -39,7 +39,7 @@ export const login = async (req, res) => {
                 role: user.role
             },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
 
         res.json({
@@ -109,7 +109,7 @@ export const register = async (req, res) => {
                 role: user.role
             },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
 
         res.status(201).json({

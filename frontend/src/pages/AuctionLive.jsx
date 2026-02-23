@@ -57,7 +57,7 @@ export default function AuctionLive() {
         console.log('loadAuction: Starting...');
         try {
             const response = await auctionAPI.getCurrentAuction();
-            const data = response.data.currentAuction;
+            const data = response?.data?.currentAuction;
 
             // Fetch global state for animation duration and min bids
             const stateRes = await auctionAPI.getAuctionState();
@@ -102,7 +102,7 @@ export default function AuctionLive() {
     const loadTeams = async () => {
         try {
             const response = await teamsAPI.getAllTeams();
-            setTeams(response.data.teams);
+            setTeams(response?.data?.teams || []);
         } catch (err) {
             console.error('Failed to load teams:', err);
         }
@@ -121,7 +121,7 @@ export default function AuctionLive() {
     const loadSoldPlayers = async () => {
         try {
             const response = await playerAPI.getAllPlayers();
-            const allPlayers = response.data.players || response.data || [];
+            const allPlayers = response?.data?.players || response?.data || [];
             const sold = allPlayers.filter(p => p.status === 'sold');
 
             const groupedByTeam = sold.reduce((acc, player) => {
