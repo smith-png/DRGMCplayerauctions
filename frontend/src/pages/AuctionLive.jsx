@@ -337,16 +337,6 @@ export default function AuctionLive() {
     };
 
     useEffect(() => {
-        const safetyTimeout = setTimeout(() => {
-            setLoading(prev => {
-                if (prev) {
-                    console.warn('Safety timeout triggered: Loading took too long.');
-                    return false;
-                }
-                return prev;
-            });
-        }, 5000);
-
         const loadTeams = async () => {
             try {
                 const response = await teamsAPI.getAllTeams();
