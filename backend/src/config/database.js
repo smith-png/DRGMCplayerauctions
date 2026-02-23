@@ -125,16 +125,30 @@ export async function initializeDatabase() {
         WHERE NOT EXISTS (SELECT 1 FROM auction_state LIMIT 1)
       `);
 
+      // Update year constraint if needed
+      await client.query(`
+        ALTER TABLE players DROP CONSTRAINT IF EXISTS players_year_check;
+        ALTER TABLE players ADD CONSTRAINT players_year_check 
+        CHECK (year IN ('1st', '2nd', '3rd', '4th', 'Intern', 'FE', 'SE', 'TE', 'BE'));
+      `);
+
       // Migrations/Columns
       await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS sport_min_bids JSONB DEFAULT '{"cricket": 50, "futsal": 50, "volleyball": 50}'::jsonb`);
       await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS is_registration_open BOOLEAN DEFAULT true`);
       await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS animation_duration INTEGER DEFAULT 25`);
+      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS animation_type VARCHAR(50) DEFAULT 'confetti'`);
+      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS testgrounds_locked BOOLEAN DEFAULT FALSE`);
+      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS bid_increment_rules JSONB DEFAULT '[{"threshold": 0, "increment": 10}, {"threshold": 200, "increment": 50}, {"threshold": 500, "increment": 100}]'::jsonb`);
+
+      await client.query(`ALTER TABLE players ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE`);
       await client.query(`ALTER TABLE players ADD COLUMN IF NOT EXISTS is_test_data BOOLEAN DEFAULT FALSE`);
       await client.query(`ALTER TABLE teams ADD COLUMN IF NOT EXISTS is_test_data BOOLEAN DEFAULT FALSE`);
       await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_test_data BOOLEAN DEFAULT FALSE`);
-      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS testgrounds_locked BOOLEAN DEFAULT FALSE`);
-      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS animation_type VARCHAR(50) DEFAULT 'confetti'`);
-      await client.query(`ALTER TABLE auction_state ADD COLUMN IF NOT EXISTS bid_increment_rules JSONB DEFAULT '[{"threshold": 0, "increment": 10}, {"threshold": 200, "increment": 50}, {"threshold": 500, "increment": 100}]'::jsonb`);
+
+      // Indexing for test data
+      await client.query(`CREATE INDEX IF NOT EXISTS idx_players_test_data ON players(is_test_data)`);
+      await client.query(`CREATE INDEX IF NOT EXISTS idx_teams_test_data ON teams(is_test_data)`);
+      await client.query(`CREATE INDEX IF NOT EXISTS idx_users_test_data ON users(is_test_data)`);
 
       // Types
       await client.query(`ALTER TABLE teams ALTER COLUMN budget TYPE INTEGER USING ROUND(budget)::INTEGER`);
