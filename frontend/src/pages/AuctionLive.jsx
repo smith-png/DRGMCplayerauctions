@@ -363,7 +363,7 @@ export default function AuctionLive() {
         });
         socketService.socket.on('disconnect', () => setIsConnected(false));
 
-        socketService.onBidUpdate((data) => {
+        const onBidUpdate = (data) => {
             setAuction(prev => {
                 if (!prev) return null;
                 return {
@@ -374,13 +374,12 @@ export default function AuctionLive() {
                 };
             });
             setBidPulse(true);
-        });
+        };
 
-        socketService.onAuctionUpdate((data) => {
+        const onAuctionUpdate = (data) => {
             if (data.type === 'started') {
                 loadAuction();
             } else if (data.type === 'sold') {
-                // Prevent re-triggering animation if we already optimistically showed it for the same player
                 setSoldAnimationData(prev => {
                     if (prev && prev.playerId === data.player?.id) {
                         return prev;
@@ -400,19 +399,22 @@ export default function AuctionLive() {
                     loadSoldPlayers();
                 }, 2000);
             }
-        });
+        };
 
-        // Listen for generic refresh (e.g. min bid update, wallet reset)
-        socketService.socket.on('refresh-data', () => {
+        const onRefreshData = () => {
             loadAuction();
             if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
             loadSoldPlayers();
-        });
+        };
+
+        socketService.on('bid-update', onBidUpdate);
+        socketService.on('auction-update', onAuctionUpdate);
+        socketService.on('refresh-data', onRefreshData);
 
         return () => {
-            socketService.off('bid-update');
-            socketService.off('auction-update');
-            socketService.off('refresh-data');
+            socketService.off('bid-update', onBidUpdate);
+            socketService.off('auction-update', onAuctionUpdate);
+            socketService.off('refresh-data', onRefreshData);
             clearTimeout(safetyTimeout);
         };
     }, [isAuctioneer]);

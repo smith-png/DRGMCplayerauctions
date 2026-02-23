@@ -46,7 +46,7 @@ export async function initializeDatabase() {
         )
       `);
 
-      // [Rest of the table creation queries...]
+
       // Teams table
       await client.query(`
         CREATE TABLE IF NOT EXISTS teams (
