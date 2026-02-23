@@ -1,18 +1,10 @@
 import pool from '../config/database.js';
 import multer from 'multer';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { v2 as cloudinary } from 'cloudinary';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 // Configure multer for memory storage (for Cloudinary upload)
 const storage = multer.memoryStorage();
@@ -33,23 +25,12 @@ export const upload = multer({
     }
 });
 
-// Helper to upload buffer to Cloudinary
-const uploadToCloudinary = (buffer) => {
-    return new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'auction-players' },
-            (error, result) => {
-                if (error) return reject(error);
-                resolve(result);
-            }
-        );
-        uploadStream.end(buffer);
-    });
-};
+
 
 export async function createPlayer(req, res) {
-    const { name, sport, year, stats } = req.body;
+    const { name, sport, year, stats, base_price, status } = req.body;
     const userId = req.user.id;
+    const isAdmin = req.user.role === 'admin';
 
     try {
         // Validate required fields
@@ -57,11 +38,11 @@ export async function createPlayer(req, res) {
             return res.status(400).json({ error: 'Name, sport, and year are required' });
         }
 
-        // Upload photo to Cloudinary if verified
+        // Upload photo to Cloudinary if provided
         let photoUrl = null;
         if (req.file) {
             try {
-                const result = await uploadToCloudinary(req.file.buffer);
+                const result = await uploadToCloudinary(req.file.buffer, 'auction-players');
                 photoUrl = result.secure_url;
             } catch (uploadError) {
                 console.error('Cloudinary upload error:', uploadError);
@@ -72,12 +53,15 @@ export async function createPlayer(req, res) {
         // Parse stats if it's a string
         const parsedStats = typeof stats === 'string' ? JSON.parse(stats) : stats;
 
-        // Insert player
+        // Insert player with role-based default status
+        const playerStatus = status || (isAdmin ? 'eligible' : 'pending');
+        const playerBasePrice = base_price || 50;
+
         const result = await pool.query(
-            `INSERT INTO players (user_id, name, sport, year, photo_url, stats, status) 
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending') 
+            `INSERT INTO players (user_id, name, sport, year, photo_url, stats, status, base_price) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
        RETURNING *`,
-            [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats)]
+            [userId, name, sport, year, photoUrl, JSON.stringify(parsedStats), playerStatus, playerBasePrice]
         );
 
         res.status(201).json({
@@ -164,21 +148,15 @@ export async function updatePlayer(req, res) {
         const params = [];
         let paramCount = 1;
 
-        if (name) {
-            updates.push(`name = $${paramCount}`);
-            params.push(name);
-            paramCount++;
-        }
+        if (name) { updates.push(`name = $${paramCount}`); params.push(name); paramCount++; }
+        if (sport) { updates.push(`sport = $${paramCount}`); params.push(sport); paramCount++; }
+        if (year) { updates.push(`year = $${paramCount}`); params.push(year); paramCount++; }
+        if (status) { updates.push(`status = $${paramCount}`); params.push(status); paramCount++; }
 
-        if (sport) {
-            updates.push(`sport = $${paramCount}`);
-            params.push(sport);
-            paramCount++;
-        }
-
-        if (year) {
-            updates.push(`year = $${paramCount}`);
-            params.push(year);
+        const { base_price } = req.body;
+        if (base_price !== undefined) {
+            updates.push(`base_price = $${paramCount}`);
+            params.push(base_price);
             paramCount++;
         }
 

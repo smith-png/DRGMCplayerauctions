@@ -9,21 +9,23 @@ import {
     updateTeam,
     deleteTeam,
     getDashboardStats,
-    createPlayer,
-    updatePlayer,
     removeFromQueue,
     bulkUpdateMinBid,
     bulkResetReleasedBids,
-
     addToQueueById,
     releasePlayer,
     resetTeamWallet,
     resetAllWallets,
     exportPlayersToCSV
 } from '../controllers/adminController.js';
+import {
+    createPlayer as adminCreatePlayer,
+    updatePlayer as adminUpdatePlayer,
+    upload
+} from '../controllers/playerController.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
-import { upload } from '../controllers/playerController.js';
+
 
 const router = express.Router();
 
@@ -46,8 +48,8 @@ router.post('/teams/reset-all', resetAllWallets);
 
 // Player management (Admin Crud)
 router.get('/players/export', exportPlayersToCSV);
-router.post('/players', upload.single('photo'), createPlayer);
-router.put('/players/:id', upload.single('photo'), updatePlayer);
+router.post('/players', upload.single('photo'), adminCreatePlayer);
+router.put('/players/:id', upload.single('photo'), adminUpdatePlayer);
 router.post('/players/:id/remove-queue', removeFromQueue);
 router.post('/players/:id/queue', addToQueueById);
 router.post('/players/:id/release', releasePlayer);

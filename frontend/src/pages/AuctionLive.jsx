@@ -138,12 +138,18 @@ export default function AuctionLive() {
         }
     };
 
+    const refreshAll = async () => {
+        loadAuction();
+        loadTeams();
+        loadSoldPlayers();
+        if (isAdmin || isAuctioneer) loadEligiblePlayers();
+    };
+
     const handleReleasePlayer = async (playerId) => {
         if (!window.confirm('Are you sure you want to release this player back to the auction queue?')) return;
         try {
             await playerAPI.markEligible(playerId);
-            await loadSoldPlayers();
-            await loadEligiblePlayers();
+            refreshAll();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to release player');
         }
@@ -153,9 +159,7 @@ export default function AuctionLive() {
         try {
             setLoading(true);
             await auctionAPI.startAuction(playerId);
-            // Socket emission removed: Backend handles broadcasting
-            await loadAuction();
-            await loadEligiblePlayers();
+            refreshAll();
         } catch (err) {
             console.error(err);
             setError('Failed to start auction');
@@ -163,37 +167,44 @@ export default function AuctionLive() {
         }
     };
 
-    const handlePlaceBid = async (e) => {
-        e.preventDefault();
+    const [isSubmittingBid, setIsSubmittingBid] = useState(false);
+    const handlePlaceBid = async (e, customAmount = null) => {
+        if (e) e.preventDefault();
+        if (isSubmittingBid) return;
+
         setError('');
-        if (!selectedTeam || !bidAmount) {
+        const amountToBid = customAmount !== null ? customAmount : parseFloat(bidAmount);
+
+        if (!selectedTeam || !amountToBid) {
             setError('Please select a team and enter bid amount');
             return;
         }
-        const amount = parseFloat(bidAmount);
+
         // Allow admins to correct bids (enter lower amount), but normal users must bid higher
-        if (!isAdmin && amount <= (auction?.current_bid || 0)) {
+        if (!isAdmin && amountToBid <= (auction?.current_bid || 0)) {
             setError('Bid must be higher than current bid');
             return;
         }
+
         try {
-            await auctionAPI.placeBid(auction.current_player_id, selectedTeam, amount);
+            setIsSubmittingBid(true);
+            await auctionAPI.placeBid(auction.current_player_id, selectedTeam, amountToBid);
 
             // Optimistic Update: Immediately update UI without waiting for socket
             const team = teams.find(t => t.id === parseInt(selectedTeam));
             setAuction(prev => ({
                 ...prev,
-                current_bid: amount,
+                current_bid: amountToBid,
                 current_team_id: parseInt(selectedTeam),
                 current_team_name: team ? team.name : 'Unknown'
             }));
 
-            // socketService.emitNewBid(...) removed to prevent double broadcasting.
-            // Server response will trigger 'bid-update' event which updates the UI.
             setBidAmount('');
             setSelectedTeam('');
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to place bid');
+        } finally {
+            setIsSubmittingBid(false);
         }
     };
 
@@ -261,10 +272,8 @@ export default function AuctionLive() {
         try {
             const playerId = auction.current_player_id || auction.id;
             await auctionAPI.markPlayerUnsold(playerId);
-            // Socket emission removed: Backend handles broadcasting
             setAuction(null);
-            await loadEligiblePlayers();
-            await loadAuction();
+            refreshAll();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to mark player as unsold');
         }
@@ -290,8 +299,7 @@ export default function AuctionLive() {
             const playerId = auction.current_player_id || auction.id;
             await auctionAPI.skipPlayer(playerId);
             setAuction(null);
-            await loadEligiblePlayers();
-            await loadAuction();
+            refreshAll();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to skip player');
         }
@@ -805,8 +813,28 @@ export default function AuctionLive() {
                                                         required
                                                     />
                                                 </div>
+
+                                                <div className="quick-bid-options flex gap-2 mb-4">
+                                                    {[10, 50, 100].map(inc => (
+                                                        <button
+                                                            key={inc}
+                                                            type="button"
+                                                            onClick={() => handlePlaceBid(null, (auction?.current_bid || 0) + inc)}
+                                                            className="btn btn-outline-warning flex-1 py-2 text-sm"
+                                                            disabled={isSubmittingBid || !selectedTeam || (!isAdmin && (auction?.current_bid || 0) + inc < minBid)}
+                                                        >
+                                                            + {inc} ({((auction?.current_bid || 0) + inc).toLocaleString()})
+                                                        </button>
+                                                    ))}
+                                                </div>
                                                 <div className="auction-actions-row">
-                                                    <button type="submit" className="btn btn-warning btn-xl full-width">Update Bid</button>
+                                                    <button
+                                                        type="submit"
+                                                        className={`btn btn-warning btn-xl full-width ${isSubmittingBid ? 'btn-loading' : ''}`}
+                                                        disabled={isSubmittingBid}
+                                                    >
+                                                        {isSubmittingBid ? 'Placing Bid...' : 'Update Custom Bid'}
+                                                    </button>
                                                     <div className="action-button-group">
                                                         <button
                                                             type="button"

@@ -60,81 +60,108 @@ export const startAuction = async (req, res) => {
 export const placeBid = async (req, res) => {
     const client = await pool.connect();
     try {
-        console.log('=== PLACE BID REQUEST ===');
+        console.log('=== PLACE BID REQUEST (SECURE) ===');
         const { playerId, teamId, bidAmount } = req.body;
 
-        // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
         }
-        if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
+
+        const requestedAmount = Math.round(parseFloat(bidAmount));
+        if (isNaN(requestedAmount) || requestedAmount <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
-        const roundedBid = Math.round(parseFloat(bidAmount));
-
         await client.query('BEGIN');
 
-        // Check budget & Lock Row
-        const budgetResult = await client.query(
-            'SELECT remaining_budget, name FROM teams WHERE id = $1 FOR UPDATE',
+        // 1. Lock the PLAYER row to serialize all bids for this player
+        const playerResult = await client.query(
+            "SELECT id, name, base_price, status FROM players WHERE id = $1 AND status = 'auctioning' FOR UPDATE",
+            [playerId]
+        );
+
+        if (playerResult.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Player is not currently being auctioned or doesn\'t exist' });
+        }
+
+        const player = playerResult.rows[0];
+
+        // 2. Get the current highest bid WITHIN the transaction
+        const currentBidResult = await client.query(
+            'SELECT amount FROM bids WHERE player_id = $1 ORDER BY amount DESC LIMIT 1',
+            [playerId]
+        );
+
+        const currentHighest = currentBidResult.rows.length > 0
+            ? parseFloat(currentBidResult.rows[0].amount)
+            : parseFloat(player.base_price);
+
+        // 3. Strict Validation: New bid MUST be higher than current
+        // Note: For admins, we might relax this if they are correcting a mistake, 
+        // but for general concurrency, we enforce strictly increasing bids.
+        if (requestedAmount <= currentHighest) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({
+                error: `Bid too low. Current highest is ${currentHighest}. Refresh and try again.`,
+                currentBid: currentHighest
+            });
+        }
+
+        // 4. Lock the TEAM row to check budget
+        const teamResult = await client.query(
+            'SELECT name, remaining_budget FROM teams WHERE id = $1 FOR UPDATE',
             [teamId]
         );
 
-        if (budgetResult.rows.length === 0) {
+        if (teamResult.rows.length === 0) {
             await client.query('ROLLBACK');
             return res.status(404).json({ error: 'Team not found' });
         }
 
-        const remainingBudget = parseFloat(budgetResult.rows[0].remaining_budget);
-        const teamName = budgetResult.rows[0].name;
+        const team = teamResult.rows[0];
+        const remainingBudget = parseFloat(team.remaining_budget);
 
-        if (parseFloat(bidAmount) > remainingBudget) {
+        if (requestedAmount > remainingBudget) {
             await client.query('ROLLBACK');
-            return res.status(400).json({ error: `Not enough budget. Remaining: ${remainingBudget} Pts` });
+            return res.status(400).json({ error: `Insufficient budget. Remaining: ${remainingBudget}` });
         }
 
-        // Insert Bid into active bids
-        const result = await client.query(
-            'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3) RETURNING *',
-            [playerId, teamId, roundedBid]
+        // 5. Record the bid
+        await client.query(
+            'INSERT INTO bids (player_id, team_id, amount) VALUES ($1, $2, $3)',
+            [playerId, teamId, requestedAmount]
         );
 
-        // Insert into persistent bid logs
         await client.query(
             'INSERT INTO bid_logs (player_id, team_id, amount) VALUES ($1, $2, $3)',
-            [playerId, teamId, roundedBid]
+            [playerId, teamId, requestedAmount]
         );
 
-        // Fetch Player Name (using SAME client) to ensure atomicity and correctness
-        const playerRes = await client.query('SELECT name FROM players WHERE id = $1', [playerId]);
-        const playerName = playerRes.rows[0]?.name || 'Unknown Player';
-
-        // COMMIT only after all data is ready
         await client.query('COMMIT');
+        console.log(`✅ Secure bid placed: ${requestedAmount} by ${team.name} for ${player.name}`);
 
-        console.log('✅ Bid placed successfully:', result.rows[0]);
-
-        // Broadcast real-time update
+        // 6. Broadcast update
         if (req.io) {
             req.io.to('auction-room').emit('bid-update', {
                 teamId,
-                teamName,
-                amount: roundedBid,
+                teamName: team.name,
+                amount: requestedAmount,
                 playerId,
-                playerName,
+                playerName: player.name,
                 timestamp: new Date()
             });
-            console.log('📡 Socket event emitted: bid-update');
         }
 
         res.json({
             message: 'Bid placed successfully',
-            bid: result.rows[0]
+            amount: requestedAmount,
+            teamName: team.name
         });
+
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error('❌ Place bid error:', error);
+        console.error('❌ SECURE BID ERROR:', error);
         res.status(500).json({ error: 'Failed to place bid', details: error.message });
     } finally {
         client.release();
@@ -404,10 +431,10 @@ export const markPlayerUnsold = async (req, res) => {
 
         console.log(`Marking player ${playerId} as unsold`);
 
-        // Update player status to unsold
+        // Update player status to unsold and clear team associations
         await pool.query(
-            'UPDATE players SET status = $1 WHERE id = $2',
-            ['unsold', playerId]
+            "UPDATE players SET status = 'unsold', team_id = NULL, sold_price = NULL WHERE id = $1",
+            [playerId]
         );
 
         if (req.io) {
@@ -553,6 +580,14 @@ export const updateSportMinBids = async (req, res) => {
             'UPDATE auction_state SET sport_min_bids = $1',
             [sportMinBids]
         );
+
+        // SYNC: Update all non-sold players' base prices to match new config
+        for (const [sport, minBid] of Object.entries(sportMinBids)) {
+            await pool.query(
+                "UPDATE players SET base_price = $1 WHERE LOWER(sport) = LOWER($2) AND status != 'sold'",
+                [Math.round(parseFloat(minBid)), sport]
+            );
+        }
 
         res.json({ message: 'Sport minimum bids updated', sportMinBids });
     } catch (error) {
