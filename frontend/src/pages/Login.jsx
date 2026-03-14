@@ -93,8 +93,9 @@ export default function Login() {
                             <>
                                 {!isLogin && (
                                     <div className="input-group">
-                                        <label className="input-label">Full Name</label>
+                                        <label htmlFor="name" className="input-label">Full Name</label>
                                         <input
+                                            id="name"
                                             type="text"
                                             name="name"
                                             value={formData.name}
@@ -107,8 +108,9 @@ export default function Login() {
                                 )}
 
                                 <div className="input-group">
-                                    <label className="input-label">Email</label>
+                                    <label htmlFor="email" className="input-label">Email</label>
                                     <input
+                                        id="email"
                                         type="email"
                                         name="email"
                                         value={formData.email}
@@ -120,9 +122,10 @@ export default function Login() {
                                 </div>
 
                                 <div className="input-group">
-                                    <label className="input-label">Password</label>
+                                    <label htmlFor="password" className="input-label">Password</label>
                                     <div className="password-input-wrapper">
                                         <input
+                                            id="password"
                                             type={showPassword ? "text" : "password"}
                                             name="password"
                                             value={formData.password}
@@ -136,6 +139,8 @@ export default function Login() {
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="password-toggle-btn"
                                             title={showPassword ? "Hide password" : "Show password"}
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
+                                            aria-pressed={showPassword}
                                         >
                                             {showPassword ? '👁️' : '👁️‍🗨️'}
                                         </button>
