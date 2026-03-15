@@ -1,0 +1,3 @@
+## 2024-03-15 - Concurrent DB Queries using Promise.all
+**Learning:** The controllers in this application frequently execute multiple independent `pool.query()` operations sequentially using multiple `await` calls. In `adminController.js`, `getDashboardStats` fetches user, player, team, and bid counts independently, but sequential `await`ing introduces N+1 style network latency for simple fetches. This is an anti-pattern when operations don't depend on each other.
+**Action:** Always combine independent database query promises using `await Promise.all([...])` to execute them concurrently, reducing total network round-trip time to just the duration of the longest query.
