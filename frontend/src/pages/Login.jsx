@@ -136,6 +136,7 @@ export default function Login() {
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="password-toggle-btn"
                                             title={showPassword ? "Hide password" : "Show password"}
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
                                         >
                                             {showPassword ? '👁️' : '👁️‍🗨️'}
                                         </button>
