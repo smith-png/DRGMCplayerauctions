@@ -103,7 +103,20 @@ export default function Navbar() {
                     <div className="navbar-user" ref={overlayRef}>
                         {user ? (
                             <div className="user-menu">
-                                <div className="user-info" onClick={toggleUserOverlay} style={{ cursor: 'pointer' }}>
+                                <div
+                                    className="user-info"
+                                    onClick={toggleUserOverlay}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            toggleUserOverlay();
+                                        }
+                                    }}
+                                    style={{ cursor: 'pointer' }}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={showUserOverlay}
+                                >
                                     <div className="user-details">
                                         <span className="user-name">{user.name || user.email}</span>
                                         <span className="user-role">{user.role}</span>

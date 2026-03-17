@@ -1,0 +1,50 @@
+
+> auction-backend@1.0.0 dev
+> node --watch server.js
+
+
+🚀 Server running on port 5000
+📡 API: http://localhost:5000
+🔌 Socket.IO ready for connections
+💚 Keep-alive endpoint: http://localhost:5000/health/keep-alive
+
+📡 Connecting to database (Attempt 1/5)...
+❌ Database initialization failed (Attempt 1/5):
+Retrying in 2s...
+📡 Connecting to database (Attempt 2/5)...
+❌ Database initialization failed (Attempt 2/5):
+Retrying in 4s...
+📡 Connecting to database (Attempt 3/5)...
+❌ Database initialization failed (Attempt 3/5):
+Retrying in 8s...
+📡 Connecting to database (Attempt 4/5)...
+❌ Database initialization failed (Attempt 4/5):
+Retrying in 16s...
+📡 Connecting to database (Attempt 5/5)...
+❌ Database initialization failed (Attempt 5/5):
+❌ Database initialization failed after retries: AggregateError [ECONNREFUSED]:
+    at /app/backend/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async initializeDatabase (file:///app/backend/src/config/database.js:33:16) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 5432
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 5432
+    }
+  ]
+}

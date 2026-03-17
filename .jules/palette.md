@@ -1,0 +1,3 @@
+## 2026-03-17 - [A11y] Keyboard Accessibility for Custom Interactive Components
+**Learning:** This application makes heavy use of generic `<div>` elements as interactive components (like dropdown toggles in the Navbar and modal overlays). Using `onClick` alone on these elements excludes keyboard-only and screen reader users from accessing critical UI functionalities.
+**Action:** When creating or modifying custom interactive elements (like `<div>` or `<span>` acting as buttons/toggles), explicitly add `role="button"`, `tabIndex={0}`, appropriate ARIA attributes (e.g., `aria-expanded`), and an `onKeyDown` handler (for `Enter` and `Space` keys) to ensure full accessibility.
