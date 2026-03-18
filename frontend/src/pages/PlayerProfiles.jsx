@@ -226,6 +226,14 @@ export default function PlayerProfiles() {
                                 key={player.id}
                                 className="mini-player-card"
                                 onClick={() => setSelectedPlayer(player)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setSelectedPlayer(player);
+                                    }
+                                }}
                             >
                                 <div className="mini-avatar">
                                     {player.photo_url ? (
