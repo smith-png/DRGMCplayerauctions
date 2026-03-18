@@ -127,6 +127,14 @@ export default function PlayerProfilesBySport() {
                                 key={player.id}
                                 className="player-profile-card"
                                 onClick={() => setSelectedPlayer(player)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setSelectedPlayer(player);
+                                    }
+                                }}
                             >
                                 {player.photo_url ? (
                                     <img
@@ -260,6 +268,14 @@ export default function PlayerProfilesBySport() {
                                                     <span
                                                         className="info-value team-link"
                                                         onClick={() => handleTeamClick(team.id, team.sport)}
+                                                        role="link"
+                                                        tabIndex={0}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                                e.preventDefault();
+                                                                handleTeamClick(team.id, team.sport);
+                                                            }
+                                                        }}
                                                     >
                                                         {team.name} →
                                                     </span>
