@@ -51,7 +51,7 @@ export const startAuction = async (req, res) => {
         });
     } catch (error) {
         console.error('❌ START AUCTION ERROR:', error);
-        res.status(500).json({ error: 'Failed to start auction', details: error.message });
+        res.status(500).json({ error: 'Failed to start auction' });
     }
 };
 
@@ -69,6 +69,16 @@ export const placeBid = async (req, res) => {
         }
         if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
+        }
+
+        // Authorization: Verify user is an admin or belongs to the bidding team
+        if (req.user && req.user.role !== 'admin' && req.user.role !== 'auctioneer') {
+            const userRes = await client.query('SELECT team_id FROM users WHERE id = $1', [req.user.id]);
+            const userTeamId = userRes.rows[0]?.team_id;
+
+            if (userTeamId !== parseInt(teamId, 10)) {
+                return res.status(403).json({ error: 'Unauthorized to place bids for this team' });
+            }
         }
 
         const roundedBid = Math.round(parseFloat(bidAmount));
@@ -135,7 +145,7 @@ export const placeBid = async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('❌ Place bid error:', error);
-        res.status(500).json({ error: 'Failed to place bid', details: error.message });
+        res.status(500).json({ error: 'Failed to place bid' });
     } finally {
         client.release();
     }
@@ -422,7 +432,7 @@ export const markPlayerUnsold = async (req, res) => {
         res.json({ message: 'Player marked as unsold' });
     } catch (error) {
         console.error('❌ Mark player unsold error:', error);
-        res.status(500).json({ error: 'Failed to mark player as unsold', details: error.message });
+        res.status(500).json({ error: 'Failed to mark player as unsold' });
     }
 };
 
