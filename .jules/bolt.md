@@ -1,0 +1,3 @@
+## 2024-05-24 - Optimizing sequential independent queries
+**Learning:** In the backend `adminController.js`, `getDashboardStats` ran multiple independent dashboard aggregate queries sequentially. This codebase-specific pattern caused unnecessary delays because network round-trip latencies compounded. Since these dashboard queries didn't depend on each other, awaiting them sequentially wasted time.
+**Action:** When calculating statistics or dashboard aggregations that require multiple isolated database queries, use `Promise.all()` to execute them concurrently instead of using `await pool.query()` sequentially. This reduces overall response latency.
