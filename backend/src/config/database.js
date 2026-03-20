@@ -21,7 +21,7 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
-// Initialize database tables
+// Initialize database tables with retry logic
 export async function initializeDatabase() {
   const client = await pool.connect();
 

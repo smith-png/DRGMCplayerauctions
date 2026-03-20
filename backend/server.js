@@ -92,13 +92,7 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
     try {
-        // Initialize database tables
-        await initializeDatabase();
-
-        // Seed/Reset Admin User (Ensures access on deployment)
-        await seedAdmin();
-
-        // Start server
+        // Start server first so Render/other hosts see the port as open immediately
         httpServer.listen(PORT, () => {
             console.log(`\n🚀 Server running on port ${PORT}`);
             console.log(`📡 API: http://localhost:${PORT}`);
@@ -109,6 +103,16 @@ async function startServer() {
             if (process.env.ENABLE_INTERNAL_SCHEDULER === 'true') {
                 startInternalScheduler();
             }
+
+            // Initialize database tables in the background (with its own retry logic)
+            initializeDatabase()
+                .then(() => {
+                    // Seed/Reset Admin User (Ensures access on deployment)
+                    return seedAdmin();
+                })
+                .catch(error => {
+                    console.error('❌ Database initialization failed after retries:', error);
+                });
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);

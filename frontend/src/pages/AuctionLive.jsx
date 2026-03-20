@@ -47,8 +47,19 @@ export default function AuctionLive() {
     const loadAuction = async () => {
         try {
             const response = await auctionAPI.getCurrentAuction();
-            const data = response.data.currentAuction;
-            const stateRes = await auctionAPI.getAuctionState(); // Get state from API to be sure
+            const data = response?.data?.currentAuction;
+
+            // Fetch global state for animation duration and min bids
+            const stateRes = await auctionAPI.getAuctionState();
+            if (stateRes.data.animationDuration) {
+                setAnimationDuration(stateRes.data.animationDuration);
+            }
+            if (stateRes.data.animationType) {
+                setAnimationType(stateRes.data.animationType);
+            }
+            if (stateRes.data.sportMinBids) {
+                setSportMinBids(stateRes.data.sportMinBids);
+            }
 
             if (data) {
                 let stats = data.player.stats;
@@ -101,7 +112,7 @@ export default function AuctionLive() {
     const loadTeams = async () => {
         try {
             const response = await teamsAPI.getAllTeams();
-            setTeams(response.data.teams);
+            setTeams(response?.data?.teams || []);
         } catch (err) {
             console.error('Failed to load teams:', err);
         }
@@ -130,12 +141,8 @@ export default function AuctionLive() {
     const loadSoldPlayers = async () => {
         try {
             const response = await playerAPI.getAllPlayers();
-            const fetchedPlayers = response.data.players || response.data || [];
-
-            // Set for search
-            setAllPlayers(fetchedPlayers);
-
-            const sold = fetchedPlayers.filter(p => p.status === 'sold');
+            const allPlayers = response?.data?.players || response?.data || [];
+            const sold = allPlayers.filter(p => p.status === 'sold');
 
             const groupedByTeam = sold.reduce((acc, player) => {
                 const teamId = player.team_id;
@@ -301,7 +308,54 @@ export default function AuctionLive() {
 
     // --- EFFECTS ---
     useEffect(() => {
-        loadAuction();
+        const loadTeams = async () => {
+            try {
+                const response = await teamsAPI.getAllTeams();
+                setTeams(response?.data?.teams || []);
+            } catch (err) {
+                console.error('Failed to load teams:', err);
+            }
+        };
+
+        const loadSoldPlayers = async () => {
+            try {
+                const response = await playerAPI.getAllPlayers();
+                const allPlayers = response?.data?.players || response?.data || [];
+                const sold = allPlayers.filter(p => p.status === 'sold');
+
+                const groupedByTeam = sold.reduce((acc, player) => {
+                    const tid = player.team_id;
+                    if (!acc[tid]) acc[tid] = [];
+                    acc[tid].push(player);
+                    return acc;
+                }, {});
+                setSoldPlayers(groupedByTeam);
+            } catch (err) {
+                console.error('Failed to load sold players:', err);
+            }
+        };
+
+        const loadEligiblePlayers = async () => {
+            try {
+                const response = await playerAPI.getEligiblePlayers();
+                setEligiblePlayers(response.data.players || []);
+            } catch (err) {
+                console.error('Failed to load eligible players:', err);
+            }
+        };
+
+        // Safety Trigger: Never let the page stay on a spinner forever
+        const safetyTimeout = setTimeout(() => {
+            setLoading(prev => {
+                if (prev) {
+                    console.warn('AuctionLive: Loading safety timeout triggered.');
+                    return false;
+                }
+                return prev;
+            });
+        }, 10000);
+
+        loadAuction().finally(() => clearTimeout(safetyTimeout));
         loadTeams();
         loadSoldPlayers();
         loadEligiblePlayers();
@@ -317,52 +371,62 @@ export default function AuctionLive() {
         });
         socketService.socket.on('disconnect', () => setIsConnected(false));
 
-        // Listeners
-        socketService.onBidUpdate((data) => {
-            if (data.type === 'reset') {
-                setBidHistory([]);
-                loadAuction();
-            } else {
-                playBid(); // Sound
-                setBidHistory(prev => [data, ...prev].slice(0, 5));
-                setAuction(prev => {
-                    if (!prev) return null;
-                    return {
-                        ...prev,
-                        current_bid: data.amount,
-                        current_team_name: data.teamName,
-                        current_team_id: data.teamId
-                    };
-                });
-            }
-        });
+        const onBidUpdate = (data) => {
+            setAuction(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    current_bid: data.amount,
+                    current_team_id: data.teamId,
+                    current_team_name: data.teamName
+                };
+            });
+            setBidPulse(true);
+        };
 
-        socketService.onAuctionUpdate((data) => {
+        const onAuctionUpdate = (data) => {
             if (data.type === 'started') {
                 setBidHistory([]);
                 loadAuction();
                 loadEligiblePlayers();
             } else if (data.type === 'sold') {
-                setSoldAnimation(data); // Trigger confetti
-                playSold(); // Sound
+                setSoldAnimationData(prev => {
+                    if (prev && prev.playerId === data.player?.id) {
+                        return prev;
+                    }
+                    return {
+                        playerName: data.playerName,
+                        teamName: data.teamName,
+                        price: data.amount,
+                        playerId: data.player?.id,
+                        photoUrl: data.photoUrl
+                    };
+                });
 
-                // Auto-refresh after delay
-                if (soldTimeoutRef.current) clearTimeout(soldTimeoutRef.current);
-                const duration = (animationDurationRef.current || 5) * 1000;
-                soldTimeoutRef.current = setTimeout(() => {
-                    setSoldAnimation(null);
-                    setAuction(null);
+                setTimeout(() => {
                     loadAuction();
                     loadSoldPlayers();
                 }, duration);
             } else if (data.type === 'unsold' || data.type === 'state-change') {
                 loadAuction();
             }
-        });
+        };
+
+        const onRefreshData = () => {
+            loadAuction();
+            if (isAuctioneer || isAdmin || isTeamOwner) loadEligiblePlayers();
+            loadSoldPlayers();
+        };
+
+        socketService.on('bid-update', onBidUpdate);
+        socketService.on('auction-update', onAuctionUpdate);
+        socketService.on('refresh-data', onRefreshData);
 
         return () => {
-            socketService.off('bid-update');
-            socketService.off('auction-update');
+            socketService.off('bid-update', onBidUpdate);
+            socketService.off('auction-update', onAuctionUpdate);
+            socketService.off('refresh-data', onRefreshData);
+            clearTimeout(safetyTimeout);
         };
     }, []);
 

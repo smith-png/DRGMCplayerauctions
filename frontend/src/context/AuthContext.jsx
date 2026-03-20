@@ -8,13 +8,27 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Safety timeout: Never let the app hang on loading for more than 10 seconds
+        const safetyTimeout = setTimeout(() => {
+            setLoading(prevLoading => {
+                if (prevLoading) {
+                    console.warn('AuthContext: Loading safety timeout triggered.');
+                    return false;
+                }
+                return prevLoading;
+            });
+        }, 10000);
+
         // Check if user is logged in on mount
         const token = localStorage.getItem('token');
         if (token) {
-            loadUser();
+            loadUser().finally(() => clearTimeout(safetyTimeout));
         } else {
             setLoading(false);
+            clearTimeout(safetyTimeout);
         }
+
+        return () => clearTimeout(safetyTimeout);
     }, []);
 
     const loadUser = async () => {
