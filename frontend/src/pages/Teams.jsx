@@ -223,6 +223,14 @@ export default function Teams() {
                                         <div
                                             className="viewer-team-header"
                                             onClick={() => setExpandedTeam(isExpanded ? null : team.id)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setExpandedTeam(isExpanded ? null : team.id);
+                                                }
+                                            }}
                                         >
                                             <div className="viewer-team-info">
                                                 <h3 className="viewer-team-name">{team.name}</h3>
@@ -430,6 +438,14 @@ export default function Teams() {
                                             <div
                                                 className="ledger-team-header"
                                                 onClick={() => setExpandedTeam(isExpanded ? null : team.id)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        setExpandedTeam(isExpanded ? null : team.id);
+                                                    }
+                                                }}
                                             >
                                                 <div className="ledger-team-info">
                                                     <h3 className="ledger-team-name">{team.name}</h3>
@@ -522,7 +538,10 @@ export default function Teams() {
 
                     {/* Wallet Adjustment Modal */}
                     {walletModal.show && (
-                        <div className="modal-overlay" onClick={() => setWalletModal({ ...walletModal, show: false })}>
+                        <div
+                            className="modal-overlay"
+                            onClick={() => setWalletModal({ ...walletModal, show: false })}
+                        >
                             <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
                                 <div className="modal-header">
                                     <h3 className="modal-title">

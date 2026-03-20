@@ -98,7 +98,10 @@ export default function PlayerProfiles() {
         <div className="player-profiles-page">
             {/* Overlay */}
             {selectedPlayer && (
-                <div className="profile-overlay-backdrop" onClick={() => setSelectedPlayer(null)}>
+                <div
+                    className="profile-overlay-backdrop"
+                    onClick={() => setSelectedPlayer(null)}
+                >
                     <div className="profile-overlay-content" onClick={e => e.stopPropagation()}>
                         <button className="overlay-close-btn" onClick={() => setSelectedPlayer(null)}>×</button>
                         <div className="profile-hero">
@@ -226,6 +229,14 @@ export default function PlayerProfiles() {
                                 key={player.id}
                                 className="mini-player-card"
                                 onClick={() => setSelectedPlayer(player)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setSelectedPlayer(player);
+                                    }
+                                }}
                             >
                                 <div className="mini-avatar">
                                     {player.photo_url ? (

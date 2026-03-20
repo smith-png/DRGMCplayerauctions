@@ -76,7 +76,19 @@ export default function PlayerProfilesBySport() {
                     {loading ? <div className="loading">ASSEMBLING ROSTER...</div> : (
                         <div className="players-grid">
                             {filteredPlayers.map(player => (
-                                <div key={player.id} className="player-profile-card" onClick={() => setSelectedPlayer(player)}>
+                                <div
+                                    key={player.id}
+                                    className="player-profile-card"
+                                    onClick={() => setSelectedPlayer(player)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            setSelectedPlayer(player);
+                                        }
+                                    }}
+                                >
                                     <div className="photo-container">
                                         {player.photo_url ? (
                                             <img src={player.photo_url} className="profile-photo" alt={player.name} />
@@ -103,7 +115,10 @@ export default function PlayerProfilesBySport() {
 
             {/* DOSSIER MODAL - MOVED OUTSIDE FOR STACKING CONTEXT STABILITY */}
             {selectedPlayer && (
-                <div className="profile-modal-overlay" onClick={() => setSelectedPlayer(null)}>
+                <div
+                    className="profile-modal-overlay"
+                    onClick={() => setSelectedPlayer(null)}
+                >
                     <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
                         <button className="modal-close" onClick={() => setSelectedPlayer(null)}>✕</button>
                         <div className="player-modal-content">
