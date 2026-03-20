@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
@@ -9,7 +9,7 @@ import PlayerRegistration from './pages/PlayerRegistration';
 import AuctionLive from './pages/AuctionLive';
 import AuctionStats from './pages/AuctionStats';
 import AdminDashboard from './pages/AdminDashboard';
-import Testgrounds from './pages/Testgrounds';
+import OwnerDashboard from './pages/OwnerDashboard';
 import Teams from './pages/Teams';
 import PlayerProfilesBySport from './pages/PlayerProfilesBySport';
 // import PlayerProfiles from './pages/PlayerProfiles'; // Kept for future use
@@ -37,11 +37,14 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     return children;
 }
 
-function AppRoutes() {
+function Layout() {
+    const location = useLocation();
+    const showNavbar = location.pathname !== '/login' && location.pathname !== '/register';
+
     return (
-        <Router>
-            <Navbar />
-            <main className="main-content">
+        <>
+            {showNavbar && <Navbar />}
+            <main className="main-content" style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh' }}>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
@@ -56,7 +59,6 @@ function AppRoutes() {
                     />
                     <Route path="/auction" element={<AuctionLive />} />
                     <Route path="/auction-stats" element={<AuctionStats />} />
-                    <Route path="/auction-stats" element={<AuctionStats />} />
                     <Route
                         path="/admin"
                         element={
@@ -66,10 +68,10 @@ function AppRoutes() {
                         }
                     />
                     <Route
-                        path="/testgrounds"
+                        path="/owner-dashboard"
                         element={
-                            <ProtectedRoute requireAdmin={true}>
-                                <Testgrounds />
+                            <ProtectedRoute>
+                                <OwnerDashboard />
                             </ProtectedRoute>
                         }
                     />
@@ -80,14 +82,16 @@ function AppRoutes() {
                     {/* <Route path="/player-profiles" element={<PlayerProfiles />} /> */}
                 </Routes>
             </main>
-        </Router>
+        </>
     );
 }
 
 export default function App() {
     return (
         <AuthProvider>
-            <AppRoutes />
+            <Router>
+                <Layout />
+            </Router>
             <Analytics />
             <SpeedInsights />
         </AuthProvider>

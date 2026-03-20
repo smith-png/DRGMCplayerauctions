@@ -1,462 +1,347 @@
-.home-container {
+/* EDITORIAL LIGHT THEME */
+:root {
+    --bg-light: #D1E0D7;
+    /* New Luminous Sage */
+    --text-main: #1A1A1A;
+    --border-light: rgba(0, 0, 0, 0.1);
+    --accent-black: #000;
+}
+
+.editorial-home {
+    background-color: var(--bg-light);
+    color: var(--text-main);
     min-height: 100vh;
-}
-
-/* Updated Hero Section for 2-Column Grid */
-/* Updated Hero Section for 2-Column Grid */
-.hero-section {
-    padding: 6rem 0;
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-container-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* Balanced columns */
-    gap: 2rem;
-    align-items: center;
-}
-
-.hero-content {
-    text-align: left;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
+    overflow-x: hidden;
 }
 
-.hero-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-primary);
-    background: none;
-    -webkit-text-fill-color: var(--text-primary);
-    line-height: 1.1;
+/* HERO SECTION */
+.editorial-hero {
+    padding: 8rem 5vw 6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-bottom: 2px solid var(--border-light);
+    position: relative;
+    background-color: var(--bg-light);
+    /* Sports Doodle Background Pattern */
+    background-image:
+        /* Cricket Balls - Radial dots */
+        radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+        radial-gradient(circle at 70% 50%, rgba(0, 0, 0, 0.05) 3px, transparent 3px),
+        radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+        /* Bat Lines - Diagonal strokes */
+        linear-gradient(45deg, transparent 48%, rgba(0, 0, 0, 0.03) 48%, rgba(0, 0, 0, 0.03) 52%, transparent 52%),
+        /* Gavel Dots - Larger circles */
+        radial-gradient(circle at 85% 20%, rgba(62, 91, 78, 0.04) 4px, transparent 4px);
+    background-size: 200px 200px, 300px 300px, 250px 250px, 150px 150px, 180px 180px;
+    background-position: 0 0, 100px 100px, 50px 150px, 0 0, 200px 50px;
 }
 
+/* Hero Subtitle */
 .hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
-    line-height: 1.6;
-    max-width: 90%;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    /* justify-content: flex-start; */
-    /* Start alignment */
-    flex-wrap: wrap;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-    width: 100%;
-}
-
-/* Hero Stats Strip */
-.hero-stats {
-    display: flex;
-    flex-direction: row;
-    /* Explicitly row */
-    align-items: center;
-    gap: 3rem;
-    /* Increase gap */
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-subtle);
-    width: 100%;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-divider {
-    width: 1px;
-    height: 30px;
-    background: var(--border-subtle);
-}
-
-
-/* Hero Visuals (Floating Cards) */
-.hero-visuals {
-    position: relative;
-    height: 600px;
-    /* Increased height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.floating-card {
-    position: absolute;
-    width: 340px;
-    /* Increased width */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    /* Increased padding */
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    transition: transform 0.3s ease;
-}
-
-.floating-card:hover {
-    z-index: 10;
-    transform: scale(1.05) !important;
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.fc-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.fc-badge {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    font-size: 0.8rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-weight: 600;
-}
-
-.fc-badge.badge-live {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    animation: pulse 1.5s infinite;
-}
-
-.fc-price {
-    font-weight: 700;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    /* Increased size */
-}
-
-.fc-body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #3E5B4E;
+    /* Deep Sage */
+    font-family: 'Space Grotesk', monospace;
 }
 
-.fc-avatar {
-    width: 55px;
-    /* Increased size */
-    height: 55px;
-    background: var(--bg-secondary);
-    border-radius: 50%;
+.subtitle-bar {
+    width: 40px;
+    height: 3px;
+    background: #3E5B4E;
+}
+
+/* Hero Main Title - HOLLOW TEXT EFFECT */
+.hero-main-title {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 12vw, 6rem);
+    line-height: 0.9;
+    margin: 0 0 2rem 0;
+    letter-spacing: -0.02em;
+
+    /* Hollow Tech Effect */
+    color: transparent;
+    -webkit-text-stroke: 2px #1A1A1A;
+    transition: all 0.4s ease;
+}
+
+.hero-main-title:hover {
+    color: #1A1A1A;
+    -webkit-text-stroke: 0px transparent;
+}
+
+.hero-stacked-title {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    font-size: clamp(4rem, 18vw, 14rem);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.line-primary {
+    color: var(--text-main);
+}
+
+.line-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--text-main);
+}
+
+.hero-desc {
+    margin-top: 3rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    max-width: 700px;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.4;
+}
+
+/* === STANDARDIZED HERO BUTTONS === */
+.hero-actions {
+    margin-top: 4rem;
     display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* Base Button Style - IDENTICAL DIMENSIONS */
+.btn-editorial {
+    /* FORCED IDENTICAL SHAPE */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    /* Increased icon size */
-    border: 1px solid var(--border-subtle);
+    height: 60px;
+    min-width: 200px;
+    padding: 0 32px;
+    border-radius: 100px;
+
+    /* Typography */
+    text-decoration: none;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    /* Effects */
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-.fc-info h4 {
-    margin: 0;
-    font-size: 1.2rem;
-    /* Increased size */
-    color: var(--text-primary);
+/* Primary Button - Solid Black */
+.btn-editorial.btn-primary {
+    background: #1A1A1A;
+    color: #FFFFFF;
+    border: 2px solid #1A1A1A;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.fc-info p {
-    margin: 0;
-    font-size: 1rem;
-    /* Increased size */
-    color: var(--text-muted);
+.btn-editorial.btn-primary:hover {
+    transform: translateY(-2px);
+    background: #000000;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* Animations and Positioning */
-.card-1 {
-    top: 10%;
-    right: 15%;
-    transform: rotate(6deg);
-    animation: float 6s ease-in-out infinite;
+/* Secondary Button - Glass Outline */
+.btn-outline-editorial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    min-width: 200px;
+    padding: 0 32px;
+    border-radius: 100px;
+
+    background: rgba(255, 255, 255, 0.1);
+    color: #1A1A1A;
+    border: 2px solid #1A1A1A;
+
+    text-decoration: none;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-.card-2 {
-    top: 40%;
-    right: 5%;
-    /* Pushed right */
-    transform: rotate(-3deg);
-    animation: float 5s ease-in-out infinite 0.5s;
-    /* Staggered */
+.btn-outline-editorial:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* SPORTS SLICES */
+.sports-slices {
+    display: flex;
+    height: 75vh;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.sport-slice {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--border-light);
+    transition: flex 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(1);
+    text-decoration: none;
+}
+
+.sport-slice:last-child {
+    border-right: none;
+}
+
+.cricket-slice {
+    background-image: url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2067&auto=format&fit=crop');
+}
+
+.futsal-slice {
+    background-image: url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1935&auto=format&fit=crop');
+}
+
+.volleyball-slice {
+    background-image: url('https://images.unsplash.com/photo-1592656094267-764a45160876?q=80&w=2070&auto=format&fit=crop');
+}
+
+.sport-slice:hover {
+    flex: 2.5;
+    filter: grayscale(0);
+}
+
+.slice-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(249, 249, 249, 0.95) 95%);
+    transition: opacity 0.5s;
+}
+
+.slice-content {
+    position: absolute;
+    bottom: 4rem;
+    left: 3rem;
     z-index: 2;
+    opacity: 0.8;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
-.card-3 {
-    top: 70%;
-    right: 20%;
-    transform: rotate(4deg);
-    animation: float 7s ease-in-out infinite 1s;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-
-    50% {
-        transform: translateY(-15px) rotate(var(--r));
-    }
-
-    100% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-}
-
-/* Pass rotation as variable if needed, or just hardcode rotation in keyframes per card if supported. simpler to just transform Y while keeping rotate? */
-/* CSS doesn't support composing transform easily like that without variables, so let's simplify animation to just Y */
-
-.card-1 {
-    --r: 6deg;
-}
-
-.card-2 {
-    --r: -3deg;
-}
-
-.card-3 {
-    --r: 4deg;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-
-    50% {
-        transform: translateY(-15px) rotate(var(--r));
-    }
-
-    100% {
-        transform: translateY(0px) rotate(var(--r));
-    }
-}
-
-.features-section,
-.sports-section {
-    padding: 4rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-title {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-xl);
-    color: var(--text-primary);
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-    padding: 0 var(--spacing-lg);
-}
-
-.feature-card {
-    background: var(--bg-secondary);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all var(--transition-base);
-}
-
-.feature-card:hover {
+.sport-slice:hover .slice-content {
+    opacity: 1;
     transform: translateY(-5px);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
 }
 
-.feature-icon {
+.slice-number {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
     font-size: 3rem;
-    margin-bottom: var(--spacing-md);
-}
-
-.feature-card h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-}
-
-.feature-card p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-.sports-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg);
-    padding: 0 var(--spacing-lg);
-}
-
-.sport-card {
-    background: var(--bg-secondary);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all var(--transition-base);
-    text-decoration: none;
-    color: inherit;
+    color: var(--text-main);
     display: block;
+    margin-bottom: 0.5rem;
+    line-height: 1;
 }
 
-.sport-card:hover {
-    transform: scale(1.05);
-    border-color: rgba(168, 85, 247, 0.5);
-}
-
-.sport-icon {
+.slice-name {
+    font-family: 'Inter', sans-serif;
     font-size: 4rem;
-    margin-bottom: var(--spacing-md);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--text-main);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
 }
 
-.sport-card h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
+/* TICKER */
+.editorial-ticker {
+    background: var(--accent-black);
+    color: #fff;
+    padding: 1.5rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    border-top: 1px solid #333;
 }
 
-.sport-card p {
-    color: var(--text-secondary);
-    text-decoration: none;
+.ticker-wrap {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker-animation 40s linear infinite;
 }
 
-.cta-section {
-    padding: 4rem 0;
-    text-align: center;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-}
-
-.cta-content {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-.cta-content h2 {
-    font-size: 2.5rem;
+.ticker-item {
+    display: inline-block;
+    padding: 0 4rem;
+    font-family: 'Space Grotesk', monospace;
     font-weight: 700;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-primary);
+    letter-spacing: 0.2em;
+    font-size: 1rem;
+    text-transform: uppercase;
 }
 
-.cta-content p {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
+@keyframes ticker-animation {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
-.btn-large {
-    padding: 1rem 2.5rem;
-    font-size: 1.125rem;
+/* TEAM CAROUSEL ADAPTATION */
+.team-carousel-container {
+    background: var(--bg-light);
+    border-bottom: 2px solid var(--border-light);
+    padding: 4rem 0;
 }
 
 @media (max-width: 900px) {
-    .hero-container-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2rem;
+    .editorial-hero {
+        padding-top: 6rem;
     }
 
-    .hero-content {
-        text-align: center;
-        max-width: 600px;
-        margin: 0 auto;
+    .hero-stacked-title {
+        font-size: clamp(3rem, 15vw, 6rem);
     }
 
-    .hero-buttons {
-        justify-content: center;
+    .sports-slices {
+        flex-direction: column;
+        height: auto;
     }
 
-    .hero-stats {
-        justify-content: center;
-        border-top: none;
-        border-bottom: 1px solid var(--border-subtle);
-        padding-bottom: 2rem;
+    .sport-slice {
+        height: 350px;
+        flex: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
     }
 
-    .hero-visuals {
-        height: 300px;
-        /* Smaller height on mobile */
+    .sport-slice:hover {
+        flex: none;
     }
 
-    .floating-card {
-        transform: scale(0.8);
-        /* Scale down slightly */
-    }
-}
-
-@media (max-width: 768px) {
-    .hero-title {
+    .slice-name {
         font-size: 2.5rem;
-    }
-
-    .hero-subtitle {
-        font-size: 1rem;
-        margin: 0 auto var(--spacing-xl);
-    }
-
-    .section-title {
-        font-size: 2rem;
-    }
-
-    .features-grid,
-    .sports-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero-title {
-        font-size: 2rem;
-        word-wrap: break-word;
-        /* Ensure valid wrap */
-        hyphens: auto;
-    }
-
-    .hero-subtitle {
-        font-size: 0.95rem;
-    }
-
-    .hero-section {
-        padding: 3rem 0;
-        /* Reduce vertical padding */
-    }
-
-    .hero-buttons {
-        gap: 0.75rem;
-    }
-
-    .btn {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
     }
 }

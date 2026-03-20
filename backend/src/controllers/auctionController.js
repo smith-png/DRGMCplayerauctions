@@ -283,8 +283,10 @@ export const getRecentBids = async (req, res) => {
         // Let's use a high limit for safety, e.g., 10000.
         const limit = req.query.limit || 10000;
 
+        // If team owner, might want to filter? For now, allow viewing all to see competition.
+
         const result = await pool.query(
-            `SELECT b.id, b.amount, b.created_at, t.name as team_name, p.name as player_name 
+            `SELECT b.id, b.amount, b.created_at, t.name as team_name, p.name as player_name, b.type 
              FROM bid_logs b 
              LEFT JOIN teams t ON b.team_id = t.id 
              LEFT JOIN players p ON b.player_id = p.id 
@@ -292,10 +294,23 @@ export const getRecentBids = async (req, res) => {
              LIMIT $1`,
             [limit]
         );
-        res.json({ bids: result.rows });
+        res.json({ bids: result.rows, transactions: result.rows }); // Alias for frontend
     } catch (error) {
         console.error('Get recent bids error:', error);
         res.status(500).json({ error: 'Failed to get recent bids' });
+    }
+};
+
+// Get upcoming players in queue
+export const getUpcomingQueue = async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT id, name, sport, year, photo_url, stats FROM players WHERE status = 'eligible' ORDER BY id ASC LIMIT 3"
+        );
+        res.json({ queue: result.rows });
+    } catch (error) {
+        console.error('Get upcoming queue error:', error);
+        res.status(500).json({ error: 'Failed to get upcoming queue' });
     }
 };
 
@@ -358,29 +373,41 @@ export const markPlayerSold = async (req, res) => {
             ['sold', teamId, roundedPrice, playerId]
         );
 
-        // Update team's remaining budget in database (for other parts of app that use the column)
+        // Update team's remaining budget in database
         await pool.query(
             'UPDATE teams SET remaining_budget = remaining_budget - $1 WHERE id = $2',
             [roundedPrice, teamId]
         );
 
-        // Get names for broadcast
-        const teamRes = await pool.query('SELECT name FROM teams WHERE id = $1', [teamId]);
-        const playerRes = await pool.query('SELECT name, photo_url FROM players WHERE id = $1', [playerId]);
+        // Get details for broadcast
+        const teamRes = await pool.query('SELECT id, name, logo_url FROM teams WHERE id = $1', [teamId]);
+        const playerRes = await pool.query('SELECT * FROM players WHERE id = $1', [playerId]);
 
         if (req.io) {
+            const player = playerRes.rows[0];
+            const team = teamRes.rows[0];
+
             req.io.to('auction-room').emit('auction-update', {
                 type: 'sold',
-                playerName: playerRes.rows[0]?.name,
-                photoUrl: playerRes.rows[0]?.photo_url,
-                teamName: teamRes.rows[0]?.name,
-                amount: roundedPrice,
+                // Player Details
+                player_id: player.id,
+                name: player.name,
+                photo_url: player.photo_url,
+                sport: player.sport,
+                year: player.year,
+                stats: player.stats,
+                // Transaction Details
+                team_id: team.id,
+                team_name: team.name, // Legacy support
+                sold_price: roundedPrice,
+                amount: roundedPrice, // Legacy support
                 timestamp: new Date()
             });
+
             // Also refresh leaderboard and general data
             req.io.emit('refresh-leaderboard');
             req.io.emit('refresh-data');
-            console.log('📡 Socket event emitted: player-sold');
+            console.log('📡 Socket event emitted: player-sold', { playerId, teamId, price: roundedPrice });
         }
 
         res.json({ message: 'Player marked as sold successfully' });
@@ -429,15 +456,26 @@ export const markPlayerUnsold = async (req, res) => {
 // Get leaderboard (teams with their players and total spent)
 export const getLeaderboard = async (req, res) => {
     try {
+        const { sport } = req.query;
+
         // Get testgrounds lockdown state
         const lockdownResult = await pool.query('SELECT testgrounds_locked FROM auction_state LIMIT 1');
         const isLocked = lockdownResult.rows[0]?.testgrounds_locked || false;
         const isAdmin = req.user?.role === 'admin';
 
-        let teamFilter = '';
+        let filters = [];
+        let params = [];
+
         if (isLocked && !isAdmin) {
-            teamFilter = 'WHERE t.is_test_data = FALSE';
+            filters.push('t.is_test_data = FALSE');
         }
+
+        if (sport) {
+            params.push(sport.toLowerCase());
+            filters.push(`t.sport = $${params.length}`);
+        }
+
+        const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
 
         const query = `
             SELECT 
@@ -463,12 +501,12 @@ export const getLeaderboard = async (req, res) => {
                 ) as players
             FROM teams t
             LEFT JOIN players p ON p.team_id = t.id AND p.status = 'sold'
-            ${teamFilter}
+            ${whereClause}
             GROUP BY t.id, t.name, t.sport, t.budget, t.remaining_budget
             ORDER BY total_spent DESC
         `;
 
-        const result = await pool.query(query);
+        const result = await pool.query(query, params);
         res.json({ leaderboard: result.rows });
     } catch (error) {
         console.error('Get leaderboard error:', error);

@@ -1,0 +1,464 @@
+/* ========================================
+   OWNER DASHBOARD - FRANCHISE DOSSIER
+   ======================================== */
+
+.owner-dashboard-page {
+    min-height: 100vh;
+    background: var(--sage-luminous, #D1E0D7);
+    padding: 3rem 0;
+    padding-bottom: 6rem;
+    /* Space for footer ticker */
+}
+
+.owner-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Franchise Dossier Header */
+.franchise-dossier-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 12px;
+    margin-bottom: 3rem;
+}
+
+.team-logo-stage {
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(15px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--sage-deep, #3E5B4E);
+    flex-shrink: 0;
+}
+
+.team-logo-large {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.team-logo-placeholder {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--sage-deep, #3E5B4E);
+}
+
+.franchise-info {
+    flex: 1;
+}
+
+.franchise-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #1A1A1A;
+}
+
+.franchise-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+}
+
+.financial-hud {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.budget-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+}
+
+.budget-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+/* Roster Ledger Section */
+.roster-ledger-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #1A1A1A;
+}
+
+.roster-ledger-container {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    min-height: 400px;
+}
+
+.roster-data-strips {
+    display: flex;
+    flex-direction: column;
+}
+
+.roster-data-strip {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px dashed rgba(62, 91, 78, 0.4);
+    transition: background 0.2s ease;
+}
+
+.roster-data-strip:last-child {
+    border-bottom: none;
+}
+
+.roster-data-strip:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.strip-photo {
+    margin-right: 1.5rem;
+}
+
+.player-photo-small {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--sage-deep, #3E5B4E);
+}
+
+.player-photo-small.grayscale {
+    filter: grayscale(100%);
+}
+
+.player-photo-small.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    color: #666;
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.strip-player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.player-name-roster {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #1A1A1A;
+}
+
+.player-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+}
+
+.strip-points,
+.strip-year {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    margin-left: 2rem;
+}
+
+.points-label,
+.year-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+}
+
+.points-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.year-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+
+.empty-roster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep, #3E5B4E);
+    opacity: 0.6;
+}
+
+/* Roster Summary */
+.roster-summary {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+/* Strategy Feed Sidebar */
+.strategy-feed-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #1A1A1A;
+    margin: 0;
+}
+
+.sidebar-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.strategy-feed-container {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(62, 91, 78, 0.3);
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 400px;
+}
+
+.transaction-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.transaction-item {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(62, 91, 78, 0.2);
+    transition: all 0.2s ease;
+}
+
+.transaction-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: var(--sage-deep, #3E5B4E);
+}
+
+.transaction-item.highlight-runner-up {
+    border: 2px solid #D32F2F;
+    background: rgba(211, 47, 47, 0.05);
+}
+
+.transaction-player {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.transaction-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.transaction-team {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--sage-deep, #3E5B4E);
+    text-transform: uppercase;
+}
+
+.transaction-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.runner-up-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: #D32F2F;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 4px;
+}
+
+.empty-feed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    color: var(--sage-deep, #3E5B4E);
+    opacity: 0.6;
+}
+
+/* Error/Loading States */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(62, 91, 78, 0.2);
+    border-top-color: var(--sage-deep, #3E5B4E);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 5rem auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-message {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.error-message h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+}
+
+.error-message p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--sage-deep, #3E5B4E);
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    padding: 0.75rem 2rem;
+    background: var(--sage-deep, #3E5B4E);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(62, 91, 78, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .franchise-dossier-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .financial-hud {
+        align-items: center;
+    }
+}
