@@ -51,7 +51,7 @@ export const startAuction = async (req, res) => {
         });
     } catch (error) {
         console.error('❌ START AUCTION ERROR:', error);
-        res.status(500).json({ error: 'Failed to start auction', details: error.message });
+        res.status(500).json({ error: 'Failed to start auction' });
     }
 };
 
@@ -135,7 +135,7 @@ export const placeBid = async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('❌ Place bid error:', error);
-        res.status(500).json({ error: 'Failed to place bid', details: error.message });
+        res.status(500).json({ error: 'Failed to place bid' });
     } finally {
         client.release();
     }
@@ -449,7 +449,7 @@ export const markPlayerUnsold = async (req, res) => {
         res.json({ message: 'Player marked as unsold' });
     } catch (error) {
         console.error('❌ Mark player unsold error:', error);
-        res.status(500).json({ error: 'Failed to mark player as unsold', details: error.message });
+        res.status(500).json({ error: 'Failed to mark player as unsold' });
     }
 };
 

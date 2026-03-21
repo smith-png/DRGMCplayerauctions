@@ -17,7 +17,7 @@ export function setupKeepAliveJob(app) {
             });
         } catch (error) {
             console.error('Keep-alive health check error:', error);
-            res.status(500).json({ status: 'ERROR', error: error.message });
+            res.status(500).json({ status: 'ERROR', error: 'Keep-alive ping failed' });
         }
     });
 

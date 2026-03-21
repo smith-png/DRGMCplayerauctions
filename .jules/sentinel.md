@@ -1,0 +1,4 @@
+## 2024-05-24 - Do not leak internal error messages
+**Vulnerability:** Raw database/internal errors (`error.message`) were directly passed to the JSON response in catch blocks in `backend/src/controllers/auctionController.js` and `backend/src/jobs/keepAlive.js`.
+**Learning:** Returning detailed error messages to the client exposes sensitive application state and details, which could be leveraged to find further vulnerabilities. The codebase should default to "failing securely."
+**Prevention:** In Express route handlers, ensure that the `res.status(500).json(...)` responses return a generalized error string, while the actual detailed error object is only logged on the server using `console.error`.
