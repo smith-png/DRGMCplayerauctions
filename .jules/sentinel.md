@@ -1,0 +1,4 @@
+## 2024-10-18 - [Fix Authorization Bypass in Auction Bids]
+**Vulnerability:** The `/api/auction/bid` endpoint lacked proper role-based access control and IDOR protection. Any authenticated user (`viewer`, `participant`, etc.) could call the endpoint, and more critically, there was no validation ensuring a `team_owner` was placing a bid for their *own* team, allowing them to place bids and drain funds from competing teams.
+**Learning:** Incomplete access controls allowed IDOR vulnerabilities on critical financial actions. Relying solely on standard authentication (`authenticateToken`) is insufficient for endpoints that mutate resource states based on client-provided identifiers (`teamId`).
+**Prevention:** Always use route-level authorization (`authorizeRoles('admin', 'team_owner')`) and implement resource-level checks in the controller to ensure the authenticated user (`req.user.team_id`) has permission to act on the specified resource (`teamId`).
