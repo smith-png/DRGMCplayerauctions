@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { playerAPI, teamsAPI } from '../services/api';
 import './PlayerProfilesBySport.css';
@@ -7,14 +7,12 @@ export default function PlayerProfilesBySport() {
     const { sport } = useParams();
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
-    const [filteredPlayers, setFilteredPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [yearFilter, setYearFilter] = useState('All');
 
     useEffect(() => { fetchData(); }, [sport]);
-    useEffect(() => { applyYearFilter(); }, [players, yearFilter]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -45,12 +43,23 @@ export default function PlayerProfilesBySport() {
         }
     };
 
-    const applyYearFilter = () => {
-        if (yearFilter === 'All') setFilteredPlayers(players);
-        else setFilteredPlayers(players.filter(p => p.year === yearFilter));
-    };
+    // Memoize the filtered players to avoid redundant state updates and re-renders
+    // Expected impact: Eliminates one full re-render cycle when yearFilter or players change
+    const filteredPlayers = useMemo(() => {
+        if (yearFilter === 'All') return players;
+        return players.filter(p => p.year === yearFilter);
+    }, [players, yearFilter]);
 
-    const getPlayerTeam = (teamId) => teams.find(t => t.id === teamId);
+    // Convert teams array to a dictionary for O(1) lookups instead of O(N) array finds
+    // Expected impact: Faster rendering of modal when clicking on players
+    const teamsMap = useMemo(() => {
+        return teams.reduce((acc, team) => {
+            acc[team.id] = team;
+            return acc;
+        }, {});
+    }, [teams]);
+
+    const getPlayerTeam = (teamId) => teamsMap[teamId];
 
     return (
         <div className="editorial-glass-wrapper">
