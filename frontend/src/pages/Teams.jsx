@@ -120,10 +120,13 @@ export default function Teams() {
                         </div>
                     </div>
 
-                    <div className="sport-tabs-container">
+                    <div className="sport-tabs-container" role="tablist" aria-label="Sport categories">
                         {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
                             <button
                                 key={sport}
+                                role="tab"
+                                aria-selected={activeSport === sport}
+                                aria-label={`Select ${sport}`}
                                 className={`sport-tab ${activeSport === sport ? 'active' : ''}`}
                                 onClick={() => setActiveSport(sport)}
                             >
@@ -200,10 +203,13 @@ export default function Teams() {
                         </div>
                     </div>
 
-                    <div className="sport-tabs-container">
+                    <div className="sport-tabs-container" role="tablist" aria-label="Sport categories">
                         {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
                             <button
                                 key={sport}
+                                role="tab"
+                                aria-selected={activeSport === sport}
+                                aria-label={`Select ${sport}`}
                                 className={`sport-tab ${activeSport === sport ? 'active' : ''}`}
                                 onClick={() => setActiveSport(sport)}
                             >
@@ -406,10 +412,13 @@ export default function Teams() {
                         </div>
                     </div>
 
-                    <div className="sport-tabs-container">
+                    <div className="sport-tabs-container" role="tablist" aria-label="Sport categories">
                         {['Cricket', 'Futsal', 'Volleyball'].map(sport => (
                             <button
                                 key={sport}
+                                role="tab"
+                                aria-selected={activeSport === sport}
+                                aria-label={`Select ${sport}`}
                                 className={`sport-tab ${activeSport === sport ? 'active' : ''}`}
                                 onClick={() => setActiveSport(sport)}
                             >
