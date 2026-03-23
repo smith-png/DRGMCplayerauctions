@@ -62,6 +62,7 @@ export const placeBid = async (req, res) => {
     try {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
+        const user = req.user;
 
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
@@ -69,6 +70,22 @@ export const placeBid = async (req, res) => {
         }
         if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
+        }
+
+        // Authorization Check
+        if (!user) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+
+        if (user.role === 'team_owner') {
+            // Team owners can only bid for their own team
+            // Use == for comparison as teamId might be a string from request and user.team_id a number
+            if (user.team_id != teamId) {
+                return res.status(403).json({ error: 'Forbidden: You can only bid for your own team' });
+            }
+        } else if (user.role !== 'admin' && user.role !== 'auctioneer') {
+            // Only admin, auctioneer, or team_owner can bid
+            return res.status(403).json({ error: 'Forbidden: You do not have permission to place bids' });
         }
 
         const roundedBid = Math.round(parseFloat(bidAmount));
