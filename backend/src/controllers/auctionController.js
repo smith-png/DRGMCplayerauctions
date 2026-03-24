@@ -67,6 +67,18 @@ export const placeBid = async (req, res) => {
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
         }
+
+        // Security: Authorization check for team ownership
+        const userRole = req.user?.role;
+        const userTeamId = req.user?.team_id;
+
+        if (!['admin', 'auctioneer', 'team_owner'].includes(userRole)) {
+            return res.status(403).json({ error: 'Access denied: You do not have permission to place bids' });
+        }
+
+        if (userRole === 'team_owner' && String(userTeamId) !== String(teamId)) {
+            return res.status(403).json({ error: 'Access denied: You can only place bids for your own team' });
+        }
         if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
