@@ -1,0 +1,4 @@
+## 2024-05-24 - Authorization Bypass on Auction Bidding
+**Vulnerability:** IDOR/Authorization bypass in `backend/src/controllers/auctionController.js` allowed any authenticated user to place bids on behalf of any team by manipulating the `teamId` in the request body.
+**Learning:** The application logic verified authentication (checking JWT token) but failed to verify authorization on a sensitive state-changing action, trusting the client-provided `teamId` completely instead of comparing it with `req.user.team_id` or `req.user.role`.
+**Prevention:** Always compare the client-supplied object identifiers against the user's authenticated scope (e.g., `req.user.team_id`) when performing sensitive actions, and ensure proper role-based checks (`req.user.role === 'admin'`) are strictly enforced.
