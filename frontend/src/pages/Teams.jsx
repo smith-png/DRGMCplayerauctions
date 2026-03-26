@@ -21,12 +21,16 @@ export default function Teams() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const teamsRes = await teamsAPI.getAllTeams('');
+                // Fetch all data in parallel
+                const [teamsRes, playersRes] = await Promise.all([
+                    teamsAPI.getAllTeams(''),
+                    user ? playerAPI.getAllPlayers() : Promise.resolve({ data: { players: [] } })
+                ]);
+
                 const teamsList = teamsRes.data.teams || [];
                 setTeams(teamsList);
 
                 if (user) {
-                    const playersRes = await playerAPI.getAllPlayers();
                     const allPlayers = playersRes.data.players || playersRes.data || [];
                     const parsedPlayers = allPlayers.map(p => {
                         let stats = p.stats;
@@ -51,10 +55,12 @@ export default function Teams() {
 
                     if (user.role === 'team_owner') {
                         try {
-                            // Fetch specific team owner data
-                            const myTeamRes = await teamOwnerAPI.getMyTeam();
-                            const myPlayersRes = await teamOwnerAPI.getMyTeamPlayers();
-                            const myBidsRes = await teamOwnerAPI.getMyTeamBids();
+                            // Fetch specific team owner data in parallel
+                            const [myTeamRes, myPlayersRes, myBidsRes] = await Promise.all([
+                                teamOwnerAPI.getMyTeam(),
+                                teamOwnerAPI.getMyTeamPlayers(),
+                                teamOwnerAPI.getMyTeamBids()
+                            ]);
 
                             setTeams([myTeamRes.data.team]); // Only show my team
                             setPlayers(myPlayersRes.data.players);

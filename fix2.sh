@@ -1,3 +1,4 @@
+cat << 'INNER' > frontend/src/pages/AuctionStats.jsx
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,3 +23,4 @@ export default function AuctionStats() {
         </div>
     );
 }
+INNER
