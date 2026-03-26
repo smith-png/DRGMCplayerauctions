@@ -75,7 +75,19 @@ export default function Navbar() {
                         <div className="navbar-user" ref={overlayRef}>
                             {user ? (
                                 <>
-                                    <div className="user-info" onClick={() => setShowUserOverlay(!showUserOverlay)}>
+                                    <div
+                                        className="user-info"
+                                        onClick={() => setShowUserOverlay(!showUserOverlay)}
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={showUserOverlay}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                setShowUserOverlay(!showUserOverlay);
+                                            }
+                                        }}
+                                    >
                                         <div className="user-details">
                                             <span className="user-name">{user.name}</span>
                                             <span className="user-role">{user.role.replace('_', ' ')}</span>
