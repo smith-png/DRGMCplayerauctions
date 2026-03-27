@@ -1,7 +1,8 @@
 import React from 'react';
 import './FooterTicker.css';
 
-const FooterTicker = () => {
+// Memoize the static footer ticker to prevent unnecessary re-renders
+const FooterTicker = React.memo(() => {
     const tickerContent = "DRGMC PLAYER AUCTIONS • REGISTRATION OPEN • BIDDING STARTS SOON • OFFICIAL AUCTION LEDGER ACTIVE • ";
 
     return (
@@ -11,6 +12,6 @@ const FooterTicker = () => {
             </div>
         </div>
     );
-};
+});
 
 export default FooterTicker;
