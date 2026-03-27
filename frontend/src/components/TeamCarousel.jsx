@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { teamsAPI } from '../services/api';
 import './TeamCarousel.css';
 
-export default function TeamCarousel() {
+// Memoize the team carousel to prevent unnecessary re-renders when parent components update
+const TeamCarousel = React.memo(() => {
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,8 @@ export default function TeamCarousel() {
     if (loading || teams.length === 0) return null;
 
     // Duplicate the list 4 times to ensure it's long enough to scroll infinitely
-    const displayList = [...teams, ...teams, ...teams, ...teams];
+    // Memoized to prevent array recreation on every render
+    const displayList = useMemo(() => [...teams, ...teams, ...teams, ...teams], [teams]);
 
     return (
         <div className="ticker-shell">
@@ -42,4 +44,6 @@ export default function TeamCarousel() {
             </div>
         </div>
     );
-}
+});
+
+export default TeamCarousel;
