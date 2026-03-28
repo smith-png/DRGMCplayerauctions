@@ -2,22 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { teamsAPI } from '../services/api';
 import './TeamCarousel.css';
 
+// ⚡ Bolt: Cache team list at the module level to prevent redundant backend calls
+// Impact: Reduces API requests on remount. Measurable improvement in load time
+// for components containing this carousel.
+let cachedTeams = null;
+
 export default function TeamCarousel() {
-    const [teams, setTeams] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [teams, setTeams] = useState(cachedTeams || []);
+    const [loading, setLoading] = useState(!cachedTeams);
 
     useEffect(() => {
+        // Skip fetching if already cached
+        if (cachedTeams) return;
+
+        let isMounted = true;
         const fetchTeams = async () => {
             try {
                 const response = await teamsAPI.getAllTeams();
-                setTeams(response.data.teams);
+                cachedTeams = response.data.teams;
+                if (isMounted) setTeams(cachedTeams);
             } catch (error) {
                 console.error('Failed to fetch teams:', error);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
         fetchTeams();
+
+        return () => { isMounted = false; };
     }, []);
 
     if (loading || teams.length === 0) return null;
