@@ -75,12 +75,18 @@ export default function Navbar() {
                         <div className="navbar-user" ref={overlayRef}>
                             {user ? (
                                 <>
-                                    <div className="user-info" onClick={() => setShowUserOverlay(!showUserOverlay)}>
+                                    <button
+                                        className="user-info"
+                                        onClick={() => setShowUserOverlay(!showUserOverlay)}
+                                        aria-label="User account menu"
+                                        aria-haspopup="true"
+                                        aria-expanded={showUserOverlay}
+                                    >
                                         <div className="user-details">
                                             <span className="user-name">{user.name}</span>
                                             <span className="user-role">{user.role.replace('_', ' ')}</span>
                                         </div>
-                                    </div>
+                                    </button>
                                     {showUserOverlay && (
                                         <div className="user-info-overlay">
                                             <div className="overlay-header"><h4>ACCOUNT</h4></div>
