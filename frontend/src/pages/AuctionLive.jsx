@@ -141,8 +141,9 @@ export default function AuctionLive() {
     const loadSoldPlayers = async () => {
         try {
             const response = await playerAPI.getAllPlayers();
-            const allPlayers = response?.data?.players || response?.data || [];
-            const sold = allPlayers.filter(p => p.status === 'sold');
+            const players = response?.data?.players || response?.data || [];
+            setAllPlayers(players);
+            const sold = players.filter(p => p.status === 'sold');
 
             const groupedByTeam = sold.reduce((acc, player) => {
                 const teamId = player.team_id;
@@ -320,8 +321,9 @@ export default function AuctionLive() {
         const loadSoldPlayers = async () => {
             try {
                 const response = await playerAPI.getAllPlayers();
-                const allPlayers = response?.data?.players || response?.data || [];
-                const sold = allPlayers.filter(p => p.status === 'sold');
+                const players = response?.data?.players || response?.data || [];
+                setAllPlayers(players);
+                const sold = players.filter(p => p.status === 'sold');
 
                 const groupedByTeam = sold.reduce((acc, player) => {
                     const tid = player.team_id;
