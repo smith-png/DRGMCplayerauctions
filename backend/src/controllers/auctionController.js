@@ -71,6 +71,18 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Security check: Ensure user is authorized to place a bid for the team
+        const userRole = req.user?.role;
+        const userTeamId = req.user?.team_id;
+
+        if (userRole === 'team_owner') {
+            if (String(userTeamId) !== String(teamId)) {
+                return res.status(403).json({ error: 'Unauthorized: You can only bid for your assigned team' });
+            }
+        } else if (userRole !== 'admin' && userRole !== 'auctioneer') {
+            return res.status(403).json({ error: 'Unauthorized: You do not have permission to place bids' });
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
