@@ -63,6 +63,20 @@ export const placeBid = async (req, res) => {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
 
+        // Security check: Broken Object Level Authorization (BOLA) / IDOR
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+
+        if (user.role === 'team_owner') {
+            if (String(user.team_id) !== String(teamId)) {
+                return res.status(403).json({ error: 'Forbidden: You can only bid for your own team' });
+            }
+        } else if (user.role !== 'admin' && user.role !== 'auctioneer') {
+            return res.status(403).json({ error: 'Forbidden: You do not have permission to place bids' });
+        }
+
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
