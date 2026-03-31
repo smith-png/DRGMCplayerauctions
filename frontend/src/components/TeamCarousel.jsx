@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { teamsAPI } from '../services/api';
 import './TeamCarousel.css';
 
-export default function TeamCarousel() {
+function TeamCarousel() {
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -43,3 +43,7 @@ export default function TeamCarousel() {
         </div>
     );
 }
+
+// ⚡ Bolt: Export with React.memo() to prevent unnecessary re-renders
+// Home component state changes will no longer force this heavy carousel to re-render
+export default React.memo(TeamCarousel);
