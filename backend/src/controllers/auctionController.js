@@ -71,6 +71,16 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Authorization Check (IDOR prevention)
+        if (req.user && req.user.role !== 'admin' && req.user.role !== 'auctioneer') {
+            if (req.user.role !== 'team_owner') {
+                return res.status(403).json({ error: 'Only admins and team owners can place bids' });
+            }
+            if (parseInt(req.user.team_id) !== parseInt(teamId)) {
+                return res.status(403).json({ error: 'You can only place bids for your assigned team' });
+            }
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
