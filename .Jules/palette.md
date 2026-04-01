@@ -1,0 +1,3 @@
+## 2025-05-18 - Missing ARIA Labels on Icon-Only Buttons
+**Learning:** Found a recurring pattern across the application (`PlayerProfiles.jsx`, `AuctionLive.jsx`, `Teams.jsx`, `Login.jsx`) where icon-only buttons (such as `×` for close/dismiss or "SHOW"/"HIDE" password toggles) lack `aria-label` attributes. This makes the interface less accessible for screen reader users, who might not be able to infer the purpose of these buttons.
+**Action:** Always ensure that icon-only buttons or buttons with obscure text content have descriptive `aria-label` attributes. Added descriptive labels (e.g., "Close profile", "Dismiss sold animation", "Hide password") to improve accessibility.
