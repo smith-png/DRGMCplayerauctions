@@ -1,0 +1,4 @@
+## 2025-04-02 - Missing Authorization on Bid Placement
+**Vulnerability:** Found an IDOR/Authorization bypass in `placeBid` inside `backend/src/controllers/auctionController.js`. The endpoint `/api/auction/bid` had `authenticateToken` middleware, but no check inside the controller to verify that the user placing the bid was actually an admin, auctioneer, or the owner of the `teamId` being bid for.
+**Learning:** Even if an endpoint is protected by general authentication (`authenticateToken`), actions that act on behalf of a specific entity (like a team) must verify that the authenticated user has explicit permission to act for that entity.
+**Prevention:** Always implement role/ownership checks for actions altering state tied to a specific ID (like `teamId`), ensuring `req.user` matches or supersedes the required permissions.
