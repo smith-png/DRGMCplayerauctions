@@ -1,0 +1,3 @@
+## 2025-02-14 - Fix Form Labelling & Password Toggle A11y
+**Learning:** Found that `<label>` elements were being used purely visually without associating them with their corresponding `<input>` using `htmlFor` and `id` properties. Additionally, the password visibility toggle button was lacking an `aria-label`, so screen reader users would only hear "Show" or "Hide" with no context of what they were showing/hiding.
+**Action:** Associated all `<label>`s with their `<input>`s by using `htmlFor` and `id`. Added dynamic `aria-label`s to the password toggle button (`aria-label={showPassword ? "Hide password" : "Show password"}`) so screen readers announce its purpose clearly.
