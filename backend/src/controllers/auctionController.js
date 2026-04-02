@@ -67,6 +67,20 @@ export const placeBid = async (req, res) => {
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
         }
+
+        // Security Check: Ensure user is authorized to bid for this team
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: 'Authentication required' });
+        }
+
+        const isAdminOrAuctioneer = user.role === 'admin' || user.role === 'auctioneer';
+        const isTeamOwnerOfTargetTeam = user.role === 'team_owner' && parseInt(user.team_id) === parseInt(teamId);
+
+        if (!isAdminOrAuctioneer && !isTeamOwnerOfTargetTeam) {
+            console.warn(`🚨 SECURITY: User ${user.id} (${user.role}) attempted to place a bid for team ${teamId}`);
+            return res.status(403).json({ error: 'Not authorized to bid for this team' });
+        }
         if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
