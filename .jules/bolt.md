@@ -1,0 +1,3 @@
+## 2024-05-18 - Concurrent Database Queries with Promise.all
+**Learning:** In the backend `adminController.js`, multiple independent database queries (like `SELECT COUNT(*)`) were executed sequentially using multiple `await pool.query(...)` calls. This is an anti-pattern as it leads to unnecessary network round-trip latency.
+**Action:** When executing independent database queries in controllers, they should be grouped together and executed concurrently using `Promise.all` instead of being awaited sequentially.
