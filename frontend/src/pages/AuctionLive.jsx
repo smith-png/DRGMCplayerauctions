@@ -140,7 +140,9 @@ export default function AuctionLive() {
 
     const loadSoldPlayers = async () => {
         try {
-            const response = await playerAPI.getAllPlayers();
+            // ⚡ Bolt: Pass status parameter to let backend filter sold players,
+            // significantly reducing DB load, payload size, and frontend processing.
+            const response = await playerAPI.getAllPlayers({ status: 'sold' });
             const allPlayers = response?.data?.players || response?.data || [];
             const sold = allPlayers.filter(p => p.status === 'sold');
 
@@ -319,7 +321,9 @@ export default function AuctionLive() {
 
         const loadSoldPlayers = async () => {
             try {
-                const response = await playerAPI.getAllPlayers();
+                // ⚡ Bolt: Pass status parameter to let backend filter sold players,
+                // significantly reducing DB load, payload size, and frontend processing.
+                const response = await playerAPI.getAllPlayers({ status: 'sold' });
                 const allPlayers = response?.data?.players || response?.data || [];
                 const sold = allPlayers.filter(p => p.status === 'sold');
 
