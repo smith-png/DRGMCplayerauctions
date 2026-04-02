@@ -1,0 +1,3 @@
+## 2024-04-02 - Frontend data load optimizations via API parameters
+**Learning:** The frontend's `loadSoldPlayers` function was inefficiently fetching all players from the database using `getAllPlayers()` and filtering `status === 'sold'` locally on the client. It was also doing this on every `auction-update` websocket event, which would eventually bloat memory and severely slow down the frontend.
+**Action:** Modified the frontend API definitions to pass `params` into the backend (which inherently already supported `req.query` parameter filtering) to immediately scope down to only the relevant `sold` records in the database payload.

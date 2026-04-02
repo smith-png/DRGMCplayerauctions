@@ -29,7 +29,8 @@ export const authAPI = {
 
 // Player API
 export const playerAPI = {
-    getAllPlayers: () => api.get('/players'),
+    // ⚡ Bolt: Added params to getAllPlayers to allow targeted querying (e.g. status='sold')
+    getAllPlayers: (params) => api.get('/players', { params }),
     getPlayerById: (id) => api.get(`/players/${id}`),
     createPlayer: (formData) => api.post('/players', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
