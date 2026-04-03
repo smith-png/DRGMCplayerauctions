@@ -145,9 +145,11 @@ export const placeBid = async (req, res) => {
 export const getCurrentAuction = async (req, res) => {
     try {
         // Run independent queries in parallel
+        // Optimization: Use '=' instead of 'ILIKE' to allow PostgreSQL to use idx_players_status
+        // index and avoid a full table scan since status values are consistently cased.
         const [stateResult, playerResult] = await Promise.all([
             pool.query('SELECT is_active FROM auction_state LIMIT 1'),
-            pool.query("SELECT * FROM players WHERE status ILIKE 'auctioning' LIMIT 1")
+            pool.query("SELECT * FROM players WHERE status = 'auctioning' LIMIT 1")
         ]);
 
         const isAuctionActive = stateResult.rows[0]?.is_active || false;
