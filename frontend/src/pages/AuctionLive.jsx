@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api';
 import socketService from '../services/socket';
@@ -459,6 +459,25 @@ export default function AuctionLive() {
 
     // --- RENDER HELPERS ---
 
+    // Precompute eligible player IDs for O(1) lookup in the search filter
+    // This prevents an O(N*M) bottleneck during renders when filtering allPlayers against eligiblePlayers
+    const eligiblePlayerIds = useMemo(() => {
+        return new Set(eligiblePlayers.map(ep => ep.id));
+    }, [eligiblePlayers]);
+
+    // Memoize the filtered players for the search dropdown
+    const filteredSearchPlayers = useMemo(() => {
+        const query = queueSearchQuery.toLowerCase();
+
+        return allPlayers
+            .filter(p =>
+                (p.name.toLowerCase().includes(query) || String(p.id).includes(queueSearchQuery)) &&
+                !eligiblePlayerIds.has(p.id) &&
+                p.status !== 'sold' && p.status !== 'auctioning'
+            )
+            .slice(0, 10);
+    }, [allPlayers, queueSearchQuery, eligiblePlayerIds]);
+
     // 1. Queue Dock (Standby Technical Module)
     const renderQueueDock = () => {
         return (
@@ -498,14 +517,7 @@ export default function AuctionLive() {
                                 overflowY: 'auto',
                                 boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
                             }}>
-                                {allPlayers
-                                    .filter(p =>
-                                        (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) &&
-                                        !eligiblePlayers.find(ep => ep.id === p.id) &&
-                                        p.status !== 'sold' && p.status !== 'auctioning'
-                                    )
-                                    .slice(0, 10)
-                                    .map(p => (
+                                {filteredSearchPlayers.map(p => (
                                         <div
                                             key={p.id}
                                             onClick={() => handleQueuePlayer(p.id)}
@@ -530,7 +542,7 @@ export default function AuctionLive() {
                                         </div>
                                     ))
                                 }
-                                {allPlayers.filter(p => (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) && !eligiblePlayers.find(ep => ep.id === p.id) && p.status !== 'sold' && p.status !== 'auctioning').length === 0 && (
+                                {filteredSearchPlayers.length === 0 && (
                                     <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>NO MATCHES</div>
                                 )}
                             </div>
