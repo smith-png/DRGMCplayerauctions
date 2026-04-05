@@ -1,0 +1,3 @@
+## 2024-05-01 - [O(N*M) Array Filtering in Render]
+**Learning:** Rendering lists where each item filters a large master array is an O(N*M) operation on every render cycle. `frontend/src/pages/Teams.jsx` calculated rosters for each team by running `players.filter` on the entire `players` array within a `teams.map` block on every render.
+**Action:** Use `useMemo` to construct a lookup map (`rosterByTeam`) before the `map` logic. This reduces complexity to O(M + N). Always group large relational datasets into maps before iteration during renders.
