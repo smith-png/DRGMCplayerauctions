@@ -1,0 +1,3 @@
+## 2025-02-18 - Semantic HTML for Toggles
+**Learning:** Found a recurring pattern where `div` elements were used with `onClick` handlers for interactive toggles (like the user menu in Navbar), breaking keyboard navigation and screen reader support since `div`s aren't naturally focusable or identified as interactive.
+**Action:** Always replace non-semantic interactive `div` elements with `<button>` tags when implementing toggle or click actions. Reset default button styling in CSS to match the design while maintaining accessibility, and add `aria-expanded` and `aria-haspopup` when dealing with dropdowns.

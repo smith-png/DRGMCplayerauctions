@@ -28,8 +28,17 @@ export default function Navbar() {
                 setShowUserOverlay(false);
             }
         };
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setShowUserOverlay(false);
+            }
+        };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleEscape);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscape);
+        };
     }, []);
 
     useEffect(() => {
@@ -75,12 +84,18 @@ export default function Navbar() {
                         <div className="navbar-user" ref={overlayRef}>
                             {user ? (
                                 <>
-                                    <div className="user-info" onClick={() => setShowUserOverlay(!showUserOverlay)}>
+                                    <button
+                                        className="user-info"
+                                        onClick={() => setShowUserOverlay(!showUserOverlay)}
+                                        aria-expanded={showUserOverlay}
+                                        aria-haspopup="true"
+                                        aria-label="Toggle user menu"
+                                    >
                                         <div className="user-details">
                                             <span className="user-name">{user.name}</span>
                                             <span className="user-role">{user.role.replace('_', ' ')}</span>
                                         </div>
-                                    </div>
+                                    </button>
                                     {showUserOverlay && (
                                         <div className="user-info-overlay">
                                             <div className="overlay-header"><h4>ACCOUNT</h4></div>
