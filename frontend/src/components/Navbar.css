@@ -127,11 +127,19 @@
     border-radius: 20px;
     display: flex;
     align-items: center;
-    transition: background 0.3s;
+    transition: background 0.3s, box-shadow 0.2s;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    text-align: left;
 }
 
 .user-info:hover {
     background: rgba(0, 0, 0, 0.1);
+}
+
+.user-info:focus-visible {
+    box-shadow: 0 0 0 2px #000;
 }
 
 .user-details {
