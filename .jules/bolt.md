@@ -1,0 +1,3 @@
+## 2026-04-06 - Parallelize Independent Database Queries
+**Learning:** In the backend `adminController.js`, a pattern was found where independent database queries for retrieving various dashboard statistics (users, players, teams, bids) were executed sequentially using `await pool.query(...)` consecutively. This forces the server to wait for each query to complete before starting the next one, extending the total endpoint execution time to the sum of all individual query times.
+**Action:** Always group independent promises and database queries and run them concurrently using `Promise.all()`. This pattern decreases endpoint latency significantly and reduces the chance of database timeout when executing multiple non-dependent operations.
