@@ -89,7 +89,7 @@ export default function Login() {
                                 <h2 className="form-title">{isLogin ? 'MEMBER LOGIN' : 'RECRUITMENT'}</h2>
                             </div>
 
-                            {error && <div className="error-message">{error}</div>}
+                            {error && <div className="error-message" role="alert" aria-live="assertive">{error}</div>}
 
                             <form onSubmit={handleSubmit} className="registration-form">
                                 {!isLogin && (
@@ -119,6 +119,7 @@ export default function Login() {
                                             className="password-seek-btn"
                                             style={{ color: '#1A1A1A', opacity: 0.5, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 800 }}
                                             onClick={() => setShowPassword(!showPassword)}
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
                                         >
                                             {showPassword ? "HIDE" : "SHOW"}
                                         </button>
@@ -128,9 +129,15 @@ export default function Login() {
                                 {!isLogin && (
                                     <div className="role-selector">
                                         <label className="input-label">ACCESS ROLE</label>
-                                        <div className="role-options">
+                                        <div className="role-options" role="group" aria-label="Access Role">
                                             {['player', 'viewer'].map((role) => (
-                                                <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} onClick={() => setFormData({ ...formData, role })}>
+                                                <button
+                                                    key={role}
+                                                    type="button"
+                                                    className={`role-btn ${formData.role === role ? 'active' : ''}`}
+                                                    onClick={() => setFormData({ ...formData, role })}
+                                                    aria-pressed={formData.role === role}
+                                                >
                                                     {role}
                                                 </button>
                                             ))}
