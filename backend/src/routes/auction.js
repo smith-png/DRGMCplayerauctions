@@ -23,7 +23,7 @@ import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
 
 router.post('/start', authenticateToken, authorizeRoles('admin', 'auctioneer'), startAuction);
-router.post('/bid', authenticateToken, placeBid);
+router.post('/bid', authenticateToken, authorizeRoles('admin', 'auctioneer', 'team_owner'), placeBid);
 router.get('/current', getCurrentAuction);
 router.post('/sold', authenticateToken, authorizeRoles('admin', 'auctioneer'), markPlayerSold);
 router.post('/unsold', authenticateToken, authorizeRoles('admin', 'auctioneer'), markPlayerUnsold);
