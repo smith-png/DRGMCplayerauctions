@@ -63,6 +63,10 @@ export const placeBid = async (req, res) => {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
 
+        if (req.user.role !== 'admin' && req.user.role !== 'auctioneer' && req.user.team_id !== parseInt(teamId, 10)) {
+            return res.status(403).json({ error: 'Unauthorized to bid for this team' });
+        }
+
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
