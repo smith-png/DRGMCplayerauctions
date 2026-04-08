@@ -1,0 +1,3 @@
+## 2026-04-08 - Fixed React Performance Issue in Array Sorting
+**Learning:** React components often have `O(n log n)` operations like `.sort()` inside the render function. This causes the array to be sorted on every re-render (e.g. pagination change, hover effects, modal open/close).
+**Action:** Use `useMemo` to memoize computationally expensive operations like array sorting. Always ensure you are not mutating the state array directly by using `[...stateArray].sort(...)` before sorting. Also, always verify that your changes compile properly (e.g. running `npm run build`), as a codebase might have pre-existing syntax errors that need fixing before building.
