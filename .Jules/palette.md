@@ -1,0 +1,3 @@
+## 2026-04-10 - Adding ARIA labels to close and dismiss buttons
+**Learning:** This app uses various cross/dismiss icons (`×`, `✕`) for modals, overlays, and inline actions without ARIA labels, creating a consistent accessibility pattern to watch out for. Furthermore, when writing tests or verifications, it's crucial to confirm the build works, which I did and discovered an existing syntax error in `AuctionStats.jsx`.
+**Action:** Always check modal/overlay components for close buttons lacking `aria-label`s, as they often rely solely on text content like `×` or `✕` which is not screen-reader friendly. Use dynamic `aria-label`s if the action is specific to an entity (e.g. `Release ${player.name}`).
