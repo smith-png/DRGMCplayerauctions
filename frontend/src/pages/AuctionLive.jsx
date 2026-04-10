@@ -626,7 +626,7 @@ export default function AuctionLive() {
 
                     {/* Col 5: Dismiss */}
                     {(isAuctioneer || isAdmin) && (
-                        <button className="sold-dismiss-btn" onClick={handleDismissSoldAnimation} title="Dismiss">
+                        <button className="sold-dismiss-btn" onClick={handleDismissSoldAnimation} title="Dismiss" aria-label="Dismiss sold animation">
                             ×
                         </button>
                     )}
@@ -640,7 +640,7 @@ export default function AuctionLive() {
         if (!showSoldPlayers) return null;
         return (
             <div className="ledger-overlay-backdrop">
-                <button className="dismiss-sold" onClick={() => setShowSoldPlayers(false)}>×</button>
+                <button className="dismiss-sold" onClick={() => setShowSoldPlayers(false)} aria-label="Close ledger">×</button>
                 <div className="ledger-content-inner">
                     <div className="ledger-header">
                         <div className="meta-tag">OFFICIAL AUCTION REPORT</div>
@@ -685,6 +685,7 @@ export default function AuctionLive() {
                                                                 onClick={() => handleReleasePlayer(player.id)}
                                                                 className="strip-delete-btn"
                                                                 title="Release Asset"
+                                                                aria-label={`Release ${player.name}`}
                                                             >
                                                                 ✕
                                                             </button>
