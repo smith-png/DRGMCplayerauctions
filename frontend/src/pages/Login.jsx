@@ -94,18 +94,19 @@ export default function Login() {
                             <form onSubmit={handleSubmit} className="registration-form">
                                 {!isLogin && (
                                     <div className="input-group">
-                                        <label className="input-label">FULL NAME</label>
-                                        <input type="text" name="name" placeholder="E.G. JOHN DOE" value={formData.name} onChange={handleChange} required className="input" />
+                                        <label htmlFor="name" className="input-label">FULL NAME</label>
+                                        <input id="name" type="text" name="name" placeholder="E.G. JOHN DOE" value={formData.name} onChange={handleChange} required className="input" />
                                     </div>
                                 )}
                                 <div className="input-group">
-                                    <label className="input-label">EMAIL ADDRESS</label>
-                                    <input type="email" name="email" placeholder="USER@EXAMPLE.COM" value={formData.email} onChange={handleChange} required className="input" />
+                                    <label htmlFor="email" className="input-label">EMAIL ADDRESS</label>
+                                    <input id="email" type="email" name="email" placeholder="USER@EXAMPLE.COM" value={formData.email} onChange={handleChange} required className="input" />
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">SECURE PASSWORD</label>
+                                    <label htmlFor="password" className="input-label">SECURE PASSWORD</label>
                                     <div className="input-wrapper">
                                         <input
+                                            id="password"
                                             type={showPassword ? "text" : "password"}
                                             name="password"
                                             placeholder="••••••••"
@@ -117,6 +118,8 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="password-seek-btn"
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
+                                            aria-pressed={showPassword}
                                             style={{ color: '#1A1A1A', opacity: 0.5, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 800 }}
                                             onClick={() => setShowPassword(!showPassword)}
                                         >
@@ -126,11 +129,17 @@ export default function Login() {
                                 </div>
 
                                 {!isLogin && (
-                                    <div className="role-selector">
-                                        <label className="input-label">ACCESS ROLE</label>
+                                    <div className="role-selector" role="group" aria-labelledby="role-label">
+                                        <label id="role-label" className="input-label">ACCESS ROLE</label>
                                         <div className="role-options">
                                             {['player', 'viewer'].map((role) => (
-                                                <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} onClick={() => setFormData({ ...formData, role })}>
+                                                <button
+                                                    key={role}
+                                                    type="button"
+                                                    className={`role-btn ${formData.role === role ? 'active' : ''}`}
+                                                    aria-pressed={formData.role === role}
+                                                    onClick={() => setFormData({ ...formData, role })}
+                                                >
                                                     {role}
                                                 </button>
                                             ))}
