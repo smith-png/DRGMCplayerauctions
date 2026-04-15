@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -15,6 +15,18 @@ export default function Teams() {
     // myTeam state is derived or managed differently if needed
     const [expandedTeam, setExpandedTeam] = useState(null);
     const [walletModal, setWalletModal] = useState({ show: false, teamId: null, teamName: '', action: '' });
+
+    // Optimization: Memoize the calculation of teams with their rosters
+    const teamsWithRosters = useMemo(() => {
+        return filteredTeams.map(team => {
+            const teamRoster = players.filter(p =>
+                p.team_id == team.id &&
+                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
+                p.status === 'sold'
+            );
+            return { ...team, roster: teamRoster };
+        });
+    }, [filteredTeams, players, activeSport]);
 
     // Removed manual user fetch useEffect
 
@@ -180,15 +192,6 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
@@ -386,15 +389,6 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
