@@ -1,0 +1,3 @@
+## 2025-01-20 - Explicit Label Linking and Role Accessibility
+**Learning:** Found missing explicit connections between labels and form inputs in the login screen. It's critical for screen readers to have `<label htmlFor="id">` properly match the target input's `id`. Additionally, custom radio-group style selectors like the role buttons didn't have group roles or `aria-pressed` states, which makes it hard for assistive tech to recognize selection states.
+**Action:** Always ensure that `<label>` elements are connected to `<input>` fields via `htmlFor` matching `id`. For custom buttons acting as toggles or radio buttons, use `role="group"`, `aria-labelledby`, and `aria-pressed` states.
