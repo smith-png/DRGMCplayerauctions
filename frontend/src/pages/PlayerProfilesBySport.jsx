@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { playerAPI, teamsAPI } from '../services/api';
 import './PlayerProfilesBySport.css';
@@ -7,14 +7,12 @@ export default function PlayerProfilesBySport() {
     const { sport } = useParams();
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
-    const [filteredPlayers, setFilteredPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [yearFilter, setYearFilter] = useState('All');
 
     useEffect(() => { fetchData(); }, [sport]);
-    useEffect(() => { applyYearFilter(); }, [players, yearFilter]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -45,10 +43,13 @@ export default function PlayerProfilesBySport() {
         }
     };
 
-    const applyYearFilter = () => {
-        if (yearFilter === 'All') setFilteredPlayers(players);
-        else setFilteredPlayers(players.filter(p => p.year === yearFilter));
-    };
+    // ⚡ Bolt: Replaced useEffect state synchronization with useMemo to derive filteredPlayers.
+    // 🎯 Why: Previously, updating `players` or `yearFilter` caused a re-render, then the `useEffect` fired and updated `filteredPlayers`, causing a second unnecessary re-render.
+    // 📊 Impact: Eliminates one full component re-render cycle every time the filter changes or data is loaded.
+    const filteredPlayers = useMemo(() => {
+        if (yearFilter === 'All') return players;
+        return players.filter(p => p.year === yearFilter);
+    }, [players, yearFilter]);
 
     const getPlayerTeam = (teamId) => teams.find(t => t.id === teamId);
 
