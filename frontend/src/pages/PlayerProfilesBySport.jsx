@@ -16,6 +16,18 @@ export default function PlayerProfilesBySport() {
     useEffect(() => { fetchData(); }, [sport]);
     useEffect(() => { applyYearFilter(); }, [players, yearFilter]);
 
+    // Handle Escape key to close modal
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && selectedPlayer) {
+                setSelectedPlayer(null);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedPlayer]);
+
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -105,7 +117,7 @@ export default function PlayerProfilesBySport() {
             {selectedPlayer && (
                 <div className="profile-modal-overlay" onClick={() => setSelectedPlayer(null)}>
                     <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={() => setSelectedPlayer(null)}>✕</button>
+                        <button className="modal-close" aria-label="Close profile" onClick={() => setSelectedPlayer(null)}>✕</button>
                         <div className="player-modal-content">
                             <div className="modal-photo-section">
                                 {selectedPlayer.photo_url ? (
