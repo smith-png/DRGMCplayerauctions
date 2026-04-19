@@ -71,6 +71,22 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Authorization Check (Prevent IDOR)
+        const userRole = req.user?.role;
+        if (userRole !== 'admin' && userRole !== 'auctioneer') {
+            if (userRole !== 'team_owner') {
+                return res.status(403).json({ error: 'Not authorized to place bids' });
+            }
+
+            // Check if user is placing bid for their own team
+            const userRes = await client.query('SELECT team_id FROM users WHERE id = $1', [req.user.id]);
+            const userTeamId = userRes.rows[0]?.team_id;
+
+            if (userTeamId !== parseInt(teamId)) {
+                return res.status(403).json({ error: 'Not authorized to place bid for this team' });
+            }
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
