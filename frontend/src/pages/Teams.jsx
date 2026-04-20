@@ -237,7 +237,7 @@ export default function Teams() {
                                                     <span className="viewer-stat-label">ROSTER</span>
                                                     <span className="viewer-stat-value">{team.roster.length}</span>
                                                 </div>
-                                                <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                <button className="expand-btn" aria-label={isExpanded ? "Collapse details" : "Expand details"}>{isExpanded ? '−' : '+'}</button>
                                             </div>
                                         </div>
 
@@ -340,7 +340,7 @@ export default function Teams() {
                                         {players.length > 0 ? players.map(player => (
                                             <div key={player.id} className="roster-player-row">
                                                 <div className="player-info-cell">
-                                                    {player.photo_url && <img src={player.photo_url} className="roster-thumb" />}
+                                                    {player.photo_url && <img src={player.photo_url} className="roster-thumb" alt={player.name} />}
                                                     <div>
                                                         <span className="roster-player-name">{player.name}</span>
                                                         <span className="roster-player-meta">{player.year} • {player.sport}</span>
@@ -444,7 +444,7 @@ export default function Teams() {
                                                         <span className="ledger-stat-label">ROSTER</span>
                                                         <span className="ledger-stat-value">{team.roster.length}</span>
                                                     </div>
-                                                    <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                    <button className="expand-btn" aria-label={isExpanded ? "Collapse details" : "Expand details"}>{isExpanded ? '−' : '+'}</button>
                                                 </div>
                                             </div>
 
@@ -476,6 +476,7 @@ export default function Teams() {
                                                                         e.stopPropagation();
                                                                         handlePlayerRelease(player.id, player.name);
                                                                     }}
+                                                                    aria-label={`Release ${player.name}`}
                                                                     title="Release player"
                                                                 >
                                                                     ✕
