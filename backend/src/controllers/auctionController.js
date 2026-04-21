@@ -63,6 +63,25 @@ export const placeBid = async (req, res) => {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
 
+        // Security check: Ensure viewer cannot bid
+        if (req.user && req.user.role === 'viewer') {
+            return res.status(403).json({ error: 'Viewers are not allowed to place bids' });
+        }
+
+        // Security check: Ensure team owner can only bid for their team
+        if (req.user && req.user.role === 'team_owner') {
+            const userRes = await pool.query('SELECT team_id FROM users WHERE id = $1', [req.user.id]);
+            const actualTeamId = userRes.rows[0]?.team_id;
+
+            if (!actualTeamId) {
+                return res.status(403).json({ error: 'You are not assigned to a team' });
+            }
+            // Strict comparison handling type conversion (e.g. numeric id vs string id from payload)
+            if (actualTeamId.toString() !== teamId.toString()) {
+                return res.status(403).json({ error: 'You can only place bids for your own team' });
+            }
+        }
+
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
