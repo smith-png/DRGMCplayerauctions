@@ -1,0 +1,3 @@
+## 2026-04-23 - Missing ARIA Labels on Icon-Only Buttons
+**Learning:** Found an accessibility issue pattern specific to this app's components: many modal close buttons and expand/collapse buttons were implemented as icon-only `<button>` elements (using characters like `×`, `✕`, `+`, `−`) without any `aria-label` or `aria-expanded` attributes. This makes them invisible or confusing to screen reader users.
+**Action:** When implementing or reviewing modal/overlay components and accordion-style expand/collapse lists in this app, always ensure that icon-only buttons have descriptive `aria-label` attributes. For stateful expand/collapse buttons, ensure `aria-expanded` is updated dynamically to reflect the current state.

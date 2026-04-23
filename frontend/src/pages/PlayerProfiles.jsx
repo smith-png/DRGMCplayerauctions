@@ -100,7 +100,7 @@ export default function PlayerProfiles() {
             {selectedPlayer && (
                 <div className="profile-overlay-backdrop" onClick={() => setSelectedPlayer(null)}>
                     <div className="profile-overlay-content" onClick={e => e.stopPropagation()}>
-                        <button className="overlay-close-btn" onClick={() => setSelectedPlayer(null)}>×</button>
+                        <button className="overlay-close-btn" aria-label="Close player profile overlay" onClick={() => setSelectedPlayer(null)}>×</button>
                         <div className="profile-hero">
                             {selectedPlayer.photo_url ? (
                                 <img src={selectedPlayer.photo_url} alt={selectedPlayer.name} className="profile-hero-img" />
