@@ -105,7 +105,7 @@ export default function PlayerProfilesBySport() {
             {selectedPlayer && (
                 <div className="profile-modal-overlay" onClick={() => setSelectedPlayer(null)}>
                     <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={() => setSelectedPlayer(null)}>✕</button>
+                        <button className="modal-close" aria-label="Close player profile modal" onClick={() => setSelectedPlayer(null)}>✕</button>
                         <div className="player-modal-content">
                             <div className="modal-photo-section">
                                 {selectedPlayer.photo_url ? (
