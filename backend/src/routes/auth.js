@@ -1,11 +1,12 @@
 import express from 'express';
 import { login, register, changePassword, getMe } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { loginRateLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 // POST /api/auth/login
-router.post('/login', login);
+router.post('/login', loginRateLimiter, login);
 
 // POST /api/auth/register
 router.post('/register', register);
