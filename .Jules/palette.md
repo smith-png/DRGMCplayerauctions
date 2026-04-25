@@ -1,0 +1,3 @@
+## 2025-02-27 - Missing Form Label Associations
+**Learning:** Found a recurring pattern in the application's forms (e.g., Login.jsx) where `<label>` elements are not programmatically associated with their corresponding `<input>` fields using `htmlFor` and `id` attributes. This reduces accessibility, especially for screen readers, and prevents users from clicking labels to focus inputs.
+**Action:** Always ensure inputs have unique `id` attributes and their corresponding labels use the `htmlFor` attribute matching that `id`. Add missing ARIA attributes (like `aria-label`, `aria-pressed`, `role="group"`) to custom interactive elements to ensure they are accessible.
