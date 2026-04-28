@@ -1,0 +1,1 @@
+## 2026-04-28 - [React render optimization]\n**Learning:** Found an inline sort inside a component render map which recalculates the array copy on every render. \n**Action:** Use `useMemo` next time when passing derived array state or processing data that requires sorting or filtering inside the component render method.
