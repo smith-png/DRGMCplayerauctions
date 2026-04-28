@@ -477,6 +477,7 @@ export default function Teams() {
                                                                         handlePlayerRelease(player.id, player.name);
                                                                     }}
                                                                     title="Release player"
+                                                                    aria-label="Release player"
                                                                 >
                                                                     ✕
                                                                 </button>
@@ -531,6 +532,8 @@ export default function Teams() {
                                     <button
                                         className="modal-close"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
+                                        aria-label="Close modal"
+                                        title="Close"
                                     >
                                         ×
                                     </button>
