@@ -1,0 +1,3 @@
+## 2024-04-29 - Added ARIA Labels to Icon-Only Buttons
+**Learning:** Found several icon-only buttons (`✕`, `+`, `−`) that lacked text descriptions, which makes them inaccessible to screen reader users. Screen readers announce these buttons simply as "button" or the character symbol, which is confusing out of context.
+**Action:** Added `aria-label` attributes to these buttons to provide descriptive context. For dynamic buttons (like the `expand-btn` that toggles between `+` and `−`), I used dynamic `aria-label` strings (e.g. `aria-label={isExpanded ? "Collapse team details" : "Expand team details"}`).
