@@ -1,0 +1,1 @@
+## 2025-02-14 - Accessibility updates for icon-only buttons\n**Learning:** Discovered icon-only buttons like dismiss (x) and expand/collapse (+/-) missing proper ARIA labels, making screen-reader usage difficult.\n**Action:** Applied aria-expanded and dynamic aria-labels to expand/collapse buttons, and clear static aria-labels to modal dismissal buttons.
