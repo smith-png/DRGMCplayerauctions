@@ -1,0 +1,3 @@
+## 2024-05-24 - Memoizing Inline Array Transformations in React
+**Learning:** Using `[...array].sort(...)` directly inside the render cycle (e.g., in a `getPaginatedList` call) forces the array to be cloned and re-sorted on every single render. In a view like `PlayerProfiles.jsx`, any state update (such as selecting a player to show a modal) triggers a re-render, leading to unnecessary and expensive O(n log n) recalculations.
+**Action:** Always refactor inline sorting and computationally heavy array operations into a `useMemo` hook that only updates when its explicit dependencies (like the array data or sort parameters) change.
