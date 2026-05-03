@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { playerAPI, teamsAPI } from '../services/api';
 import socketService from '../services/socket';
 import './PlayerProfiles.css';
@@ -93,6 +93,26 @@ export default function PlayerProfiles() {
 
     const totalSoldPages = Math.ceil(soldPlayers.length / ITEMS_PER_PAGE_SOLD);
     const totalAllPages = Math.ceil(allPlayers.length / ITEMS_PER_PAGE_ALL);
+
+    // ⚡ Bolt: Performance Optimization
+    // 💡 What: Memoize the sorting of the `allPlayers` array.
+    // 🎯 Why: Previously, the O(N log N) sorting operation ran on every single render
+    //         (e.g., during pagination or overlay toggles).
+    // 📊 Impact: Significantly reduces Main Thread blocking time during re-renders
+    //         by only re-computing the sort when the underlying data or sort criteria change.
+    const sortedAllPlayers = useMemo(() => {
+        return [...allPlayers].sort((a, b) => {
+            if (playerSortBy === 'name') return a.name.localeCompare(b.name);
+            if (playerSortBy === 'sport') return a.sport.localeCompare(b.sport);
+            if (playerSortBy === 'year') {
+                const order = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'intern': 5 };
+                const aVal = order[String(a.year).toLowerCase()] || 0;
+                const bVal = order[String(b.year).toLowerCase()] || 0;
+                return bVal - aVal;
+            }
+            return 0;
+        });
+    }, [allPlayers, playerSortBy]);
 
     return (
         <div className="player-profiles-page">
@@ -208,17 +228,7 @@ export default function PlayerProfiles() {
 
                     <div className="all-players-list custom-scrollbar">
                         {getPaginatedList(
-                            [...allPlayers].sort((a, b) => {
-                                if (playerSortBy === 'name') return a.name.localeCompare(b.name);
-                                if (playerSortBy === 'sport') return a.sport.localeCompare(b.sport);
-                                if (playerSortBy === 'year') {
-                                    const order = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'intern': 5 };
-                                    const aVal = order[String(a.year).toLowerCase()] || 0;
-                                    const bVal = order[String(b.year).toLowerCase()] || 0;
-                                    return bVal - aVal;
-                                }
-                                return 0;
-                            }),
+                            sortedAllPlayers,
                             allPage,
                             ITEMS_PER_PAGE_ALL
                         ).map(player => (
