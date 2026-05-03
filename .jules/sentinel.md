@@ -1,0 +1,4 @@
+## 2025-05-03 - [CRITICAL] Fix IDOR/Authorization Bypass in Auction Bidding
+**Vulnerability:** The `/api/auction/bid` endpoint lacked proper authorization checks. Regular viewers could place bids, and more critically, team owners could provide arbitrary `teamId` values in the payload to place bids on behalf of other teams, completely bypassing team budget constraints.
+**Learning:** Route-level authentication (`authenticateToken`) is insufficient without role-based access control (`authorizeRoles`). Furthermore, even with role-based access, endpoints accepting entity IDs (like `teamId`) must verify that the authenticated user owns or has permission to act on that entity (controller-level authorization).
+**Prevention:** Always use role-based middleware for sensitive endpoints. For actions tied to a specific entity, validate ownership by comparing the requested entity ID with the authenticated user's associated ID (`req.user.team_id`).
