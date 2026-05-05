@@ -71,6 +71,13 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Security Authorization Check: Users can only bid for their own team (unless they are admin)
+        const userTeamId = req.user?.team_id;
+        const userRole = req.user?.role;
+        if (String(userTeamId) !== String(teamId) && userRole !== 'admin') {
+            return res.status(403).json({ error: 'Forbidden: You can only bid on behalf of your assigned team.' });
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
