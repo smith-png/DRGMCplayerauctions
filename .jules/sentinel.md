@@ -1,0 +1,4 @@
+## 2025-02-20 - [IDOR in Auction Bidding Endpoint]
+**Vulnerability:** The `placeBid` endpoint in `backend/src/controllers/auctionController.js` accepted a `teamId` from the request body without verifying if the authenticated user had the correct authorization to place a bid on behalf of that team. This allowed any registered user to exhaust the budget of any team.
+**Learning:** Object Level Authorization checks must always be implemented on endpoints handling sensitive operations, verifying not just authentication but also that the `req.user` has rights over the specific object being modified (e.g. `req.user.team_id === teamId`).
+**Prevention:** Implement checks such as `!isAdmin && (!isTeamOwner || String(userTeamId) !== String(teamId))` before performing database modifications.

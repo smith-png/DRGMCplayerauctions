@@ -67,6 +67,16 @@ export const placeBid = async (req, res) => {
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
         }
+
+        // Security: IDOR/BOLA Prevention
+        // Ensure user is an admin or trying to bid on behalf of their assigned team.
+        const isAdmin = req.user?.role === 'admin';
+        const isTeamOwner = req.user?.role === 'team_owner';
+        const userTeamId = req.user?.team_id;
+
+        if (!isAdmin && (!isTeamOwner || String(userTeamId) !== String(teamId))) {
+            return res.status(403).json({ error: 'Access denied: You are not authorized to bid for this team.' });
+        }
         if (isNaN(bidAmount) || parseFloat(bidAmount) <= 0) {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
