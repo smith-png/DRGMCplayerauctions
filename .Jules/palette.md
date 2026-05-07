@@ -1,0 +1,3 @@
+## 2026-05-07 - Accessible Registration Form Custom Controls
+**Learning:** Custom UI controls (like the "ACCESS ROLE" button group) require careful application of ARIA roles to be understood correctly by screen readers. A set of buttons functioning as a single choice selection should be wrapped in an element with `role="radiogroup"` and each button should have `role="radio"` and `aria-checked` states rather than just relying on active class states.
+**Action:** Always check custom selection controls to ensure they use correct semantic roles, `aria-checked` attributes, and have an accessible name (`aria-label`) on the group container if no visible label is properly associated.
