@@ -63,6 +63,21 @@ export const placeBid = async (req, res) => {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
 
+        // Security: IDOR Authorization Check
+        // Ensure user has permission to bid for the requested team
+        if (req.user) {
+            if (req.user.role === 'viewer') {
+                return res.status(403).json({ error: 'Viewers cannot place bids' });
+            } else if (req.user.role === 'team_owner') {
+                if (String(req.user.team_id) !== String(teamId)) {
+                    return res.status(403).json({ error: 'You are not authorized to bid for this team' });
+                }
+            }
+            // 'admin' and 'auctioneer' are allowed to bid for any team
+        } else {
+            return res.status(401).json({ error: 'Authentication required to place bids' });
+        }
+
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
