@@ -1,0 +1,3 @@
+## 2024-05-11 - [React Array Copy and Sort on Render]
+**Learning:** In React, inline array cloning and sorting (`[...myArray].sort(...)`) during render is a common performance anti-pattern. Because it happens synchronously on the main thread, it blocks rendering. O(n log n) operations can become noticeable with large lists or frequent state updates (like UI toggles).
+**Action:** Use `useMemo` to cache the sorted array, specifying the original array and any sort criteria in the dependency array. This ensures the heavy sorting logic only runs when absolutely necessary.
