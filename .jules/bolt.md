@@ -1,0 +1,3 @@
+## 2024-05-13 - [Prevented Unnecessary Sort Operations in Render]
+**Learning:** Found a common React anti-pattern in `frontend/src/pages/PlayerProfiles.jsx` where a large list of objects (`allPlayers`) was being sorted inline inside the JSX tree. This results in an expensive `O(N log N)` operation running synchronously on the main thread during every render or pagination update, significantly impacting UI responsiveness when the list grows.
+**Action:** Always wrap expensive list transformations (like `sort`, `filter`, or heavy `map`) in `useMemo` hooks so they only re-run when their dependency arrays actually change, rather than on every React re-render cycle. Added inline comments to document the performance optimization as requested.
