@@ -1,0 +1,3 @@
+## 2024-05-13 - Missing Accessibility on Modal Dismiss Buttons
+**Learning:** This app extensively uses custom overlay components (PlayerProfiles, Teams Wallet Modal, Auction Ledger, Auction Animation) which employ raw "×" characters inside buttons to dismiss them. However, they consistently lacked `aria-label` attributes, which makes them announce as unhelpful text ("times" or similar) on screen readers.
+**Action:** When working on new modals or reviewing existing ones in this project, explicitly check for `aria-label`s on icon-only buttons like dismiss/close interactions.
