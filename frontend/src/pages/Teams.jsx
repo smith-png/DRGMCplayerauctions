@@ -531,6 +531,7 @@ export default function Teams() {
                                     <button
                                         className="modal-close"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
+                                        aria-label="Close modal"
                                     >
                                         ×
                                     </button>
