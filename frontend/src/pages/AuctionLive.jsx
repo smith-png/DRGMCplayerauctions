@@ -685,6 +685,7 @@ export default function AuctionLive() {
                                                                 onClick={() => handleReleasePlayer(player.id)}
                                                                 className="strip-delete-btn"
                                                                 title="Release Asset"
+                                                                aria-label={`Release ${player.name}`}
                                                             >
                                                                 ✕
                                                             </button>
