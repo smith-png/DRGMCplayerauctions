@@ -477,6 +477,7 @@ export default function Teams() {
                                                                         handlePlayerRelease(player.id, player.name);
                                                                     }}
                                                                     title="Release player"
+                                                                    aria-label="Release player"
                                                                 >
                                                                     ✕
                                                                 </button>
