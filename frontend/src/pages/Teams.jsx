@@ -530,6 +530,7 @@ export default function Teams() {
                                     </h3>
                                     <button
                                         className="modal-close"
+                                        aria-label="Close"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
                                     >
                                         ×
