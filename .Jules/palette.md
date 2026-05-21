@@ -1,0 +1,1 @@
+## 2026-05-21 - Add ARIA label to modal close buttons\n**Learning:** Icon-only buttons used for closing modals (like `✕` and `×`) lack context for screen reader users and need an `aria-label` to be accessible.\n**Action:** Add `aria-label="Close profile"` or similar labels to icon-only buttons for clarity.
