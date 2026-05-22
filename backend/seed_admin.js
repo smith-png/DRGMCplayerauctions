@@ -5,16 +5,13 @@ async function seedAdmin() {
     try {
         const client = await pool.connect();
         try {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
+            const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || 'admin123';
+            const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
             // Check if admin exists
             const checkRes = await client.query("SELECT * FROM users WHERE email = 'admin@example.com'");
             if (checkRes.rows.length > 0) {
-                console.log('🔄 Admin user exists. Resetting password...');
-                await client.query("UPDATE users SET password = $1 WHERE email = 'admin@example.com'", [hashedPassword]);
-                console.log('✅ Admin password reset successfully.');
-                console.log('Email: admin@example.com');
-                console.log('Password: admin123');
+                console.log('🔄 Admin user exists. Skipping password reset for security.');
                 return;
             }
 
@@ -26,7 +23,7 @@ async function seedAdmin() {
 
             console.log('✅ Admin user created successfully:');
             console.log('Email: admin@example.com');
-            console.log('Password: admin123');
+            console.log('Password: [HIDDEN]');
         } finally {
             client.release();
         }
