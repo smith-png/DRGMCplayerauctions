@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI, playerAPI, auctionAPI } from '../services/api.js';
 import './AdminDashboard.css';
@@ -636,32 +636,37 @@ export default function AdminDashboard() {
     };
 
 
-    const pendingPlayers = players.filter(p => p.status === 'pending');
-    const approvedPlayers = players.filter(p => p.status === 'approved' || p.status === 'eligible');
-    const activePlayers = players.filter(p => p.status !== 'pending');
+    // ⚡ Bolt Performance Optimization:
+    // What: Added `useMemo` to memoize expensive O(N) array filtering operations.
+    // Why: The mock Live Logs Generator utilizes `setInterval` triggering state updates every 4s, which forced these O(N) filters to re-evaluate constantly.
+    // Impact: Avoids unnecessary recalculations of large lists (players, users) preventing CPU spikes.
+    // Measurement: React DevTools Profiler will show reduced render times for AdminDashboard when the 4s interval fires.
+    const pendingPlayers = useMemo(() => players.filter(p => p.status === 'pending'), [players]);
+    const approvedPlayers = useMemo(() => players.filter(p => p.status === 'approved' || p.status === 'eligible'), [players]);
+    const activePlayers = useMemo(() => players.filter(p => p.status !== 'pending'), [players]);
 
     // Roster Filtering
-    const filteredRoster = players.filter(player => {
+    const filteredRoster = useMemo(() => players.filter(player => {
         const matchesFilter = rosterFilter === 'ALL' || player.sport?.toLowerCase() === rosterFilter.toLowerCase();
         const matchesSearch = rosterSearch === '' ||
             player.name.toLowerCase().includes(rosterSearch.toLowerCase()) ||
             (player.id && player.id.toString().includes(rosterSearch));
         return matchesFilter && matchesSearch;
-    });
+    }), [players, rosterFilter, rosterSearch]);
 
     const rosterItemsPerPage = 8;
     const paginatedRoster = filteredRoster.slice((rosterPage - 1) * rosterItemsPerPage, rosterPage * rosterItemsPerPage);
     const totalRosterPages = Math.ceil(filteredRoster.length / rosterItemsPerPage);
 
     // User Filtering
-    const filteredUsers = users.filter(user => {
+    const filteredUsers = useMemo(() => users.filter(user => {
         const search = userSearch.toLowerCase();
         return (
             user.name.toLowerCase().includes(search) ||
             user.email.toLowerCase().includes(search) ||
             user.role.toLowerCase().includes(search)
         );
-    });
+    }), [users, userSearch]);
 
     const userItemsPerPage = 5;
     const paginatedUsers = filteredUsers.slice((userPage - 1) * userItemsPerPage, userPage * userItemsPerPage);

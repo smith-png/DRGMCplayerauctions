@@ -1,0 +1,3 @@
+## 2024-05-24 - Unintended re-renders with setInterval in AdminDashboard
+**Learning:** `AdminDashboard.jsx` includes a mock Live Logs Generator utilizing a `setInterval` that triggers state updates every 4 seconds. This causes the entire component to re-render, forcing O(N) array filtering operations (like `players.filter` and `users.filter`) to run constantly even when the underlying data hasn't changed.
+**Action:** Always wrap expensive data transformations and filtering logic with `useMemo` in React components, particularly when the component has recurring state updates (e.g., from polling or timers) that don't affect the data being processed.
