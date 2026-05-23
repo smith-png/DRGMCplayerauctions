@@ -71,6 +71,13 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Security check: ensure team_owners can only bid for their own team
+        if (req.user && req.user.role === 'team_owner') {
+            if (String(req.user.team_id) !== String(teamId)) {
+                return res.status(403).json({ error: 'Not authorized to bid for this team' });
+            }
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
@@ -135,7 +142,7 @@ export const placeBid = async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('❌ Place bid error:', error);
-        res.status(500).json({ error: 'Failed to place bid', details: error.message });
+        res.status(500).json({ error: 'Failed to place bid' });
     } finally {
         client.release();
     }
