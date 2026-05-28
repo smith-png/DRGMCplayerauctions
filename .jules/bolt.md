@@ -1,0 +1,3 @@
+## 2024-05-28 - Optimizing React rendering with Hash Map lookup
+**Learning:** React rendering can often contain duplicated filtering logic scattered across multiple render branches. Refactoring (T \times P)$ logic inside a React `map()` function to an (T + P)$ Hash Map and caching it via `useMemo()` provides a robust front-end performance boost, specifically for relational data like `Teams -> Players`.
+**Action:** Consolidate shared relational filter logic inside `useMemo` closures, and use Javascript `Map` objects with strongly-typed keys (e.g., `String(id)`) to reduce repeated lookups during component renders.
