@@ -1,0 +1,3 @@
+## 2026-05-29 - [Optimize PlayerProfiles Component Rendering]
+**Learning:** Found a syntax error in `AuctionStats.jsx` that prevented `vite build` from succeeding. Fixed it to proceed. The original issue was an inline `sort()` in the render method of `PlayerProfiles.jsx` which was an `O(N log N)` operation running on every re-render.
+**Action:** Always verify builds locally, even if the primary change was in a different file, to catch hidden syntax errors. Use `useMemo` for any complex operations in React render methods to prevent unnecessary work.
