@@ -63,6 +63,19 @@ export const placeBid = async (req, res) => {
         console.log('=== PLACE BID REQUEST ===');
         const { playerId, teamId, bidAmount } = req.body;
 
+        // Authorization Check
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { role, team_id } = req.user;
+        if (role === 'team_owner' && String(team_id) !== String(teamId)) {
+            return res.status(403).json({ error: 'Unauthorized: Cannot bid for another team' });
+        }
+        if (role !== 'admin' && role !== 'auctioneer' && role !== 'team_owner') {
+            return res.status(403).json({ error: 'Unauthorized: Insufficient permissions to place a bid' });
+        }
+
         // Input Validation
         if (!playerId || !teamId || !bidAmount) {
             return res.status(400).json({ error: 'Player ID, team ID, and bid amount are required' });
