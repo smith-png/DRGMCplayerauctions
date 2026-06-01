@@ -640,7 +640,7 @@ export default function AuctionLive() {
         if (!showSoldPlayers) return null;
         return (
             <div className="ledger-overlay-backdrop">
-                <button className="dismiss-sold" onClick={() => setShowSoldPlayers(false)}>×</button>
+                <button className="dismiss-sold" aria-label="Close sold players ledger" onClick={() => setShowSoldPlayers(false)}>×</button>
                 <div className="ledger-content-inner">
                     <div className="ledger-header">
                         <div className="meta-tag">OFFICIAL AUCTION REPORT</div>
