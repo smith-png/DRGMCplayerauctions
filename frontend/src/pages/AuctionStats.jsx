@@ -211,6 +211,7 @@ export default function AuctionStats() {
 
     const handleResetWallet = async () => {
         if (!window.confirm(`DANGER: This will reset ${selectedTeam.name}'s wallet to 2000 and UNSOLD all their players. Continue?`)) return;
+    };
 
     return (
         <div style={{
