@@ -116,6 +116,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
                                             className="password-seek-btn"
                                             style={{ color: '#1A1A1A', opacity: 0.5, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 800 }}
                                             onClick={() => setShowPassword(!showPassword)}
