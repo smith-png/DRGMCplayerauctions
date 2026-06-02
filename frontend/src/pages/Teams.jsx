@@ -471,6 +471,7 @@ export default function Teams() {
                                                                 <span className="roster-player-year">{player.year}</span>
                                                                 <span className="roster-player-price">{player.sold_price?.toLocaleString()} PTS</span>
                                                                 <button
+                                                                    aria-label={`Release player ${player.name}`}
                                                                     className="roster-release-btn"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
@@ -529,6 +530,7 @@ export default function Teams() {
                                         {walletModal.action === 'add' ? 'ADD FUNDS' : 'DEDUCT FUNDS'}
                                     </h3>
                                     <button
+                                        aria-label="Close modal"
                                         className="modal-close"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
                                     >
