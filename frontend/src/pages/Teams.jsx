@@ -21,47 +21,60 @@ export default function Teams() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const teamsRes = await teamsAPI.getAllTeams('');
-                const teamsList = teamsRes.data.teams || [];
-                setTeams(teamsList);
+                if (user?.role === 'team_owner') {
+                    // For team_owner, batch the specific API calls
+                    try {
+                        const [myTeamRes, myPlayersRes, myBidsRes] = await Promise.all([
+                            teamOwnerAPI.getMyTeam(),
+                            teamOwnerAPI.getMyTeamPlayers(),
+                            teamOwnerAPI.getMyTeamBids()
+                        ]);
 
-                if (user) {
-                    const playersRes = await playerAPI.getAllPlayers();
-                    const allPlayers = playersRes.data.players || playersRes.data || [];
-                    const parsedPlayers = allPlayers.map(p => {
-                        let stats = p.stats;
-                        if (typeof stats === 'string') {
-                            try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
-                        }
-                        return { ...p, stats: stats || {} };
-                    });
-                    setPlayers(parsedPlayers);
+                        setTeams([myTeamRes.data.team]); // Only show my team
+                        setPlayers(myPlayersRes.data.players);
+                        setTransactions(myBidsRes.data.bids);
+                    } catch (err) {
+                        console.error("Failed to load Team Owner dashboard:", err);
+                    }
+                } else {
+                    // Normal fetching for viewers, participants and admins
+                    const promises = [
+                        teamsAPI.getAllTeams(''),
+                        user ? playerAPI.getAllPlayers() : Promise.resolve({ data: { players: [] } }),
+                    ];
 
-                    if (user.role === 'admin') {
-                        try {
-                            const transRes = await auctionAPI.getTransactions().catch(() =>
+                    if (user?.role === 'admin') {
+                        promises.push(
+                            auctionAPI.getTransactions().catch(() =>
                                 adminAPI.getRecentBids().catch(() => ({ data: { transactions: [] } }))
-                            );
-                            const allTrans = transRes.data.transactions || transRes.data.bids || transRes.data.recentBids || [];
-                            setTransactions(allTrans);
-                        } catch (err) {
-                            console.log('Could not fetch transactions');
-                        }
+                            )
+                        );
                     }
 
-                    if (user.role === 'team_owner') {
-                        try {
-                            // Fetch specific team owner data
-                            const myTeamRes = await teamOwnerAPI.getMyTeam();
-                            const myPlayersRes = await teamOwnerAPI.getMyTeamPlayers();
-                            const myBidsRes = await teamOwnerAPI.getMyTeamBids();
+                    const results = await Promise.allSettled(promises);
 
-                            setTeams([myTeamRes.data.team]); // Only show my team
-                            setPlayers(myPlayersRes.data.players);
-                            setTransactions(myBidsRes.data.bids);
-                        } catch (err) {
-                            console.error("Failed to load Team Owner dashboard:", err);
-                        }
+                    if (results[0].status === 'fulfilled') {
+                        setTeams(results[0].value.data.teams || []);
+                    }
+
+                    if (user && results[1].status === 'fulfilled') {
+                        const allPlayers = results[1].value.data.players || results[1].value.data || [];
+                        const parsedPlayers = allPlayers.map(p => {
+                            let stats = p.stats;
+                            if (typeof stats === 'string') {
+                                try { stats = JSON.parse(stats); } catch (e) { stats = {}; }
+                            }
+                            return { ...p, stats: stats || {} };
+                        });
+                        setPlayers(parsedPlayers);
+                    }
+
+                    if (user?.role === 'admin' && results[2]?.status === 'fulfilled') {
+                        const transRes = results[2].value;
+                        const allTrans = transRes?.data?.transactions || transRes?.data?.bids || transRes?.data?.recentBids || [];
+                        setTransactions(allTrans);
+                    } else if (user?.role === 'admin') {
+                         console.log('Could not fetch transactions');
                     }
                 }
             } catch (error) {

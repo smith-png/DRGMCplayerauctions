@@ -46,11 +46,14 @@ export default function AuctionLive() {
     // --- LOADERS (Source Structure) ---
     const loadAuction = async () => {
         try {
-            const response = await auctionAPI.getCurrentAuction();
+            const [response, stateRes] = await Promise.all([
+                auctionAPI.getCurrentAuction(),
+                auctionAPI.getAuctionState()
+            ]);
+
             const data = response?.data?.currentAuction;
 
             // Fetch global state for animation duration and min bids
-            const stateRes = await auctionAPI.getAuctionState();
             if (stateRes.data.animationDuration) {
                 setAnimationDuration(stateRes.data.animationDuration);
             }

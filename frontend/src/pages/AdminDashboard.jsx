@@ -141,10 +141,13 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             if (activeTab === 'overview' || activeTab === 'settings') {
-                const response = await adminAPI.getStats();
+                const [response, stateResponse] = await Promise.all([
+                    adminAPI.getStats(),
+                    auctionAPI.getAuctionState()
+                ]);
+
                 if (activeTab === 'overview') setStats(response.data.stats);
 
-                const stateResponse = await auctionAPI.getAuctionState();
                 setIsAuctionActive(stateResponse.data.isActive);
                 setIsRegistrationOpen(stateResponse.data.isRegistrationOpen ?? true);
                 setSportMinBids(stateResponse.data.sportMinBids || { cricket: 50, futsal: 50, volleyball: 50 });
@@ -153,35 +156,41 @@ export default function AdminDashboard() {
                 setBidIncrementRules(stateResponse.data.bidIncrementRules || []);
                 setTestgroundsLocked(stateResponse.data.testgrounds_locked || false);
             } else if (activeTab === 'users') {
-                try {
-                    const usersRes = await adminAPI.getAllUsers();
-                    setUsers(usersRes.data.users);
-                } catch (e) {
-                    console.error("Failed to fetch users:", e);
+                const results = await Promise.allSettled([
+                    adminAPI.getAllUsers(),
+                    playerAPI.getAllPlayers(),
+                    adminAPI.getAllTeams()
+                ]);
+
+                if (results[0].status === 'fulfilled') {
+                    setUsers(results[0].value.data.users);
+                } else {
+                    console.error("Failed to fetch users:", results[0].reason);
                 }
 
-                try {
-                    const playersRes = await playerAPI.getAllPlayers();
-                    setPlayers(playersRes.data.players);
-                } catch (e) {
-                    console.error("Failed to fetch players:", e);
+                if (results[1].status === 'fulfilled') {
+                    setPlayers(results[1].value.data.players);
+                } else {
+                    console.error("Failed to fetch players:", results[1].reason);
                 }
 
-                try {
-                    const teamsRes = await adminAPI.getAllTeams();
-                    setTeams(teamsRes.data.teams);
-                } catch (e) {
-                    console.error("Failed to fetch teams:", e);
+                if (results[2].status === 'fulfilled') {
+                    setTeams(results[2].value.data.teams);
+                } else {
+                    console.error("Failed to fetch teams:", results[2].reason);
                 }
 
             } else if (activeTab === 'players') {
                 const response = await playerAPI.getAllPlayers();
                 setPlayers(response.data.players);
             } else if (activeTab === 'teams') {
-                const response = await adminAPI.getAllTeams();
+                const [response, usersRes] = await Promise.all([
+                    adminAPI.getAllTeams(),
+                    adminAPI.getAllUsers()
+                ]);
+
                 setTeams(response.data.teams);
                 // Also fetch users to populate Owner dropdown
-                const usersRes = await adminAPI.getAllUsers();
                 setUsers(usersRes.data.users);
             }
         } catch (err) {
