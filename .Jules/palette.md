@@ -1,0 +1,6 @@
+## 2024-06-05 - Added Form Label associations and ARIA Labels
+**Learning:** Found an accessibility issue where inputs were lacking proper id and htmlFor linkage. Also the eye icon button inside the password field lacked an aria-label. Adding these enhances the accessibility of the login component for screen readers without any visual impact. Also found a build error in AuctionStats.jsx when attempting to test that had an unclosed function `handleResetWallet`. Fixed it by properly closing the brace.
+**Action:** Always check form elements for explicit `htmlFor` - `id` relationships. Buttons with no text (only icons/visual cues) should get an `aria-label`. Make sure code compiles before committing.
+## 2024-06-05 - Added Form Label associations and ARIA Labels
+**Learning:** Found an accessibility issue where inputs were lacking proper id and htmlFor linkage. Also the eye icon button inside the password field lacked an aria-label. Adding these enhances the accessibility of the login component for screen readers without any visual impact.
+**Action:** Always check form elements for explicit `htmlFor` - `id` relationships. Buttons with no text (only icons/visual cues) should get an `aria-label`.
