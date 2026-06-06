@@ -1,0 +1,3 @@
+## 2026-06-06 - [Login Form Accessibility Bindings]
+**Learning:** Custom styled login and registration forms often miss intrinsic `id` and `htmlFor` bindings between labels and inputs which are necessary for screen readers to properly announce form fields. The toggle button for password visibility also needs an `aria-label` to provide context beyond just text change.
+**Action:** Always ensure that form inputs have `id` attributes and labels have corresponding `htmlFor` attributes, and add appropriate `aria-label`s to interactive elements inside form inputs to maintain a solid keyboard navigation and screen reader experience.
