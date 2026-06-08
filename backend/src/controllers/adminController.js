@@ -491,27 +491,31 @@ export async function getDashboardStats(req, res) {
     try {
         const stats = {};
 
-        // Total users
-        const usersResult = await pool.query('SELECT COUNT(*) as count FROM users');
+        // ⚡ Bolt Performance Optimization
+        // 💡 What: Replaced 4 sequential database queries with a single Promise.all concurrent execution
+        // 🎯 Why: Dashboard stats queries are entirely independent of each other. Running them sequentially
+        //         blocks the next query from executing until the previous one completes.
+        // 📊 Impact: Reduces total query execution time by running concurrently. Assuming each query takes ~50ms,
+        //            sequential = ~200ms total, concurrent = ~50ms total (limited by the slowest query).
+        const [usersResult, playersResult, teamsResult, bidsResult] = await Promise.all([
+            pool.query('SELECT COUNT(*) as count FROM users'),
+            pool.query(`
+              SELECT status, COUNT(*) as count
+              FROM players
+              GROUP BY status
+            `),
+            pool.query('SELECT COUNT(*) as count FROM teams'),
+            pool.query('SELECT COUNT(*) as count FROM bids')
+        ]);
+
         stats.totalUsers = parseInt(usersResult.rows[0].count);
 
-        // Total players by status
-        const playersResult = await pool.query(`
-      SELECT status, COUNT(*) as count 
-      FROM players 
-      GROUP BY status
-    `);
         stats.players = playersResult.rows.reduce((acc, row) => {
             acc[row.status] = parseInt(row.count);
             return acc;
         }, {});
 
-        // Total teams
-        const teamsResult = await pool.query('SELECT COUNT(*) as count FROM teams');
         stats.totalTeams = parseInt(teamsResult.rows[0].count);
-
-        // Total bids
-        const bidsResult = await pool.query('SELECT COUNT(*) as count FROM bids');
         stats.totalBids = parseInt(bidsResult.rows[0].count);
 
         res.json({ stats });
