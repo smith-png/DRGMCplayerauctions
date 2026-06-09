@@ -1,0 +1,3 @@
+## 2026-06-09 - Missing ARIA Labels on Symbol-Only Buttons
+**Learning:** Found a pattern across the app where symbol-only buttons (like `+`, `−`, `×` used for expanding sections, closing modals, or dismissing notifications) lacked `aria-label` attributes. This presents a major accessibility issue as screen readers would announce these buttons generically or unhelpfully, confusing users relying on assistive technologies.
+**Action:** Always verify that interactive elements containing only visual symbols or icons have descriptive `aria-label` attributes that clearly explain their action (e.g., "Collapse team details", "Close profile", "Dismiss sold animation").
