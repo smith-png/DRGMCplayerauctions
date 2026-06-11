@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { playerAPI, teamsAPI } from '../services/api';
 import './PlayerProfilesBySport.css';
@@ -7,14 +7,17 @@ export default function PlayerProfilesBySport() {
     const { sport } = useParams();
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
-    const [filteredPlayers, setFilteredPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [yearFilter, setYearFilter] = useState('All');
 
     useEffect(() => { fetchData(); }, [sport]);
-    useEffect(() => { applyYearFilter(); }, [players, yearFilter]);
+
+    const filteredPlayers = useMemo(() => {
+        if (yearFilter === 'All') return players;
+        return players.filter(p => p.year === yearFilter);
+    }, [players, yearFilter]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -43,11 +46,6 @@ export default function PlayerProfilesBySport() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const applyYearFilter = () => {
-        if (yearFilter === 'All') setFilteredPlayers(players);
-        else setFilteredPlayers(players.filter(p => p.year === yearFilter));
     };
 
     const getPlayerTeam = (teamId) => teams.find(t => t.id === teamId);
