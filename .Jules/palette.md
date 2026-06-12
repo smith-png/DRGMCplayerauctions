@@ -1,0 +1,3 @@
+## 2024-06-12 - Form Accessibility & Dynamic Buttons
+**Learning:** Found that custom forms often miss standard label-to-input mapping (`htmlFor` -> `id`), making them difficult to use for screen reader users or when trying to click on labels to focus. In addition, dynamically styled buttons (like a password toggle button or role selector) require `aria-label` and `aria-pressed` states so their visual state matches their structural state.
+**Action:** Always ensure that custom inputs have corresponding IDs mapped from their labels, and ensure any button acting as a toggle has `aria-pressed` correctly linked to its boolean state.
