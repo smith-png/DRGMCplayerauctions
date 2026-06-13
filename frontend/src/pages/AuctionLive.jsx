@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api';
 import socketService from '../services/socket';
@@ -42,6 +42,20 @@ export default function AuctionLive() {
     const animationDurationRef = useRef(5); // Default 5s
     const [playBid] = useSound(BID_SFX, { volume: 0.5 });
     const [playSold] = useSound(SOLD_SFX, { volume: 0.5 });
+
+    // --- MEMOIZATION ---
+    // Memoize the filtered queue players to avoid O(N^2) filtering on every render
+    const filteredQueuePlayers = useMemo(() => {
+        const lowerQuery = (queueSearchQuery || '').toLowerCase();
+        const eligibleIds = new Set(eligiblePlayers.map(ep => ep.id));
+
+        return allPlayers.filter(p => {
+            const matchesQuery = p.name.toLowerCase().includes(lowerQuery) || String(p.id).includes(lowerQuery);
+            const isEligible = !eligibleIds.has(p.id);
+            const isNotSoldOrAuctioning = p.status !== 'sold' && p.status !== 'auctioning';
+            return matchesQuery && isEligible && isNotSoldOrAuctioning;
+        });
+    }, [allPlayers, queueSearchQuery, eligiblePlayers]);
 
     // --- LOADERS (Source Structure) ---
     const loadAuction = async () => {
@@ -498,39 +512,31 @@ export default function AuctionLive() {
                                 overflowY: 'auto',
                                 boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
                             }}>
-                                {allPlayers
-                                    .filter(p =>
-                                        (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) &&
-                                        !eligiblePlayers.find(ep => ep.id === p.id) &&
-                                        p.status !== 'sold' && p.status !== 'auctioning'
-                                    )
-                                    .slice(0, 10)
-                                    .map(p => (
-                                        <div
-                                            key={p.id}
-                                            onClick={() => handleQueuePlayer(p.id)}
-                                            style={{
-                                                padding: '0.5rem',
-                                                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                fontSize: '0.75rem',
-                                                color: '#ccc'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(62, 91, 78, 0.3)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span style={{ fontWeight: 'bold' }}>{p.name}</span>
-                                                <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>{p.sport} • {p.year}</span>
-                                            </div>
-                                            <span style={{ fontFamily: 'monospace', color: '#8b9d96' }}>#{String(p.id).padStart(3, '0')}</span>
+                                {filteredQueuePlayers.slice(0, 10).map(p => (
+                                    <div
+                                        key={p.id}
+                                        onClick={() => handleQueuePlayer(p.id)}
+                                        style={{
+                                            padding: '0.5rem',
+                                            borderBottom: '1px solid rgba(255,255,255,0.05)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            fontSize: '0.75rem',
+                                            color: '#ccc'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(62, 91, 78, 0.3)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontWeight: 'bold' }}>{p.name}</span>
+                                            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>{p.sport} • {p.year}</span>
                                         </div>
-                                    ))
-                                }
-                                {allPlayers.filter(p => (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) && !eligiblePlayers.find(ep => ep.id === p.id) && p.status !== 'sold' && p.status !== 'auctioning').length === 0 && (
+                                        <span style={{ fontFamily: 'monospace', color: '#8b9d96' }}>#{String(p.id).padStart(3, '0')}</span>
+                                    </div>
+                                ))}
+                                {filteredQueuePlayers.length === 0 && (
                                     <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>NO MATCHES</div>
                                 )}
                             </div>
