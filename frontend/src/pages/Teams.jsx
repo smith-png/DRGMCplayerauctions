@@ -237,7 +237,7 @@ export default function Teams() {
                                                     <span className="viewer-stat-label">ROSTER</span>
                                                     <span className="viewer-stat-value">{team.roster.length}</span>
                                                 </div>
-                                                <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                <button aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse team details" : "Expand team details"} className="expand-btn">{isExpanded ? '−' : '+'}</button>
                                             </div>
                                         </div>
 
@@ -444,7 +444,7 @@ export default function Teams() {
                                                         <span className="ledger-stat-label">ROSTER</span>
                                                         <span className="ledger-stat-value">{team.roster.length}</span>
                                                     </div>
-                                                    <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                    <button aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse team details" : "Expand team details"} className="expand-btn">{isExpanded ? '−' : '+'}</button>
                                                 </div>
                                             </div>
 
@@ -471,6 +471,7 @@ export default function Teams() {
                                                                 <span className="roster-player-year">{player.year}</span>
                                                                 <span className="roster-player-price">{player.sold_price?.toLocaleString()} PTS</span>
                                                                 <button
+                                                                    aria-label="Release player from team"
                                                                     className="roster-release-btn"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
@@ -529,6 +530,7 @@ export default function Teams() {
                                         {walletModal.action === 'add' ? 'ADD FUNDS' : 'DEDUCT FUNDS'}
                                     </h3>
                                     <button
+                                        aria-label="Close wallet adjustment modal"
                                         className="modal-close"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
                                     >
