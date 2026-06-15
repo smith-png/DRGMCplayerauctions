@@ -1,0 +1,3 @@
+## 2024-10-25 - React Component Re-render Optimization
+**Learning:** In complex views like the `Teams` page, calculating aggregate properties like `rosters` on every render for both views (admin/viewer) via `filter` operations inside `map` operations can cause significant performance slowdowns when data sets are large. This effectively makes rendering O(N*M) where N is teams and M is players.
+**Action:** Always memoize derived state that depends on multiple arrays of data using `useMemo`, and reduce the time complexity by grouping data into hash maps first (O(N+M)). I optimized this specific case in `Teams.jsx` so the rosters are computed once per change rather than on every minor state update (e.g., toggling an accordion row).
