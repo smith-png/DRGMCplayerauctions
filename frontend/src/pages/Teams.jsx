@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -178,16 +178,34 @@ export default function Teams() {
         );
     }
 
-    // VIEWER ROLE
+        // ⚡ Bolt Optimization: Calculate teamsWithRosters once at the top level
+    // O(T+P) complexity instead of O(T*P) inside render, memoized to prevent unnecessary recalculations
+    const teamsWithRosters = useMemo(() => {
+        if (!user || (user.role !== 'viewer' && user.role !== 'admin')) return [];
+
+        // Step 1: Create a hash map of players by team_id - O(P)
+        const playersByTeam = {};
+        const activeSportLower = activeSport.toLowerCase();
+
+        for (const p of players) {
+            if (p.sport?.toLowerCase() === activeSportLower && p.status === 'sold') {
+                if (!playersByTeam[p.team_id]) {
+                    playersByTeam[p.team_id] = [];
+                }
+                playersByTeam[p.team_id].push(p);
+            }
+        }
+
+        // Step 2: Map teams and attach their roster - O(T)
+        return filteredTeams.map(team => ({
+            ...team,
+            roster: playersByTeam[team.id] || []
+        }));
+    }, [filteredTeams, players, activeSport, user]);
+
+// VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
+
 
         return (
             <div className="editorial-glass-stage">
@@ -386,14 +404,7 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
+
 
         return (
             <div className="editorial-glass-stage">
