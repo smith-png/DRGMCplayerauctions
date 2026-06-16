@@ -1,0 +1,3 @@
+## 2024-05-24 - Accessibility Pattern for Custom Radio Buttons
+**Learning:** This app uses custom button structures (`<div className="role-options">...<button>`) instead of native radio inputs for role selection. These custom components lack implicit semantic meaning for screen readers, making it difficult for users relying on assistive technologies to understand the available options and their selection state.
+**Action:** Always verify custom selection components and apply `role="group"` with an `aria-label` to the container, and `role="radio"` with dynamic `aria-checked` attributes to the individual option buttons to ensure they are interpreted correctly by assistive technologies.
