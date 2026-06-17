@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { auctionAPI, adminAPI, playerAPI, teamsAPI } from '../services/api';
 import socketService from '../services/socket';
@@ -459,6 +459,16 @@ export default function AuctionLive() {
 
     // --- RENDER HELPERS ---
 
+    // --- MEMOIZED COMPUTATIONS ---
+    const filteredQueuePlayers = useMemo(() => {
+        const lowerQuery = queueSearchQuery.toLowerCase();
+        return allPlayers.filter(p =>
+            (p.name.toLowerCase().includes(lowerQuery) || String(p.id).includes(queueSearchQuery)) &&
+            !eligiblePlayers.find(ep => ep.id === p.id) &&
+            p.status !== 'sold' && p.status !== 'auctioning'
+        );
+    }, [allPlayers, queueSearchQuery, eligiblePlayers]);
+
     // 1. Queue Dock (Standby Technical Module)
     const renderQueueDock = () => {
         return (
@@ -498,12 +508,7 @@ export default function AuctionLive() {
                                 overflowY: 'auto',
                                 boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
                             }}>
-                                {allPlayers
-                                    .filter(p =>
-                                        (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) &&
-                                        !eligiblePlayers.find(ep => ep.id === p.id) &&
-                                        p.status !== 'sold' && p.status !== 'auctioning'
-                                    )
+                                {filteredQueuePlayers
                                     .slice(0, 10)
                                     .map(p => (
                                         <div
@@ -530,7 +535,7 @@ export default function AuctionLive() {
                                         </div>
                                     ))
                                 }
-                                {allPlayers.filter(p => (p.name.toLowerCase().includes(queueSearchQuery.toLowerCase()) || String(p.id).includes(queueSearchQuery)) && !eligiblePlayers.find(ep => ep.id === p.id) && p.status !== 'sold' && p.status !== 'auctioning').length === 0 && (
+                                {filteredQueuePlayers.length === 0 && (
                                     <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.7rem', opacity: 0.5, color: '#fff' }}>NO MATCHES</div>
                                 )}
                             </div>
