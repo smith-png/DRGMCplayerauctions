@@ -237,7 +237,7 @@ export default function Teams() {
                                                     <span className="viewer-stat-label">ROSTER</span>
                                                     <span className="viewer-stat-value">{team.roster.length}</span>
                                                 </div>
-                                                <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                <button aria-label={isExpanded ? "Collapse team details" : "Expand team details"} className="expand-btn">{isExpanded ? '−' : '+'}</button>
                                             </div>
                                         </div>
 
@@ -444,7 +444,7 @@ export default function Teams() {
                                                         <span className="ledger-stat-label">ROSTER</span>
                                                         <span className="ledger-stat-value">{team.roster.length}</span>
                                                     </div>
-                                                    <button className="expand-btn">{isExpanded ? '−' : '+'}</button>
+                                                    <button aria-label={isExpanded ? "Collapse team details" : "Expand team details"} className="expand-btn">{isExpanded ? '−' : '+'}</button>
                                                 </div>
                                             </div>
 
@@ -530,6 +530,7 @@ export default function Teams() {
                                     </h3>
                                     <button
                                         className="modal-close"
+                                        aria-label="Close modal"
                                         onClick={() => setWalletModal({ ...walletModal, show: false })}
                                     >
                                         ×
