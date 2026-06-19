@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -8,7 +8,7 @@ export default function Teams() {
     const [teams, setTeams] = useState([]);
     const [players, setPlayers] = useState([]);
     const [transactions, setTransactions] = useState([]);
-    const [filteredTeams, setFilteredTeams] = useState([]);
+
     const [activeSport, setActiveSport] = useState('Cricket');
     const [loading, setLoading] = useState(true);
     // user state is now from context
@@ -73,11 +73,14 @@ export default function Teams() {
         if (user !== null) fetchData();
     }, [user, activeSport]);
 
-    useEffect(() => {
-        if (!teams) return;
+    // ⚡ Bolt Optimization: Replaced useEffect derived state with useMemo
+    // Why: Prevents double re-renders. Previously, when `teams` or `activeSport` changed,
+    // the component would render once, trigger useEffect, set state, and render again.
+    // Impact: ~50% reduction in re-renders when switching tabs or loading teams.
+    const filteredTeams = React.useMemo(() => {
+        if (!teams) return [];
         const targetSport = activeSport.toLowerCase();
-        const filteredList = teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
-        setFilteredTeams(filteredList);
+        return teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
     }, [activeSport, teams]);
 
     const handleWalletAdjust = async (teamId, action, amount) => {
