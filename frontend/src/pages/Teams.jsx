@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -79,6 +79,28 @@ export default function Teams() {
         const filteredList = teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
         setFilteredTeams(filteredList);
     }, [activeSport, teams]);
+
+    // ⚡ Bolt Performance Optimization
+    // What: Replaced O(T * P) nested array filtering inside render paths with an O(T + P) hash map lookup cached via useMemo.
+    // Why: Previously, filtering players for every team on every render caused unnecessary CPU overhead, especially with large rosters.
+    // Impact: Significantly reduces main thread blocking during re-renders, making the Teams view faster and more responsive.
+    // Measurement: Compare CPU profile (Scripting time) during activeSport tab switching before and after this change.
+    const teamsWithRosters = useMemo(() => {
+        const playersByTeam = {};
+        for (const p of players) {
+            if (p.sport?.toLowerCase() === activeSport.toLowerCase() && p.status === 'sold') {
+                if (!playersByTeam[p.team_id]) {
+                    playersByTeam[p.team_id] = [];
+                }
+                playersByTeam[p.team_id].push(p);
+            }
+        }
+
+        return filteredTeams.map(team => ({
+            ...team,
+            roster: playersByTeam[team.id] || []
+        }));
+    }, [filteredTeams, players, activeSport]);
 
     const handleWalletAdjust = async (teamId, action, amount) => {
         console.log('Adjusting wallet:', { teamId, action, amount });
@@ -180,15 +202,6 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
@@ -386,15 +399,6 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
