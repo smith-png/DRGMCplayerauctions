@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -93,6 +93,29 @@ export default function Teams() {
         }
     };
 
+
+    // ⚡ Bolt Performance Optimization: Memoize and optimize O(N*M) to O(N+M)
+    const teamsWithRosters = useMemo(() => {
+        if (!players || !filteredTeams) return [];
+
+        // Group players by team for O(1) lookup
+        const playersByTeam = {};
+        const targetSport = activeSport.toLowerCase();
+
+        for (const p of players) {
+            if (p.sport?.toLowerCase() === targetSport && p.status === 'sold') {
+                const tId = String(p.team_id);
+                if (!playersByTeam[tId]) playersByTeam[tId] = [];
+                playersByTeam[tId].push(p);
+            }
+        }
+
+        return filteredTeams.map(team => ({
+            ...team,
+            roster: playersByTeam[String(team.id)] || []
+        }));
+    }, [filteredTeams, players, activeSport]);
+
     const handlePlayerRelease = async (playerId, playerName) => {
         if (!confirm(`Release ${playerName} from their team?`)) return;
         try {
@@ -180,14 +203,7 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
+
 
         return (
             <div className="editorial-glass-stage">
@@ -386,14 +402,7 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
+
 
         return (
             <div className="editorial-glass-stage">
