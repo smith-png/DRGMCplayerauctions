@@ -51,6 +51,6 @@ router.get('/transactions', authenticateToken, authorizeRoles('admin', 'team_own
     console.log('[GET_TRANSACTIONS] Route hit. Redirecting to getRecentBids.');
     getRecentBids(req, res, next);
 });
-router.get('/queue/upcoming', getUpcomingQueue);
+router.get('/queue/upcoming', authenticateToken, getUpcomingQueue);
 
 export default router;
