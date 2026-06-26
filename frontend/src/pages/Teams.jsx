@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -8,7 +8,6 @@ export default function Teams() {
     const [teams, setTeams] = useState([]);
     const [players, setPlayers] = useState([]);
     const [transactions, setTransactions] = useState([]);
-    const [filteredTeams, setFilteredTeams] = useState([]);
     const [activeSport, setActiveSport] = useState('Cricket');
     const [loading, setLoading] = useState(true);
     // user state is now from context
@@ -73,12 +72,22 @@ export default function Teams() {
         if (user !== null) fetchData();
     }, [user, activeSport]);
 
-    useEffect(() => {
-        if (!teams) return;
+    const filteredTeams = useMemo(() => {
+        if (!teams) return [];
         const targetSport = activeSport.toLowerCase();
-        const filteredList = teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
-        setFilteredTeams(filteredList);
+        return teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
     }, [activeSport, teams]);
+
+    const teamsWithRosters = useMemo(() => {
+        return filteredTeams.map(team => {
+            const teamRoster = players.filter(p =>
+                p.team_id == team.id &&
+                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
+                p.status === 'sold'
+            );
+            return { ...team, roster: teamRoster };
+        });
+    }, [filteredTeams, players, activeSport]);
 
     const handleWalletAdjust = async (teamId, action, amount) => {
         console.log('Adjusting wallet:', { teamId, action, amount });
@@ -180,15 +189,6 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
@@ -349,7 +349,7 @@ export default function Teams() {
                                                 <span className="roster-player-price">{player.sold_price?.toLocaleString()} PTS</span>
                                             </div>
                                         )) : (
-                                            <div className="empty-roster">NO PLAYERS ACQUIRED YET</div>
+                                            <div className="empty-roster">NO PLAYERS YET</div>
                                         )}
                                     </div>
                                 </div>
@@ -386,15 +386,6 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
