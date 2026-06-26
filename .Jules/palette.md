@@ -1,0 +1,3 @@
+## 2024-05-15 - Login Form Accessibility
+**Learning:** The login and registration forms lacked explicit ARIA attributes on interactive elements (like the password visibility toggle) and form element connections (`htmlFor` and `id`). It was important to properly associate labels with inputs to ensure screen reader users have appropriate context and errors are announced (`role="alert"`).
+**Action:** Always verify that every interactive custom button component has an `aria-label` or `aria-pressed` (where appropriate), and standard form groups connect `label` tags and `input` fields appropriately.
