@@ -1,0 +1,3 @@
+## 2024-06-27 - Icon-only buttons lack screen reader context
+**Learning:** Found a widespread pattern in this app where icon-only buttons (like "×" for closing or "+" / "−" for expanding) were missing ARIA labels, making them completely opaque or misread by screen readers. A text character like "×" can be read out as "times" or "multiply" instead of "close".
+**Action:** Always verify that buttons containing only text symbols or icons include an `aria-label` attribute (and potentially `aria-expanded` when acting as toggles) to provide appropriate context for assistive technologies.
