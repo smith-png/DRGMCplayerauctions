@@ -1,0 +1,3 @@
+## 2026-06-28 - Login Form Accessibility Enhancements
+**Learning:** In custom React forms, especially ones using non-standard components like div-based role selectors or custom password toggle buttons, native HTML form associations (`htmlFor` and `id`) and ARIA attributes (`aria-label`, `aria-pressed`, `role`) are frequently missed but critical for screen reader compatibility and expanding clickable areas.
+**Action:** Always ensure every form `<label>` explicitly targets its corresponding input using `htmlFor` & `id`. Group custom radio buttons with `role="group"` and use `aria-pressed` to denote state. Apply `role="alert"` to dynamic error messages so they are immediately announced.
