@@ -94,19 +94,20 @@ export default function Login() {
                             <form onSubmit={handleSubmit} className="registration-form">
                                 {!isLogin && (
                                     <div className="input-group">
-                                        <label className="input-label">FULL NAME</label>
-                                        <input type="text" name="name" placeholder="E.G. JOHN DOE" value={formData.name} onChange={handleChange} required className="input" />
+                                        <label className="input-label" htmlFor="name">FULL NAME</label>
+                                        <input type="text" id="name" name="name" placeholder="E.G. JOHN DOE" value={formData.name} onChange={handleChange} required className="input" />
                                     </div>
                                 )}
                                 <div className="input-group">
-                                    <label className="input-label">EMAIL ADDRESS</label>
-                                    <input type="email" name="email" placeholder="USER@EXAMPLE.COM" value={formData.email} onChange={handleChange} required className="input" />
+                                    <label className="input-label" htmlFor="email">EMAIL ADDRESS</label>
+                                    <input type="email" id="email" name="email" placeholder="USER@EXAMPLE.COM" value={formData.email} onChange={handleChange} required className="input" />
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">SECURE PASSWORD</label>
+                                    <label className="input-label" htmlFor="password">SECURE PASSWORD</label>
                                     <div className="input-wrapper">
                                         <input
                                             type={showPassword ? "text" : "password"}
+                                            id="password"
                                             name="password"
                                             placeholder="••••••••"
                                             value={formData.password}

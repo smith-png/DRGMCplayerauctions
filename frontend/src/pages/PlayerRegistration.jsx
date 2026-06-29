@@ -186,8 +186,9 @@ export default function PlayerRegistration() {
                             <h3>01 // IDENTIFICATION</h3>
 
                             <div className="input-group">
-                                <label className="input-label">LEGAL NAME</label>
+                                <label className="input-label" htmlFor="name">LEGAL NAME</label>
                                 <input
+                                    id="name"
                                     type="text"
                                     name="name"
                                     value={formData.name}
@@ -200,8 +201,9 @@ export default function PlayerRegistration() {
 
                             <div className="dropdowns-row">
                                 <div className="input-group">
-                                    <label className="input-label">SPORT CATEGORY</label>
+                                    <label className="input-label" htmlFor="sport">SPORT CATEGORY</label>
                                     <select
+                                        id="sport"
                                         name="sport"
                                         value={formData.sport}
                                         onChange={handleChange}
@@ -215,8 +217,9 @@ export default function PlayerRegistration() {
                                 </div>
 
                                 <div className="input-group">
-                                    <label className="input-label">ACADEMIC YEAR</label>
+                                    <label className="input-label" htmlFor="year">ACADEMIC YEAR</label>
                                     <select
+                                        id="year"
                                         name="year"
                                         value={formData.year}
                                         onChange={handleChange}
@@ -238,8 +241,9 @@ export default function PlayerRegistration() {
                                     <div className="stats-grid-row fade-in" style={{ gridColumn: 'span 2' }}>
                                         {/* role */}
                                         <div className="form-group-minimal">
-                                            <label>PRIMARY ROLE</label>
+                                            <label htmlFor="role_primary">PRIMARY ROLE</label>
                                             <select
+                                                id="role_primary"
                                                 name="role"
                                                 value={formData.stats.role || ''}
                                                 onChange={handleStatsChange}
@@ -255,8 +259,9 @@ export default function PlayerRegistration() {
 
                                         {/* Wicketkeeper */}
                                         <div className="form-group-minimal">
-                                            <label>WICKETKEEPER</label>
+                                            <label htmlFor="wicketkeeper">WICKETKEEPER</label>
                                             <select
+                                                id="wicketkeeper"
                                                 name="wicketkeeper"
                                                 value={formData.stats.wicketkeeper || ''}
                                                 onChange={handleStatsChange}
@@ -271,8 +276,9 @@ export default function PlayerRegistration() {
 
                                         {/* Batting Style */}
                                         <div className="form-group-minimal">
-                                            <label>BATTING STYLE</label>
+                                            <label htmlFor="battingStyle">BATTING STYLE</label>
                                             <select
+                                                id="battingStyle"
                                                 name="battingStyle"
                                                 value={formData.stats.battingStyle || ''}
                                                 onChange={handleStatsChange}
@@ -287,8 +293,9 @@ export default function PlayerRegistration() {
 
                                         {/* Bowling Style */}
                                         <div className="form-group-minimal">
-                                            <label>BOWLING STYLE</label>
+                                            <label htmlFor="bowlingStyle">BOWLING STYLE</label>
                                             <select
+                                                id="bowlingStyle"
                                                 name="bowlingStyle"
                                                 value={formData.stats.bowlingStyle || ''}
                                                 onChange={handleStatsChange}
@@ -310,8 +317,9 @@ export default function PlayerRegistration() {
 
                                 {formData.sport === 'futsal' && (
                                     <div className="input-group">
-                                        <label className="input-label">POSITION</label>
+                                        <label className="input-label" htmlFor="position">POSITION</label>
                                         <select
+                                            id="position"
                                             name="role"
                                             value={formData.stats.role || ''}
                                             onChange={handleStatsChange}
@@ -329,8 +337,9 @@ export default function PlayerRegistration() {
 
                                 {formData.sport === 'volleyball' && (
                                     <div className="input-group">
-                                        <label className="input-label">POSITION</label>
+                                        <label className="input-label" htmlFor="position">POSITION</label>
                                         <select
+                                            id="position"
                                             name="role"
                                             value={formData.stats.role || ''}
                                             onChange={handleStatsChange}
