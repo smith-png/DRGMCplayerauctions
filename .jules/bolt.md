@@ -1,0 +1,3 @@
+## 2024-03-24 - React inline Array manipulations
+**Learning:** Found an inline array clone and sort within the JSX map inside a large list component (`PlayerProfiles.jsx`). Array clone and `.sort()` on large arrays inside `render` blocks is a major performance bottleneck for React because it triggers recalculation (O(n log n)) every time the component renders for any reason (e.g. changing pagination).
+**Action:** Extract expensive list processing operations (like cloning, mapping, and sorting) outside of the main render loop into a `useMemo` block whenever they rely on specific state pieces rather than all component state.
