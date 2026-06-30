@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -104,6 +104,29 @@ export default function Teams() {
         }
     };
 
+    // ⚡ Bolt Optimization:
+    // What: Memoized player filtering logic and replaced O(N*M) nested filter with O(N+M) hash map logic.
+    // Why: `teamsWithRosters` was being calculated in nested loops during every render, which becomes a bottleneck on large datasets or when expanding rosters.
+    // Impact: Avoids unnecessary re-renders when expanding teams and speeds up the roster list rendering significantly.
+    const teamsWithRosters = useMemo(() => {
+        const activeSportLower = activeSport.toLowerCase();
+        const playersByTeam = {};
+
+        for (const player of players) {
+            if (player.status === 'sold' && player.sport?.toLowerCase() === activeSportLower && player.team_id) {
+                if (!playersByTeam[player.team_id]) {
+                    playersByTeam[player.team_id] = [];
+                }
+                playersByTeam[player.team_id].push(player);
+            }
+        }
+
+        return filteredTeams.map(team => ({
+            ...team,
+            roster: playersByTeam[team.id] || []
+        }));
+    }, [filteredTeams, players, activeSport]);
+
     // PUBLIC VIEW
     if (!user) {
         return (
@@ -180,15 +203,6 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
@@ -386,15 +400,6 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>

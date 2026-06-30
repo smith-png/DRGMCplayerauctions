@@ -1,0 +1,3 @@
+## 2026-06-30 - O(N*M) Roster Computations in Render
+**Learning:** Found an anti-pattern where an O(N*M) calculation `teamsWithRosters` inside `Teams.jsx` was being repeated on every single component render (like when a row was expanded). Since the calculation iterated over teams and then filtered over all players it caused excessive computation.
+**Action:** Next time I optimize a rendering block, I will extract expensive data aggregations (like filtering items per parent category) into a single map lookup (O(N+M)) memoized with `useMemo`. Also remember to include Bolt optimization comments with the What, Why, and Impact format directly in the codebase.
