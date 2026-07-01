@@ -71,6 +71,11 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Authorization check: User must be admin/auctioneer OR the owner of the team they are bidding for
+        if (req.user.role === 'team_owner' && req.user.team_id !== teamId) {
+            return res.status(403).json({ error: 'Access denied. You can only bid for your assigned team.' });
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
