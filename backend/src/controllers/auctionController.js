@@ -71,6 +71,15 @@ export const placeBid = async (req, res) => {
             return res.status(400).json({ error: 'Invalid bid amount' });
         }
 
+        // Authorization: Ensure user is allowed to bid and only for their own team
+        const user = req.user;
+        if (!user || !['admin', 'auctioneer', 'team_owner'].includes(user.role)) {
+            return res.status(403).json({ error: 'Forbidden: Insufficient permissions to place bid' });
+        }
+        if (user.role === 'team_owner' && Number(user.team_id) !== Number(teamId)) {
+            return res.status(403).json({ error: 'Forbidden: You can only bid for your assigned team' });
+        }
+
         const roundedBid = Math.round(parseFloat(bidAmount));
 
         await client.query('BEGIN');
