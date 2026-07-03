@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { teamsAPI, playerAPI, adminAPI, auctionAPI, teamOwnerAPI } from '../services/api';
 import './Teams.css';
@@ -104,6 +104,20 @@ export default function Teams() {
         }
     };
 
+    // Memoized computation of teams with rosters
+    // This prevents recalculating the O(teams * players) filter on every render
+    // (e.g. when simply expanding/collapsing a team's accordion)
+    const teamsWithRosters = useMemo(() => {
+        return filteredTeams.map(team => {
+            const teamRoster = players.filter(p =>
+                p.team_id == team.id &&
+                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
+                p.status === 'sold'
+            );
+            return { ...team, roster: teamRoster };
+        });
+    }, [filteredTeams, players, activeSport]);
+
     // PUBLIC VIEW
     if (!user) {
         return (
@@ -180,15 +194,6 @@ export default function Teams() {
 
     // VIEWER ROLE
     if (user && user.role === 'viewer') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>
@@ -386,15 +391,6 @@ export default function Teams() {
 
     // ADMIN VIEW
     if (user.role === 'admin') {
-        const teamsWithRosters = filteredTeams.map(team => {
-            const teamRoster = players.filter(p =>
-                p.team_id == team.id &&
-                p.sport?.toLowerCase() === activeSport.toLowerCase() &&
-                p.status === 'sold'
-            );
-            return { ...team, roster: teamRoster };
-        });
-
         return (
             <div className="editorial-glass-stage">
                 <div className="phantom-nav-spacer"></div>

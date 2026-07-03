@@ -1,0 +1,3 @@
+## 2024-07-03 - [Memoize teamsWithRosters calculation in Teams component]
+**Learning:** Found a nested loop `O(teams.length * players.length)` calculation happening on every render in the `Teams` component. In React, computing heavy derived state like filtering a full player list per team during render can lead to noticeable UI lag, especially as the list of players and teams grows.
+**Action:** Used `useMemo` to cache the `teamsWithRosters` calculation, dependent on `filteredTeams`, `players`, and `activeSport`. This guarantees the expensive filter logic runs only when the underlying data changes, not during generic re-renders (like expanding an accordion). Next time, watch for `.map` + `.filter` nestings occurring directly inside a component's render body.
