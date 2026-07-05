@@ -1,0 +1,3 @@
+## 2024-07-05 - ARIA labels for icon/symbol-only buttons
+**Learning:** Found several buttons across the app (like `+`/`-` for expanding lists, `x` for closing overlays, and the password toggle button) that relied purely on visual symbols or short labels that were insufficient out of context. This is a recurring pattern in the design system where space constraints led to removing text labels.
+**Action:** Always inspect custom UI controls (especially overlays, toggles, and accordions) for missing `aria-label` attributes to ensure screen readers can announce the purpose of these minimalist buttons.
