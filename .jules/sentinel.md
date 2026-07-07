@@ -1,0 +1,4 @@
+## 2026-07-07 - [Authorization Bypass and Error Detail Leakage]
+**Vulnerability:** A logic flaw in `placeBid` allowed any authenticated user to place a bid on behalf of any team by manipulating the `teamId` in the request body. Additionally, several endpoints leaked sensitive database/internal error details in API responses.
+**Learning:** Endpoints that allow state mutation must verify ownership and context, not just generic authentication. Error handlers should be sanitized before returning to the client to prevent reconnaissance.
+**Prevention:** Always use appropriate authorization checks (`authorizeRoles`, owner checks) alongside `authenticateToken`. Never pass `error.message` or stack traces to the client in production error responses.
