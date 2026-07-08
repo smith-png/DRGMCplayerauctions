@@ -72,14 +72,12 @@ export default function Teams() {
         if (user !== null) fetchData();
     }, [user, activeSport]);
 
-    // ⚡ Bolt: Use useMemo to avoid unnecessary re-renders when activeSport or teams change
     const filteredTeams = useMemo(() => {
         if (!teams) return [];
         const targetSport = activeSport.toLowerCase();
         return teams.filter(team => (team.sport || '').toLowerCase() === targetSport);
     }, [activeSport, teams]);
 
-    // ⚡ Bolt: Memoize O(N*M) teamsWithRosters calculation to prevent performance bottleneck on every render
     const teamsWithRosters = useMemo(() => {
         return filteredTeams.map(team => {
             const teamRoster = players.filter(p => p.team_id == team.id && p.sport?.toLowerCase() === activeSport.toLowerCase() && p.status === 'sold');
