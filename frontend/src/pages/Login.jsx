@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import socketService from '../services/socket';
 import { auctionAPI } from '../services/api';
 import './Login.css';
@@ -117,6 +117,7 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="password-seek-btn"
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
                                             style={{ color: '#1A1A1A', opacity: 0.5, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 800 }}
                                             onClick={() => setShowPassword(!showPassword)}
                                         >
@@ -130,7 +131,7 @@ export default function Login() {
                                         <label className="input-label">ACCESS ROLE</label>
                                         <div className="role-options">
                                             {['player', 'viewer'].map((role) => (
-                                                <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} onClick={() => setFormData({ ...formData, role })}>
+                                                <button key={role} type="button" className={`role-btn ${formData.role === role ? 'active' : ''}`} aria-pressed={formData.role === role} onClick={() => setFormData({ ...formData, role })}>
                                                     {role}
                                                 </button>
                                             ))}
@@ -145,9 +146,9 @@ export default function Login() {
 
                             <div className="form-footer">
                                 {isLogin ? (
-                                    <p>NEW USER? <span onClick={() => navigate('/register')} className="link-text">SIGN UP</span></p>
+                                    <p>NEW USER? <Link to="/register" className="link-text">SIGN UP</Link></p>
                                 ) : (
-                                    <p>ALREADY A MEMBER? <span onClick={() => navigate('/login')} className="link-text">ACCESS TERMINAL</span></p>
+                                    <p>ALREADY A MEMBER? <Link to="/login" className="link-text">ACCESS TERMINAL</Link></p>
                                 )}
                             </div>
                         </>
